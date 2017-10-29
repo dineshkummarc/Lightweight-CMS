@@ -43,7 +43,8 @@ if(isset($_GET['p'])){
 sanitarize_input();
 if(!isset($_GET['a'])){
     $data = file_get_contents("../theme/".$site_settings['template']."/upload.html");
-    $data = str_ireplace("{form}",$_GET['form'].$p,$data);
+    $data = str_ireplace("{form}",$_GET['form'], $data);
+    $data = str_ireplace("{frame}",$_GET['frame'], $data);
     die($data);
 }
 
@@ -224,7 +225,7 @@ switch($_GET['a']){
             || has_permission($current_user['permissions']['global'],'m_edit_posts')
             || has_permission($current_user['permissions'][$forum_id_const],'m_edit_posts')){
                 $result = _mysql_query("SELECT * FROM attachments WHERE id = ".$_GET['file']);
-                echo "File: ". _mysql_result($result,0, 'file_name' ). ' <a href="./upload.php?a=delete&file='._mysql_result($result,0, 'id' ).'">delete</a> <a href="./upload.php?a=download&file='._mysql_result($result,0, 'id' ).'&form='.$_GET['form'].'">download</a>';
+                echo "<div class='attachment'>File: ". _mysql_result($result,0, 'file_name' ). ' <a href="./lib/upload.php?a=delete&file='._mysql_result($result,0, 'id' ).'">delete</a> <a href="./lib/upload.php?a=download&file='._mysql_result($result,0, 'id' ).'&form='.$_GET['form'].'">download</a></div><br>';
             }else{
                 die("You are not authorized to alter attachments for this post");
             }

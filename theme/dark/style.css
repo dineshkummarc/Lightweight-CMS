@@ -365,7 +365,7 @@ h1 {
     padding: 2px;
 }
 
-SELECT, INPUT, BUTTON, TEXTAREA {
+SELECT, INPUT, BUTTON, TEXTAREA, progress{
     border: 1px solid #006EFF;
     border-radius: 5px;
     background: #000;

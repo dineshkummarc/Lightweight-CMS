@@ -44,6 +44,7 @@ function setup_database_connection(){
 
 function install_site(){
     if (setup_database_connection()) {
+        install_database();
         write_settings_file();
     }else {
         return "database configuration is invalid!";

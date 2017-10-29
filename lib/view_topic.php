@@ -660,7 +660,6 @@ function validate_post($title, $content, $hash_tags, $forum_id, $check_form = tr
             return 0;
         }
     }
-
     return $check_result;
 
 }

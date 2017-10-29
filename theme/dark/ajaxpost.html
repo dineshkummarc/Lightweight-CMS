@@ -1,3 +1,47 @@
+<script>
+    /* Script written by Adam Khoury @ DevelopPHP.com */
+    /* Video Tutorial: http://www.youtube.com/watch?v=EraNFJiY0Eg */
+
+    function buildUploadHandler(formId, frameId){
+        return {
+            "progressHandler": function (event) {
+                $("#loaded_n_total_" + formId + "_" + frameId).html("Uploaded " + event.loaded + " bytes of " + event.total);
+                var percent = (event.loaded / event.total) * 100;
+                $("#progressBar_" + formId + "_" + frameId).val(Math.round(percent));
+                $("#status_" + formId + "_" + frameId).html(Math.round(percent) + "% uploaded... please wait");
+            },
+            "completeHandler": function (event) {
+                $("#complete_" + formId + "_" + frameId).html(event.target.responseText);
+                $("#progressBar_" + formId + "_" + frameId).val(0);
+            },
+            "errorHandler": function (event) {
+                $("#status_" + formId + "_" + frameId).html("Upload Failed");
+            },
+            "abortHandler": function (event) {
+                $("#status_" + formId + "_" + frameId).html("Upload Aborted");
+            }
+        }
+    }
+
+
+    function uploadFile(formId, frameId) {
+        var file = document.getElementById("tmp_name_" + formId + "_" + frameId).files[0];
+        var formdata = new FormData();
+        formdata.append("uploaded", file);
+        var ajax = new XMLHttpRequest();
+        var uploadHandler = buildUploadHandler(formId, frameId);
+        ajax.upload.addEventListener("progress", uploadHandler["progressHandler"], false);
+        ajax.addEventListener("load", uploadHandler["completeHandler"], false);
+        ajax.addEventListener("error", uploadHandler["errorHandler"], false);
+        ajax.addEventListener("abort", uploadHandler["abortHandler"], false);
+        ajax.open("POST", "./lib/upload.php?form=" + formId + "&p=0" + "&a=upload");
+        ajax.send(formdata);
+    }
+    
+</script>
+
+
+
 <script type="text/javascript">
     var time_variable;
 
@@ -379,25 +423,10 @@
     }
 
     function addAttachment() {
-        var upload = '<iframe id="uploader_frame' + frame_count + '" scrolling="no" frameborder="no" border="0" onload="IframeLoad(this);" onchange="callb();" src="./lib/upload.php?form=' + formid + '" style="width: 100%; z-index: 30000; overflow: hidden; background-color: transparent;"></iframe><br>';
-        var p = "{%$_GET['p']%}";
-        if (p != "") {
-            p = "&p=" + p;
-        }
-        var ifrm = document.createElement("IFRAME");
-        ifrm.setAttribute("src", "./lib/upload.php?form=" + formid + p);
-        ifrm.setAttribute("scrolling", "no");
-        ifrm.setAttribute("frameborder", "no");
-        ifrm.setAttribute("border", "0");
-        ifrm.setAttribute("id", 'uploader_frame' + frame_count);
-        ifrm.setAttribute("onload", "IframeLoad(this);");
-        ifrm.style.width = "100%";
-        //ifrm.style.height = 50+"px";
-        ifrm.style.zIndex = 30000;
-        ifrm.style.overflow = "hidden";
-        ifrm.style.backgroundcolor = "transparent";
-        var div = document.getElementById('upload_frames');
-        div.appendChild(ifrm);
+        $.get( "http://localhost/lib/upload.php?form=" + formid + "&frame=" + frame_count + "&p=0", function( data ) {
+            $( ".result" ).html( data );
+            $("#upload_frames").append(data);
+        });
         frame_count++;
     }
 
@@ -408,21 +437,12 @@
         }
 
         for (var i = 0; i < AttachmentList.length; i++) {
-            var ifrm = document.createElement("IFRAME");
-            ifrm.setAttribute("src", "./lib/upload.php?form=" + formid + p + "&a=preview&file=" + AttachmentList[i]);
-            ifrm.setAttribute("scrolling", "no");
-            ifrm.setAttribute("frameborder", "no");
-            ifrm.setAttribute("border", "0");
-            ifrm.setAttribute("id", 'uploader_frame' + frame_count);
-            ifrm.setAttribute("onload", "IframeLoad(this);");
-            ifrm.style.height = 32 + "px";
-            ifrm.style.zIndex = 30000;
-            ifrm.style.overflow = "hidden";
-            ifrm.style.width = "100%";
-            ifrm.style.display = "block";
-            ifrm.style.backgroundcolor = "transparent";
-            var div = document.getElementById('upload_frames');
-            div.appendChild(ifrm);
+            //var ifrm = document.createElement("IFRAME");
+            //ifrm.setAttribute("src", "./lib/upload.php?form=" + formid + p + "&a=preview&file=" + AttachmentList[i]);
+            $.get( "http://localhost/lib/upload.php?form=" + formid + p + "&frame=" + frame_count + "&p=0" + "&a=preview&file=" + AttachmentList[i], function( data ) {
+                $( ".result" ).html( data );
+                $("#upload_frames").append(data);
+            });
             frame_count++;
         }
     }
