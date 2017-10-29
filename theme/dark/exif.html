@@ -1,0 +1,57 @@
+<div class="photo_details">
+<div style="text-align: center; font-weight: bold; background: rgba(0, 110, 255, 0.07) none repeat scroll 0% 0%;">{%$language['ui']['photo_details']%}:</div>
+<table>
+  <tbody>
+    <tr>
+      <td class="exifleft">{%$language['ui']['date_taken']%}:</td>
+      <td>{date_taken}</td>
+    </tr>
+    <tr>
+      <td class="exifleft">{%$language['ui']['model']%}:</td>
+      <td>{model}</td>
+    </tr>
+    <tr>
+      <td class="exifleft">{%$language['ui']['iso']%}:</td>
+      <td>{iso}</td>
+    </tr>
+    <tr>
+      <td class="exifleft">{%$language['ui']['exposure']%}:</td>
+      <td>{exposure} sec</td>
+    </tr>
+    <tr>
+      <td class="exifleft">{%$language['ui']['aperture']%}: </td>
+      <td>{aperture}</td>
+    </tr>
+    <tr>
+      <td class="exifleft">{%$language['ui']['focal_length']%}:</td>
+      <td>{focal_length} mm</td>
+    </tr>
+    <tr>
+      <td class="exifleft"> </td>
+      <td>&nbsp;</td>
+    </tr>
+    {?<?{%$site_settings['allow_download']%}==1?><tr>
+      <td class="exifleft">{%$language['ui']['download_original']%}:</td>
+      <td><a id="download_original_link_{post_id}" href="./lib/upload.php?a=download&file={download_link}">{download_name}</a></td>
+    </tr>?}
+    <tr>
+      <td class="exifleft">{%$language['ui']['size']%}:</td>
+      <td>{size}</td>
+    </tr>
+    <tr>
+      <td class="exifleft">{%$language['ui']['downloaded']%}:</td>
+      <td>{download_count} {%$language['ui']['times']%}</td>
+    </tr>
+    <!---<tr>
+      <td class="exifleft">Did you enjoy this photo?<br>Make a donation to help me<br>to improve my skils and gear:</td>
+      <td><form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="hidden" name="hosted_button_id" value="ULUFZJME46YXJ">
+<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+</form>
+</td>
+    </tr> -->
+  </tbody>
+</table>
+</div>

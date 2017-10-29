@@ -1,0 +1,252 @@
+<h2>{%$MODULE_TITLE%} :: {%$TEMPLATE_VARS['forum_name']%}</h2>
+
+{%$language['ui']['permissions_for']%}: <select id="group_list" name="group">
+</select>
+<button type="button" onclick="addTable();">{%$language['ui']['ok']%}</button>
+<div id="permtarget">
+
+</div>
+
+<div align="center">
+    <button type="button" onclick="savePermissions(0);">{%$language['ui']['save_all']%}</button>
+</div> 
+
+<script src="./jquery.js"></script>
+
+<script type="text/javascript">
+    var groups = {%$TEMPLATE_VARS['groups']%}
+    {%$TEMPLATE_VARS['permissions_table']%}
+var forumperms = {%$TEMPLATE_VARS['json']%}
+
+//Count different groups that have permissions
+var gids = [];
+var diffcount = 0;
+if(forumperms == null){
+    forumperms = [];  
+}else{
+    diffcount = 1;
+    current = forumperms[0].group_id;
+    gids.push(current);
+    for(var i = 0; i < forumperms.length; i++){
+        if(current != forumperms[i].group_id){
+            current =  forumperms[i].group_id;
+            gids.push(current);
+            diffcount ++;
+        }
+    }
+}
+
+//Prepare empty array
+var fulldata = [];
+var pointer = 0;
+for(var i = 0; i < diffcount; i++){
+    for(var j = 0;j < permissions.length;j++){
+        fulldata[pointer] = {"group_id":gids[i],"permission_id":permissions[j]["permission_id"],"permission_class":permissions[j]["permission_class"],"name":permissions[j]["name"],"translated":permissions[j]["translated"],"has":false};
+        pointer++;
+    }
+}
+
+//Create buffer for permissions and they're states
+for(var i = 0; i < forumperms.length; i++){
+    for(var j=0;j < fulldata.length; j++){
+        if(forumperms[i].group_id == fulldata[j].group_id && forumperms[i].permission_id == fulldata[j].permission_id){
+            fulldata[j].has=true;
+        }
+    }
+}
+
+function setPermission(id,yesNo){
+    console.log(id);
+    fulldata[id].has = yesNo;
+}
+
+function allYesNo(gid,permission_class, yesNo){
+    for(var j=0;j < fulldata.length; j++){
+        if(fulldata[j].group_id == gid && fulldata[j].permission_class == permission_class){
+            if(yesNo){
+                fulldata[j].has = true;
+            }else{
+                fulldata[j].has = false;
+            }
+        }
+    }
+    hTable = document.getElementById("g"+gid);
+    hTable.innerHTML = getTable(gid,permission_class);
+}
+
+function getTable(group_id, permission_class){
+    var YesSelected,noSelected;
+    var ret = '<tr bgcolor="#428AFF" style="color:#FFFFFF;font-weight:bold;"><td>{%$language['ui']['permission']%}</td><td style="width: 75px;"><span onclick="allYesNo('+group_id+',\''+permission_class+'\',true);" style="cursor:pointer; color:#FFFFFF;">{%$language['ui']['yes']%}</span></td><td style="width: 75px;"><span onclick="allYesNo('+group_id+',\''+permission_class+'\',false);" style="cursor:pointer; color:#FFFFFF;">{%$language['ui']['no']%}</span></td></tr>';
+    var bg="";
+    var count = 0;
+    for(var j=0;j < fulldata.length; j++){
+        if(fulldata[j].group_id == group_id && fulldata[j].permission_class == permission_class){
+            bg="99CCFF";
+            if(count % 2 == 1){
+                bg="77B8FF";
+            }
+            count++;
+            if(fulldata[j].has){
+                yesSelected = 'checked="yes"';noSelected = '';
+            }else{
+                yesSelected = '';noSelected = 'checked="yes"';
+            }
+            ret += '<tr bgcolor="#'+bg+'"><td>'+fulldata[j].translated+'</td><td><input type="radio"  onchange="setPermission('+j+',true)" name="'+j+'" value="yes" '+yesSelected+'></td><td><input type="radio"  onchange="setPermission('+j+',false)" name="'+j+'" value="no" '+noSelected+'></td></tr>';
+        }
+    }
+    return ret;
+}
+
+function setTab(tab,gid){
+    hMod = document.getElementById(gid+"_2");
+    hForum = document.getElementById(gid+"_4");
+    if(tab=="moderator"){
+        hMod.setAttribute("class","Selected");
+        hForum.setAttribute("class","NotSelected");
+    }else{//forum
+        hMod.setAttribute("class","NotSelected");
+        hForum.setAttribute("class","Selected");
+    }
+    hTable = document.getElementById("g"+gid);
+    hTable.innerHTML = getTable(gid,tab);
+}
+
+function createTable(group_id){
+    var tabs = 
+    '<h2>Group:: '+group_nameById(group_id)+'</h2><br><span id="header"><form>  \n' + 
+    '   <ul>\n' +
+    '       <li id="'+group_id+'_2" class="NotSelected" onclick="setTab(\'moderator\','+group_id+')">Moderator</li>\n'+
+    '       <li id="'+group_id+'_4" class="Selected" onclick="setTab(\'forum\','+group_id+')">Forum</li>\n'+
+    '   </ul>\n' +
+    '</span>\n';
+    
+    var table_start =
+    '<div id="group_permissionsTable">\n'+
+    '    <table border="0" cellspacing="0" cellpadding="0" id="g'+group_id+'"><tbody>\n';
+    
+    var table_end =
+    '   </tbody></table>\n'+
+    '<button type="reset">{%$language['ui']['reset']%}</button><button onclick="savePermissions('+group_id+')" type="button">{%$language['ui']['save']%}</button>'+
+    '</div><div style="clear:both;"></div></form><br><br>\n';
+    
+    return tabs+table_start+table_end;   
+}
+
+function savePermissions(gid){
+    var forum = {%$_POST["forum_id"]%}
+    var perms = "";
+    if(gid == 0){
+        perms += forum+":"+gids[0]+'|';
+        for(var j=0; j< gids.length; j++){
+            //console.log("g: "+);
+            for(var i = 0;i < fulldata.length;i++){
+                if(fulldata[i].group_id == gids[j] && fulldata[i].has){
+                    perms += fulldata[i].permission_id+"|";
+                }
+            }
+            if(j < gids.length-1){
+                perms +=";"+gids[j+1]+'|';
+            }
+        }
+    }else{
+        perms += forum+":"+gid+'|';
+        for(var i = 0;i < fulldata.length;i++){
+            if(fulldata[i].group_id == gid && fulldata[i].has){
+                perms += fulldata[i].permission_id+"|";
+            }
+        }
+    }
+    
+    $.post(document.URL,{permissions:perms},function(result){
+          messageBox(result,5000);
+    });
+}
+
+function addTable(){
+    var e = document.getElementById("group_list");
+    var gid= e.options[e.selectedIndex].value;
+    var hDiv = document.getElementById("permtarget");
+    var pointer = fulldata.length-1;
+    for(var i = 0;i < permissions.length;i++){
+        fulldata[pointer] = {"group_id":gid,"permission_id":permissions[i]["permission_id"],"permission_class":permissions[i]["permission_class"],"name":permissions[i]["name"],"translated":permissions[i]["translated"],"has":false};
+        pointer++;
+    }
+    var data = createTable(gid);
+    var tmpDiv = document.createElement('div');
+    tmpDiv.innerHTML = data;
+    hDiv.appendChild(tmpDiv);
+    hTable = document.getElementById("g"+gid);
+    hTable.innerHTML = getTable(gid,"forum");
+    gids.push(gid);
+    e.remove(e.selectedIndex);
+}
+
+
+divContent = "";
+for(var i = 0; i < gids.length; i++){
+    divContent+=createTable(gids[i]);
+}
+
+hDiv = document.getElementById("permtarget");
+hDiv.innerHTML=divContent;
+
+for(var i = 0; i < gids.length; i++){
+    console.log(gids[i]);
+    hTable = document.getElementById("g"+gids[i]);
+    hTable.innerHTML = getTable(gids[i],"forum");
+}
+
+var select = document.getElementById("group_list");
+
+function group_nameById(gid){
+    for(var i = 0; i < groups.length;i++){
+        if(groups[i].id==gid){
+            return groups[i].name;
+        }
+    }
+    return "None";
+}
+
+var groupUsed = false;
+for(var i = 0; i < groups.length; i++) {
+    groupUsed = false;
+    for(var j = 0; j < gids.length; j++){
+        if(gids[j]==groups[i].id){
+            groupUsed = true;
+            break;
+        }
+    }
+    if(!groupUsed){
+        var option = document.createElement('option');
+        option.text =  groups[i].name;
+        option.value = groups[i].id;
+        select.add(option, 0);
+    }
+}
+
+
+function post_to_url(path, params, method) {
+    method = method || "post"; // Set method to post by default, if not specified.
+
+    // The rest of this code assumes you are not using a library.
+    // It can be made less wordy if you use one.
+    var form = document.createElement("form");
+    form.setAttribute("method", method);
+    form.setAttribute("action", path);
+
+    for(var key in params) {
+        if(params.hasOwnProperty(key)) {
+            var hiddenField = document.createElement("input");
+            hiddenField.setAttribute("type", "hidden");
+            hiddenField.setAttribute("name", key);
+            hiddenField.setAttribute("value", params[key]);
+
+            form.appendChild(hiddenField);
+         }
+    }
+
+    document.body.appendChild(form);
+    form.submit();
+}
+
+</script>

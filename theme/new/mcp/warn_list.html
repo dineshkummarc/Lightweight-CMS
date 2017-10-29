@@ -1,0 +1,29 @@
+<h2>List warnings</h2>
+<div id="warnlist"></div>
+<script>
+
+    var ToString = [];
+    ToString['0'] = "{%$language['ui']['no']%}";
+    ToString['1'] = "{%$language['ui']['yes']%}";
+
+    {%$TEMPLATE_VARS['WARN']%}
+
+    var Tablestart = '<table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="0"><tbody><tr style="color:#FFFFFF;font-weight:bold;" BGcolor="#428AFF"><td>{%$language["ui"]["user"]%}</td><td>{%$language["ui"]["post""]%}</td><td>{%$language["ui"]["time"]%}</td><td>{%$language["ui"]["reason"]%}</td><td>{%$language["ui"]["points"]%}</td><td>{%$language["ui"]["verbal"]%}</td><td>{%$language["ui"]["user_total"]%}</td></tr>\n';
+
+    var scolor1 = "#99CCFF";
+    var scolor2 = "#77B8FF";
+    var scolor = '';
+    var Tabledata = '';
+
+    for (var i = 0; i < warnings.length; i++) {
+        if (i % 2) {
+            scolor = scolor1
+        } else {
+            scolor = scolor2;
+        }
+        Tabledata += '<tr bgcolor="' + scolor + '"><td>' + warnings[i]['username'] + '</td><td><a href="../?p=' + warnings[i]['post_id'] + '">' + warnings[i]['post_title'] + '</a></td><td>' + warnings[i]['time'] + '</td><td>' + warnings[i]['message'] + '</td><td>' + warnings[i]['points'] + '</td><td>' + ToString[warnings[i]['type']] + '</td><td>' + warnings[i]['user_warn'] + '</td></tr>\n';
+    }
+    var TableEnd = '</tbody></table>';
+    hWnd = document.getElementById('warnlist');
+    hWnd.innerHTML = Tablestart + Tabledata + TableEnd;
+</script>

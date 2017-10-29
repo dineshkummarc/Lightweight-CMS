@@ -1,0 +1,44 @@
+<script type="text/javascript">
+function Yes(){
+	var SubmitData =[];
+	SubmitData["confirm"] = "yes";
+    post_to_url("{%$ACP_CONFIRM["
+    YES;
+    "]%}", SubmitData;
+)
+};
+
+function post_to_url(path, params, method) {
+    method = method || "post"; // Set method to post by default, if not specified.
+
+    // The rest of this code assumes you are not using a library.
+    // It can be made less wordy if you use one.
+    var form = document.createElement("form");
+    form.setAttribute("method", method);
+    form.setAttribute("action", path);
+
+    for(var key in params) {
+        if(params.hasOwnProperty(key)) {
+            var hiddenField = document.createElement("input");
+            hiddenField.setAttribute("type", "hidden");
+            hiddenField.setAttribute("name", key);
+            hiddenField.setAttribute("value", params[key]);
+
+            form.appendChild(hiddenField);
+         }
+    }
+
+    document.body.appendChild(form);
+    form.submit();
+}
+</script>
+<style type="text/css">
+a.button{
+	color:#001020;
+	text-decoration:none;
+	border:1px solid #888888;
+	background-color: #F0F0F0;
+}
+</style>
+<div style="background-color: rgb(235, 240, 248);color: #000000;padding:5px;">{%$ACP_CONFIRM["PROMPT"]%}<br>
+<center><a href="#" class="button" onclick="Yes();">Yes</a> <a href="{%$ACP_CONFIRM["NO"]%}" class="button" >No</a></center></div>

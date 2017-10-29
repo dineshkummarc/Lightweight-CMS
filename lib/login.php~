@@ -1,0 +1,181 @@
+<?php
+if (!function_exists("ConnectDataBase")){include("./funcs.php");include("../Settings.php");include("../Globals.php");}
+//Define variables
+$LoggedIn = false;
+$Message = $_GET["login"];
+$recvusername = stripslashes(strip_tags($_POST["username"]));
+$recvpassword = stripslashes(strip_tags($_POST["password"]));
+$RetURL = $_SERVER['HTTP_REFERER'];
+$LoginData = "";
+$MyGroup = -1;
+$NA[0] = "admin";
+$NA[1] = "<";
+$NA[2] = ">";
+$NA[3] = "%";
+$NA[4] = "http:";
+$NA[5] = "Guest";
+
+//Create database connection if not connected yet
+ConnectDataBase();
+
+function CreateUser($Name,$Password,$Email,$MSN,$avatar,$Show)
+{
+	global $TableUsers;
+	$result = mysql_query("SELECT * FROM ".$TableUsers.' WHERE UserName = "'.$Name.'"');
+	if(mysql_num_rows($result)){
+		die("User already exists");
+	}else{
+		mysql_query("INSERT INTO ".$TableUsers." VALUES ('".$Name."','".$Password."','".$Email."','".$MSN."','".$avatar."','".Date("d M Y")."','',0,1,".$Show.",0);");
+		return true;
+	}
+}
+
+//Login attempt using POSTed username and password
+if (strlen($recvusername) >= 1 && strlen($recvpassword) >= 1 && $_GET["login"] != "add"){
+	//dbg($TableUsers);
+	//exit();
+	$result = mysql_query("SELECT * FROM ".$TableUsers.' WHERE UserName = "'.$recvusername.'"');
+	if(mysql_num_rows($result)){
+		if (md5($recvpassword) == mysql_result($result,0,"UserPassword"))
+		{
+			echo "Login success";
+			setcookie("User",$recvusername.'waaaaaaaaaaaaw'.md5($recvpassword), time()+(604800*52) ,"/");
+			echo '<meta http-equiv="Refresh" content="3;url='.$RetURL.'"/>';
+			$LoggedIn =  true;
+			AssignUserInfo($result);
+		}else{
+			//fail
+			echo "Wrong password";
+			setcookie("User", "", mktime(12,0,0,1, 1, 1990));
+			echo '<meta http-equiv="Refresh" content="3;url=./login.php?login=fail"/>';
+		}
+	}else{
+		echo "That account does not exist.";
+	}
+}
+//Login attempt using COOKIE
+if(isset($_COOKIE['User']))
+{
+	$UserData = explode("waaaaaaaaaaaaw",$_COOKIE['User']);
+	$result = mysql_query("SELECT * FROM ".$USERS[this].' WHERE '.$USERS["UserName"]["Name"].' = "'.$UserData[0].'"');
+	dbg($USER["name"],$UserData[0]);
+	AssignUserInfo($result);
+	if(mysql_num_rows($result)){
+		if ($UserData[1] == mysql_result($result,0,$USERS["UserPassword"]["Name"]))
+		{
+			if(IsGroupMember($USER["group"],$RIGHTS["Blocked"]) || $USER["banned"]){$LoginData = '<b><font style="color: rgb(255,64,64);">Your account have been banned!<br>Reason: '.mysql_result($result,0,$USERS["UserBanReason"]["Name"]).'</font></b><br>';}
+			$LoginData = "Welcome, ".$USER["name"]."! ".'<a href="./lib/login.php?login=logout">Logout</a> <a href="./ucp.php">Account setings</a>';
+			if(IsGroupMember($USER["group"], $RIGHTS["Administrator"]) || $USER["founder"]) {$LoginData .= ' <a href="./lib/acp.php">Administrator Control Panel</a>';}
+			$LoggedIn = true;
+		}else{
+			//fail
+			echo "Wrong password";
+			echo '<meta http-equiv="Refresh" content="3;url=./login.php?login=fail"/>';
+			setcookie("User", "", mktime(12,0,0,1, 1, 1990));
+		}
+	}else{
+		setcookie("User", "", mktime(12,0,0,1, 1, 1990));
+		echo '<meta http-equiv="Refresh" content="3;url=./login.php?login=fail"/>';
+	}
+}
+else
+{
+$LoginData = '
+<form method="POST" action="./lib/login.php">
+	<table border="0" cellpadding="0" cellspacing="0">
+		<tbody>
+			<tr>
+				<td>Username:</td>
+				<td><input type="text" name="username"></td>
+				<td> Password:</td>
+				<td><input type="password" name="password"></td>
+				<td><input type="submit" value="Login"> or <a href="./login.php?login=register">register</a></td>
+			</tr>
+		</tbody>
+	</table>
+</form>
+';
+}
+
+function AssignUserInfo($Resource) {
+	global $USER,$USERS;
+	$USER["name"] = mysql_result($Resource,0,$USERS["UserName"]["Name"]);
+	$USER["group"] = mysql_result($Resource,0,$USERS["UserGroup"]["Name"]);
+	$USER["banned"] = ToBool(mysql_result($Resource,0,$USERS["UserIsBanned"]["Name"]));
+	$USER["founder"] = ToBool(mysql_result($Resource,0,$USERS["UserFounder"]["Name"]));
+}
+//Parse command//
+
+//LOGIN SUCCESS MESSAGE
+if ($Message == "success"){
+	echo "Login success";
+	echo '<meta http-equiv="Refresh" content="0;url='.$RetURL.'"/>';
+	exit();
+//LOGOUT
+}elseif($Message == "logout"){
+	//setcookie("User", "", mktime(12,0,0,1, 1, 1990));
+	setcookie("User","", mktime(12,0,0,1, 1, 1990) ,"/");
+	echo "Logout success<br>";
+	echo '<meta http-equiv="Refresh" content="3;url='.$RetURL.'"/>';
+	exit();
+//REGISTER
+}elseif($Message == "register"){
+	echo file_get_contents("register.html");
+	exit();	
+//ADD
+}elseif($Message == "add"){
+	//Get variables
+	$RegisteredUser = stripslashes(strip_tags($_POST["username"]));
+	$RegisteredPass = md5(stripslashes(strip_tags($_POST["password"])));
+	$RegisteredPassConfirm = md5(stripslashes(strip_tags($_POST["passwordconfirm"])));
+	$RegisteredEmail = stripslashes(strip_tags($_POST["email"]));
+	$RegisteredMSN = stripslashes(strip_tags($_POST["msn"]));
+	$RegisteredAvatar = stripslashes(strip_tags($_POST["avatar"]));
+	$RegisteredShowMail = isset($_POST["showemail"]);
+	$RegisteredShowMSN = isset($_POST["showMSN"]);
+	$RegisteredFilter = stripslashes(strip_tags($_POST["filter"]));
+	
+	//Avatar check
+	if ($RegisteredAvatar != ""){
+		$size = getimagesize ($RegisteredAvatar);
+		if ($size == false) {
+			$RegisteredAvatar = "";
+		}else{
+			if($size[0] > 150 || $size[1] > 150){die ('Avatar is too large <meta http-equiv="Refresh" content="3;url=./ucp.php"/>');}
+		}
+	}
+	
+	//Bot question	
+	if ($RegisteredFilter == "two" || $RegisteredFilter == "2" )
+	{
+		//Check for input errors
+		if($RegisteredUser == "" || $RegisteredPass == "" || $RegisteredEmail == ""){die ("You didnt fill all the required fields");}
+		$ShowState = 0; //Hide email and MSN by default
+		if ($RegisteredShowMail == 1){$ShowState ++;}
+		if ($RegisteredShowMSN == 1){$ShowState += 2;}
+		//Check for illegal symbols/substrings
+		for ($i = 0; $i < count($NA); $i++){
+			if (stristr($RegisteredUser,$NA[$i])){Die("Your account name contains symbols that are not allowed");}
+		}
+		//Create new user
+		$bSuccess = CreateUser($RegisteredUser,$RegisteredPass,$RegisteredEmail,$RegisteredMSN ,$RegisteredAvatar,$ShowState);
+		if($bSuccess){
+			setcookie("User",$RegisteredUser.'waaaaaaaaaaaaw'.$RegisteredPass, time()+(604800*52) ,"/");
+			echo "Account created successfully. You can now login with your account.".'<meta http-equiv="Refresh" content="3;url=./login.php"/>';
+		}
+	}else{echo "You didnt answer the anti bot qusetion right.";}
+	exit();
+//LOGIN FAIL MESSAGE	
+}elseif($Message == "fail"){
+	setcookie("User","", mktime(12,0,0,1, 1, 1990) ,"/");
+	die ('Login failed!<br><a href="./lib/login.php">Try again</a> or <a href="./lib/login.php?login=register">register</a> ');
+}
+
+function GroupToString($GroupNR)
+{
+	if ($GroupNR == 0){return "Banned";}
+	elseif ($GroupNR == 1){return "Registered user";}
+	elseif ($GroupNR == 2){return "Administrator";}
+}
+
+?>

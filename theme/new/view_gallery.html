@@ -1,0 +1,43 @@
+<div class="content">
+
+
+    <table class="content_table">
+        <tbody>
+        <tr>
+            <td id="ACP_ACTIONS_MENU" class="navigation">
+                {{{%$root_dir%}/theme/{%$site_settings['template']%}/navigation.html}}
+            <td class="content_container">{%$topic_data%}
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div style="text-align: right">{%$mod_tools%}</div>
+<br/>
+
+{{./theme/{%$site_settings['template']%}/comments.html}}
+<script type="text/javascript">
+    $(document).keydown(function (e) {
+        //console.log(e.target.tagName);
+        if (e.target.tagName.toLowerCase() !== 'input' &&
+                e.target.tagName.toLowerCase() !== 'textarea') {
+            switch (e.which) {
+                case 37: // left
+                    window.location = $("#prev").attr("href") + window.location.hash;
+                    break;
+
+                case 39: // right
+                    window.location = $("#next").attr("href") + window.location.hash;
+                    break;
+
+                case 27:
+                    fullscreenClose();
+                    break;
+
+                default:
+                    return; // exit this handler for other keys
+            }
+            e.preventDefault(); // prevent the default action (scroll / move caret)
+        }
+    });
+</script>

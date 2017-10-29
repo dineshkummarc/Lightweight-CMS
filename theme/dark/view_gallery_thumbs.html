@@ -1,0 +1,24 @@
+<div class="content">
+
+
+	<table class="content_table">
+	  <tbody>
+		<tr>
+		  <td id="ACP_ACTIONS_MENU" class="navigation">
+                      {{{%$root_dir%}/theme/{%$site_settings['template']%}/navigation.html}}
+		  </td>
+		  <td class="content_thumbs_container">{%$POPULAR_TAGS%}
+			  {?<?{%$render_albums%}==true?>
+			  <h2>Albums</h2><br>
+			  {%$galleries%}
+			  <br>
+			  <br>
+			  <h2>Photos</h2><br>
+			  ?}
+			  {%$thumbnails%}
+		</tr>
+	  </tbody>
+	</table>
+</div>
+<div style="text-align: right">{%$mod_tools%}</div>
+<br/>

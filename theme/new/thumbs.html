@@ -1,0 +1,47 @@
+<HTML>
+	<HEAD>
+		<meta name="description" content="{DESCRIPTION}" >
+		<!-- Coma separated tags -->
+		<meta name="keywords" content="{IMAGE_META}" >
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8" >
+		<link rel="stylesheet" type="text/css" href="./gallery.css" >
+		<title>{TITLE}</title>
+
+	</HEAD>
+	<BODY>
+		{LOGIN}<br>
+		<!-- Search Start -->
+		<table  border="0"><form enctype="multipart/form-data" action="index.php" method="POST">
+			<tbody>
+				<tr><td> <input name="searchword" type="text" /><input type="submit" value="Search" /> </tr><br>
+			</form>
+			</tbody>
+		</table>
+
+		<!-- Pages list Start -->
+		<table border="1" cellpadding="2" cellspacing="0" align="center" class="infotable">
+			<tbody>
+				<tr>
+				<td>{LINKS_BAR}</td>
+				</tr>
+			</tbody>
+		</table>
+		<!-- Pages list End-->
+
+		<!-- Thumbs table Start -->
+		{THUMBS}
+		<!-- Thumbs table End-->
+
+		<!-- Pages Footer -->
+		<table border="1" cellpadding="2" cellspacing="0" align="center" class="footer">
+			<tbody>
+				<tr>
+					<td>Total views: {HITS}</td>
+					<td>Total images:{FILE_COUNT}</td>
+					<td>Last update: {LAST_UPDATE}</td>
+					<td>Web gallery software and pictures by Rain Oksvort</td>
+				</tr>
+			</tbody>
+		</table>
+	</BODY>
+</HTML>

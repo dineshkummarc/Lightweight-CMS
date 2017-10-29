@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Installer</title>
+
+    <link type="text/css" rel="stylesheet" href="../lib/syntaxhighlighter/styles/shCore.css"/>
+    <link type="text/css" rel="stylesheet" href="../lib/syntaxhighlighter/styles/shThemeDefault.css"/>
+    <script src="../lib/jquery.js"></script>
+    <script src="../lib/funcs.js"></script>
+    <script src="../lib/sorttable.js"></script>
+    <script src="../lib/jquery-ui.js"></script>
+    <link rel="stylesheet" type="text/css" href="../theme/new/normalize.css"/>
+    <link rel="stylesheet" type="text/css" href="../theme/new/style.css"/>
+    <link rel="stylesheet" type="text/css" href="../lib/jquery-ui.css">
+
+    <script>
+        var pages = ['welcome', 'requirements', 'dbdetails', 'settings', 'install'];
+        function set_page(page) {
+            var index = 0;
+            for (var i = 0; i < pages.length; i++) {
+                if (pages[i] == page) {
+                    index = i;
+                }
+                $("#" + pages[i]).hide();
+                $('.forum_list > a:nth-child(' + (2 + i) + ')').attr("id", "");
+            }
+            $("#" + page).show();
+            $('.forum_list > a:nth-child(' + (2 + index) + ')').attr("id", "selected_forum");
+            console.log('.forum_list > a:nth-child(' + (2 + index) + ')');
+        }
+
+        function updatepreview() {
+            var title = $("input[name=site_name]").val() == "" ? "Installer" : $("input[name=site_name]").val();
+            var description = $("input[name=site_description]").val() == "" ? "Multi purpose board management software" : $("input[name=site_description]").val();
+            var footer = $("input[name=site_footer]").val() == "" ? "Software installer" : $("input[name=site_footer]").val();
+            var user = $("input[name=admin_name]").val() == "" ? "system" : $("input[name=admin_name]").val();
+
+            $("#user_name").html(user);
+            $("#description").html(description);
+            $("#title").html(title);
+            $(".footer").html(footer);
+        }
+
+        function check() {
+            var failed = {FAILED};
+            if (failed) {
+                $('.forum_list > a:nth-child(' + (2 + 2) + ')').attr("onclick", "");
+                $('.forum_list > a:nth-child(' + (2 + 2) + ')').css("color", "#555");
+
+                $('.forum_list > a:nth-child(' + (2 + 3) + ')').attr("onclick", "");
+                $('.forum_list > a:nth-child(' + (2 + 3) + ')').css("color", "#555");
+
+                $('.forum_list > a:nth-child(' + (2 + 4) + ')').attr("onclick", "");
+                $('.forum_list > a:nth-child(' + (2 + 4) + ')').css("color", "#555");
+
+                $('#todetails').attr("onclick", "");
+                $('#todetails').css("color", "#555");
+            }
+
+        }
+
+        function install() {
+            if ($('#tou').prop('checked')) {
+                if ($('input[name=admin_pass]').val() != $('input[name=admin_pass_confirm]').val()) {
+                    alert("Admin passwords does not match!");
+                }
+                $.post("./install.php?", {
+                    'db_server': $('input[name=db_server]').val(),
+                    'db_port': $('input[name=db_port]').val(),
+                    'db_name': $('input[name=db_name]').val(),
+                    'db_user': $('input[name=db_user]').val(),
+                    'db_password': $('input[name=db_password]').val(),
+                    'db_mode': $('select[name=db_mode]').val(),
+                    'site_name': $('input[name=site_name]').val(),
+                    'site_description': $('input[name=site_description]').val(),
+                    'site_footer': $('input[name=site_footer]').val(),
+                    'site_email': $('input[name=site_email]').val(),
+                    'admin_user': $('input[name=admin_name]').val(),
+                    'admin_password': $('input[name=admin_pass]').val(),
+                    'admin_email': $('input[name=admin_mail]').val()
+                }, function (result) {
+                    if (result == "success") {
+                        messageBox("Site Creator have been successfully installed!", 5000);
+                    } else {
+                        messageBox("Failed to install Site Creator:<br>" + result, 5000);
+                    }
+                });
+            } else {
+                alert("You did not agree with terms of use!");
+            }
+        }
+
+        function update_code() {
+            var code = '<pre class="syntaxhighlighter brush: php;">&lt;?php' + "\n" +
+                    '$MODE = "' + $('select[name=db_mode]').val() + '";' + "\n" +
+                    '$DATABASE_SERVER = "' + $('input[name=db_server]').val() + '";' + "\n" +
+                    '$DATABASE_PORT = "' + $('input[name=db_port]').val() + '";' + "\n" +
+                    '$DATABASE_USER = "' + $('input[name=db_user]').val() + '";' + "\n" +
+                    '$DATABASE_NAME = "' + $('input[name=db_name]').val() + '";' + "\n" +
+                    '$DATABASE_PASSWORD = "' + $('input[name=db_password]').val() + '";' + "\n" +
+                    '?&gt;</pre>';
+            $('#settings_code_actual').html(code);
+            SyntaxHighlighter.all();
+        }
+
+        function test_connection(){
+            $.post("./install.php?", {
+                'test_connection': "",
+                'db_server': $('input[name=db_server]').val(),
+                'db_port': $('input[name=db_port]').val(),
+                'db_name': $('input[name=db_name]').val(),
+                'db_user': $('input[name=db_user]').val(),
+                'db_password': $('input[name=db_password]').val(),
+                'db_mode': $('select[name=db_mode]').val()
+            }, function (result) {
+                messageBox(result, 5000);
+            });
+        }
+    </script>
+</head>
+<body>
+<div style="margin: 0px; padding: 0px; width: 1000px; margin-left: auto;  margin-right: auto;">
+
+    <!--./theme/new/header.html begin -->
+    <div class="header">
+        <div style="float:right; text-align: left;"><span>Welcome, <span id="user_name">system</span></span></div>
+        <a href="./"><h1 id="title" style="color: #ffffff; margin: 0;">Installer</h1></a>
+        <span id="description" style="color:white; font-weight: 700; text-shadow: 1px 2px 2px #05326D;">Multi purpose board management software</span>
+    </div>
+    <!--./theme/new/header.html End-->
+
+
+    <div class="forum_path"><a href="./">Installer</a> > <a id="selected_forum" href="#">Welcome</a> <br></div>
+    <div id="forum_list_div">
+        <div class="forum_list" ><strong>STEPS </strong>
+            <a id="selected_forum" href="#" onclick="set_page('welcome'); return false;">Welcome</a>
+            <a href="#" onclick="set_page('requirements'); return false;">Requirements</a>
+            <a href="#" onclick="set_page('dbdetails'); return false;">DB details</a>
+            <a href="#" onclick="set_page('settings'); return false;">settings</a>
+            <a href="#" onclick="set_page('install'); return false;">Install</a>
+        </div>
+    </div>
+
+
+    <div class="content_blog">
+        <div id="welcome">
+            Welcome!<br><br>
+            This installer will install Site Creator!<br><br>
+            <a class="forum_action" href="#" onclick="set_page('requirements'); return false;">Next</a>
+        </div>
+
+        <div id="requirements">
+            Checking server requirements...<br><br>
+            PHP version 5 or newer: {PHPVER}<br>
+            Magic quotes are turned off: {QUOTES}<br>
+            Directory ./uploads is writable: {UPLOADS}<br>
+            Directory ./images/large is writable: {LARGE}<br>
+            Directory ./images/small is writable: {SMALL}<br>
+            settings.php is writable: {settings}<br><br>
+            <a class="forum_action" href="#" onclick="set_page('welcome'); return false;">Back</a>
+            <a id="todetails" class="forum_action" href="#" onclick="set_page('dbdetails'); return false;">Next</a>
+        </div>
+
+        <div id="dbdetails">
+            Please enter database details
+            <table>
+                <tr>
+                    <td>database server:</td>
+                    <td><input type="text" name="db_server" oninput="update_code();"></td>
+                </tr>
+                <tr>
+                    <td>database port:</td>
+                    <td><input type="text" name="db_port" oninput="update_code();"></td>
+                </tr>
+                <tr>
+                    <td>database name:</td>
+                    <td><input type="text" name="db_name" oninput="update_code();"></td>
+                </tr>
+                <tr>
+                    <td>database user:</td>
+                    <td><input type="text" name="db_user" oninput="update_code();"></td>
+                </tr>
+                <tr>
+                    <td>database password:</td>
+                    <td><input type="text" name="db_password" oninput="update_code();"></td>
+                </tr>
+                <tr>
+                    <td>database API:</td>
+                    <td><select name="db_mode" oninput="update_code();">
+                        <option value="mysqli">mysqli (recommended)</option>
+                        <option value="mysql">mysql</option>
+                    </select></td>
+                </tr>
+            </table>
+            <br>
+            <a class="forum_action" href="#" onclick="set_page('requirements'); return false;">Back</a>
+            <a class="forum_action" href="#" onclick="set_page('settings'); return false;">Next</a>
+            <a class="forum_action" href="#" onclick="test_connection(); return false;">Test</a>
+        </div>
+
+        <div id="settings">
+            Please enter administrator account and site details.<br><br>
+            <table>
+                <tr>
+                    <td>Administrator username:</td>
+                    <td><input type="text" name="admin_name" oninput="updatepreview()"></td>
+                </tr>
+                <tr>
+                    <td>Administrator password:</td>
+                    <td><input type="password" name="admin_pass"></td>
+                </tr>
+                <tr>
+                    <td>Administrator password confirm:</td>
+                    <td><input type="password" name="admin_pass_confirm"></td>
+                </tr>
+                <tr>
+                    <td>Administrator email:</td>
+                    <td><input type="text" name="admin_mail"></td>
+                </tr>
+                <tr>
+                    <td>Site name:</td>
+                    <td><input type="text" name="site_name" oninput="updatepreview()"></td>
+                </tr>
+                <tr>
+                    <td>Site description:</td>
+                    <td><input type="text" name="site_description" oninput="updatepreview()"></td>
+                </tr>
+                <tr>
+                    <td>Site footer:</td>
+                    <td><input type="text" name="site_footer" oninput="updatepreview()"></td>
+                </tr>
+                <tr>
+                    <td>Site contact email:</td>
+                    <td><input type="text" name="site_email"></td>
+                </tr>
+            </table>
+            <br>
+            <a class="forum_action" href="#" onclick="set_page('dbdetails'); return false;">Back</a>
+            <a class="forum_action" href="#" onclick="set_page('install'); return false;">Next</a>
+        </div>
+
+        <div id="install">
+            You are almost done!<br><br>
+            Please read the terms of use below: <br>
+            <blockquote id="toc" style="background: #FFEBD9;">Please remember that the software developers are not
+                responsible for any content posted. The messages or posts express the views of the author of the message
+                or post, not necessarily the views of this site's developers. You agree that the developers of this
+                software or this site shall not be held responsible for any hacking attempt that may lead to the data
+                being compromised.
+            </blockquote>
+            <input id="tou" type="checkbox" name="agree"> I agree with terms of use<br><br>
+            <div id="settings_code" style="display:none;">settings.php is not writable, please copy manyally the
+                following code to your settings.php:<br>
+                <div id="settings_code_actual"></div>
+            </div>
+            <a class="forum_action" href="#" onclick="set_page('settings'); return false;">Back</a>
+            <a class="forum_action" href="#" onclick="install(); return false;">Finish</a>
+        </div>
+
+    </div>
+    <br>
+
+    <script type="text/javascript" src="../lib/syntaxhighlighter/js/shCore.js"></script>
+    <script type="text/javascript" src="../lib/syntaxhighlighter/js/shAutoloader.js"></script>
+    <script>
+        set_page("welcome");
+        check();
+        if (!{settingsWRITABLE}) {
+            $("#settings_code").css("display", "inherit");
+        }
+        SyntaxHighlighter.autoloader(['php', '../lib/syntaxhighlighter/js/shBrushPhp.js']);
+        update_code();
+    </script>
+
+    <div class="footer">Software installer<br></div>
+
+</div>
+
+
+</body>
+</html>

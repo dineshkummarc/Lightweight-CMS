@@ -1,0 +1,118 @@
+<script src="./acp/submit.js"></script>
+
+<script type="text/javascript">
+	var gid = { % $_GET['gid'] %
+	}
+	{%$TEMPLATE_VARS["GROUPMEMBERS"]%}
+
+function ToYesNo(group){
+if (group == gid){return "Yes";}
+return "No";
+}
+
+function StatusToString(status){
+    if(status == '0'){
+        return "pending";
+    }else if(status == '1'){
+        return "approved";
+    }else{
+        return "leader";
+    }
+}
+
+function MakeTable()
+{
+	var color1 = "#99CCFF";
+	var color2 = "#77B8FF";
+	var table = '<tr BGcolor="'+color2+'"><th class="GroupsTable">{%$language['ui']['user']%}</th><th class="GroupsTable">{%$language['ui']['joined']%}</th><th class="GroupsTable">{%$language['ui']['posts']%}</th><th class="GroupsTable">{%$language['ui']['group_is_default']%}</th><th class="GroupsTable">{%$language['ui']['status']%}</th><th class="GroupsTable">{%$language['ui']['mark']%}</th></tr>\n';;
+	for (i in groupmembers) {
+		if(i % 2 == 0){color = color1;}else{color = color2;}
+		table += '<tr BGcolor="'+color+'"><td class="GroupsTable"><a href="./acp.php?a=manage_users&u='+groupmembers[i]["username"]+'">'+groupmembers[i]["username"]+'</a></td><td class="GroupsTable">'+groupmembers[i]["user_join_date"]+'</td><td  class="GroupsTable">'+groupmembers[i]["user_post_count"]+'</td><td  class="GroupsTable">'+ToYesNo(groupmembers[i]["user_default_group"])+'</td><td  class="GroupsTable">'+StatusToString(groupmembers[i]["user_status"])+'</td><td  class="GroupsTable"><input id="'+groupmembers[i]["user_id"] +'" type="checkbox"></td></tr>\n';
+	}
+	if (groupmembers.length == 0){table += '<tr><td  class="GroupsTable" colspan="6">This group has no members</td></tr>\n';}
+	htable = document.getElementById("group_members");
+	htable.innerHTML=table;
+}
+
+function Selectedaction(){
+	if (groupmembers.length == 0){
+		alert("This group has no members");
+		return;
+	}
+	checklist = "";
+	for (i in groupmembers) {
+		check = document.getElementById(groupmembers[i]["user_id"]);
+		if(check.checked == true){
+			checklist += groupmembers[i]["user_id"]+"|"
+		}
+	}
+	checklist = checklist.substring(0, checklist.length-1);
+	if(checklist == ""){alert("You didn't select any users");return;}
+	
+	var e = document.getElementById("actions");
+	var action = e.options[e.selectedIndex].value;
+	var Submitdata = [];
+	Submitdata["users"] = checklist;
+	Submitdata["action"] = action;
+	Submitdata["gid"] = gid;
+	var path = "./acp.php?id={%$_GET['id']%}&a={%$_GET['a']%}&mode=selectedmembersmanage&gid="+gid;
+	post_to_url(path, Submitdata, "post");
+	
+}
+
+function selectUsers(){
+    var checks = $("input[type=checkbox]:checked");
+    var ret = "";
+    for(var i = 0; i < checks.length; i++){
+        ret += checks[i].name+"\n";
+    }
+    $("textarea[name=usernames]").val(ret);
+    $("#win").remove();
+}
+
+</script>
+
+<h2>{%$MODULE_TITLE%}</h2>
+<table border="0" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td>
+
+<table style="border-top: 1px solid #064C99; border-right: 1px solid #064C99; text-align: left; " border="0" cellpadding="2" cellspacing="0">
+<tbody id="group_members">
+</tbody>
+</table>
+
+<div style="text-align: right;">{%$language['ui']['action']%}:
+<select id="actions"><option value="approve">{%$language['ui']['approve']%}</option><option value="disapprove">{%$language['ui']['disapprove']%}</option><option value="default">{%$language['ui']['set_default']%}</option><option value="remove">{%$language['ui']['remove_from_group']%}</option><option value="promote">{%$language['ui']['promote_leader']%}</option><option value="demote">{%$language['ui']['demote_leader']%}</option><option value="ban">{%$language['ui']['ban_users']%}</option><option value="delete">{%$language['ui']['delete_users']%}</option></select>&nbsp;<input value="{%$language['ui']['submit']%}" onclick="Selectedaction()" type="button">
+</div>
+
+</td>
+</tr>
+</tbody>
+</table>
+<br>
+<br>
+<h2>{%$language['ui']['add_users']%}:</h2>
+<form method="post" action="./acp.php?id={%$_GET['id']%}&a={%$_GET['a']%}&gid={%$_GET['gid']%}&mode=addtogroup">
+<table border="0" cellpadding="2" cellspacing="2">
+<tbody>
+<tr>
+<td>{%$language['ui']['user_names']%}:<br>
+{%$language['ui']['names_hint']%}</td>
+<td><textarea cols="35" rows="4" name="usernames"></textarea><br>
+    &nbsp;<a href="#" onclick="createUsersSelector();return false;">{%$language['ui']['search']%}</a></td>
+</tr>
+<tr>
+<td>{%$language['ui']['set_default_new']%}:</td>
+<td><input name="Default" type="checkbox"></td>
+</tr>
+<tr>
+<td>{%$language['ui']['promote_leader']%}:</td>
+<td><input name="leader" type="checkbox"></td>
+</tr>
+</tbody>
+</table>
+<div style="text-align: center;"><input value="{%$language['ui']['submit']%}" type="submit"></div>
+</form>
+<script type="text/javascript">MakeTable();</script>

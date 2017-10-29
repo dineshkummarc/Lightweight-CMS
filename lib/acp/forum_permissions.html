@@ -1,0 +1,17 @@
+<script type="text/javascript">
+
+	set_url =function(){
+		var theForm=document.getElementById("groupjunkie");
+		action_url = document.URL+"&mode=forum_permissions_manage";
+		theForm.action = action_url;
+	}
+	
+</script>
+<h2>{%$MODULE_TITLE%}</h2>
+<form method="post" action="" id="groupjunkie" name="GroupManage">
+{%$language['ui']['select_forum']%}: <select name="forum_id">{%$TEMPLATE_VARS['FORUM_COMBO']%}</select>
+<input class="button" value="OK" type="submit"></form>
+
+<script type="text/javascript">
+		set_url();
+</script>

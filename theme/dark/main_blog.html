@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>{title}: {%$CURRENT_TOPIC[0]['title']%}</title>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8"/><!--main_blog.html-->
+{%$OG_TAGS%}
+<link type="text/css" rel="stylesheet" href="./lib/syntaxhighlighter/styles/shCore.css"/>
+<link type="text/css" rel="stylesheet" href="./lib/syntaxhighlighter/styles/shThemeDefault.css"/>
+<script src="./lib/jquery.js"></script> 
+<script src="./lib/funcs.js"></script>
+<script src="./lib/sorttable.js"></script>
+<script src="./lib/jquery-ui.js"></script>
+<script type="text/javascript"> 
+var olddata = "";
+var showbtn = false;
+var autoResize = true;
+var rootDir = "{%$root_dir%}";
+var templatename = "{%$site_settings['template']%}";
+
+var GET_id = "{%$_GET['id']%}";
+    
+//In case older browsers dont have it.
+if (!document.getElementsByClassName) {
+    document.getElementsByClassName=function(cn) {
+        var allT=document.getElementsByTagName('*'), allCN=[], i=0, a;
+        while(a=allT[i++]) {
+            a.classname==cn ? allCN[allCN.length]=a : null;
+        }
+        return allCN
+    }
+}
+
+
+String.prototype.insert = function (index, string) {
+  if (index > 0)
+    return this.substring(0, index) + string + this.substring(index, this.length);
+  else
+    return string + this;
+};
+
+</script>
+<link rel="stylesheet" type="text/css" href="{%$root_dir%}/theme/{%$site_settings['template']%}/normalize.css"/> 
+<link rel="stylesheet" type="text/css" href="{%$root_dir%}/theme/{%$site_settings['template']%}/style.css"/>
+<link rel="stylesheet" type="text/css" href="./lib/jquery-ui.css" >
+{%$INCLUDE_MOBILE%}
+</head>
+<body>
+<div style="margin: 0px; padding: 0px; width: 1000px; margin-left: auto;  margin-right: auto;">
+{{{%$root_dir%}/theme/{%$site_settings['template']%}/header.html}}
+
+{%$announcement%}
+
+<div class="forum_path">{%$forum_path%}</div>
+<div id="forum_list_div"></div>
+<script type="text/javascript">
+   if("{%$acp_action%}".indexOf("ucp") < 0 && "{%$acp_action%}".indexOf("ajaxpost") < 0 ){
+       $("#forum_list_div").html('<div class="forum_list" ><strong>CATEGORIES </strong>{%$forum_links_tabs%}</div>');
+   }
+</script>
+
+{{{INJECT_FILE}}}
+
+<div class="footer">{%$footer_text%}<br></div>
+<div style="text-align: center;"><small>{%$language['ui']['last_update']%}: {%$last_update%}<br>{%$language['ui']['generation_time']%} {%$generation_time%} {%$language['ui']['seconds']%}</small></div>
+
+</div>
+
+<script type="text/javascript">//Highlight();
+    resizeWin();</script>
+
+
+<script type="text/javascript">
+    var fullscreen = window.location.hash == "#fullscreen";
+    
+    var imageWidth = '{%$image_width%}';
+    var imageHeight = '{%$image_height%}';
+    var aspectRatio = Math.max($(".thumb_large").width(),$(".thumb_large").height())/Math.min($(".thumb_large").width(),$(".thumb_large").height());
+    //getAttribute('class').split(' ')[1]
+    var share_url = document.URL.split("?")[0]+"?p=";
+    var url_append = "";
+    var hastags = "";
+    for(var i = 0; i < $('.share').length;i++){
+        url_append = $('.share')[i].getAttribute('class').split(' ')[1];
+        hastags = $('#ht'+url_append )[0].getAttribute('class');
+        var stags = "";
+        if(hastags.length > 0){
+            var atags = hastags.split(' ');
+            for(var j = 0; j < atags.length; j++){
+                stags += "%23"+atags[j]+"+";
+            }
+        }
+        stags = escapeHtml(stags);
+        $('.share')[i].innerHTML = 'Share: <a href="https://www.facebook.com/sharer/sharer.php?u='+share_url+url_append+'"><img src="./theme/{%$site_settings['template']%}/icons/fb.png" style="width: 16px;heigth: 16px;"></a>\n\
+<a href="https://twitter.com/intent/tweet?text='+stags+'&url='+share_url+url_append+'"><img src="./theme/{%$site_settings['template']%}/icons/twitter.gif" style="width: 16px;heigth: 16px;" ></a>\n\
+<a href="https://www.blogger.com/blog-this.g?u='+share_url+url_append+'&n='+share_url+url_append+'&t='+stags+'"><img src="./theme/{%$site_settings['template']%}/icons/blogspot.png" style="width: 16px;heigth: 16px;" ></a>\n\
+<a href="https://plus.google.com/share?url='+share_url+url_append+'"><img src="./theme/{%$site_settings['template']%}/icons/googleplus.png" style="width: 16px;heigth: 16px;"></a>';
+    }
+    hidebar = '{%$_GET['a']%}' == 'search' ? true : false;
+    if(hidebar){
+        $("#ACP_ACTIONS_MENU").hide();
+    }
+
+
+$(".thumb_large").css("width","auto"); 
+$(".thumb_large").css("max-width","100%"); 
+$(".thumb_large").css("max-height","100%"); 
+
+resize_img();
+try{
+lineWrap();
+}catch(err) {}
+$(window).resize(function(){lineWrap()});
+
+if("{%$forum_info[0]['forum_type']%}" == "2"){hidemenu();autoResize=false;}
+
+
+if(fullscreen){
+    fullscreenInit();
+}
+
+
+if('{%$INCLUDE_MOBILE%}' != "" ){
+    var items = $("div > a > img:nth-child(1)");
+    //var strongs = $("div.thumb > strong");
+    for(var i = 0; i < items.length; i++){items[i].onclick=function(){initFullscreen2(this);return false;}}
+}
+try{
+    if("{%$_GET['p']%}".length > 0){
+        document.getElementById('post{%$_GET['p']%}';).scrollIntoView();
+    };
+}catch(err) {}
+resize_full();
+hidemenu();
+</script>
+
+<script type="text/javascript" src="./lib/syntaxhighlighter/js/shCore.js"></script>
+<script type="text/javascript" src="./lib/syntaxhighlighter/js/shAutoloader.js" ></script>
+<script type="text/javascript">
+ SyntaxHighlighter.autoloader(
+ [ 'applescript', './lib/syntaxhighlighter/js/shBrushAppleScript.js' ],
+ [ 'actionscript3', 'as3', './lib/syntaxhighlighter/js/shBrushAS3.js' ],
+ [ 'assembler', 'asm', './lib/syntaxhighlighter/js/shBrushAsm.js' ],
+ [ 'autoit3', 'au3', './lib/syntaxhighlighter/js/shBrushAutoit.js' ],
+ [ 'bash', 'shell', './lib/syntaxhighlighter/js/shBrushBash.js' ],
+ [ 'coldfusion', 'cf', './lib/syntaxhighlighter/js/shBrushColdFusion.js' ],
+ [ 'cpp', 'c', './lib/syntaxhighlighter/js/shBrushCpp.js' ],
+ [ 'cs', 'c-sharp', 'csharp', './lib/syntaxhighlighter/js/shBrushCSharp.js' ],
+ [ 'css', './lib/syntaxhighlighter/js/shBrushCss.js' ],
+ [ 'delphi', 'pascal', './lib/syntaxhighlighter/js/shBrushDelphi.js' ],
+ [ 'diff', 'patch', 'pas', './lib/syntaxhighlighter/js/shBrushDiff.js' ],
+ [ 'erl', 'erlang', './lib/syntaxhighlighter/js/shBrushErlang.js' ],
+ [ 'groovy', './lib/syntaxhighlighter/js/shBrushGroovy.js' ],
+ [ 'haxe hx', './lib/syntaxhighlighter/js/shBrushHaxe.js', ],
+ [ 'java', './lib/syntaxhighlighter/js/shBrushJava.js' ],
+ [ 'jfx', 'javafx', './lib/syntaxhighlighter/js/shBrushJavaFX.js' ],
+ [ 'js', 'jscript', 'javascript', './lib/syntaxhighlighter/js/shBrushJScript.js' ],
+ [ 'perl', 'pl', './lib/syntaxhighlighter/js/shBrushPerl.js' ],
+ [ 'php', './lib/syntaxhighlighter/js/shBrushPhp.js' ],
+ [ 'text', 'plain', './lib/syntaxhighlighter/js/shBrushPlain.js' ],
+ [ 'py', 'python', './lib/syntaxhighlighter/js/shBrushPython.js' ],
+ [ 'ruby', 'rails', 'ror', 'rb', './lib/syntaxhighlighter/js/shBrushRuby.js' ],
+ [ 'scala', './lib/syntaxhighlighter/js/shBrushScala.js' ],
+ [ 'sql', './lib/syntaxhighlighter/js/shBrushSql.js' ],
+ [ 'vb', 'vbnet', './lib/syntaxhighlighter/js/shBrushVb.js' ],
+ [ 'xml', 'xhtml', 'xslt', 'html', './lib/syntaxhighlighter/js/shBrushXml.js' ]
+ );
+    SyntaxHighlighter.all();
+    setTimeout(function() { lineWrap(); }, 500);
+</script>
+
+
+</body>
+</html>

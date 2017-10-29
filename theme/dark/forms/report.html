@@ -1,0 +1,17 @@
+<form method="post" action="{%$root_dir%}/?a=report&p={%$_GET['p']%}" name="report">
+    <table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
+        <tbody>
+            <tr><td>{%$language['ui']['message']%}</td><td>
+            <textarea cols="45" rows="5" name="report_msg"></textarea>
+            </td>
+            </tr>
+            <tr><td>&nbsp;</td><td><a href="{%$_SERVER['HTTP_REFERER']%}">{%$language['ui']['cancel']%}</a> <input name="submit" value="{%$language['ui']['submit_report']%}" type="submit">
+            <br></td>
+            </tr>
+        </tbody>
+    </table>
+</form>
+<br>{%$language['ui']['report_notice']%}<br><br>
+<script>
+    $("#forum_list_div").remove();
+</script>

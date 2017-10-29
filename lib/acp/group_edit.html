@@ -1,0 +1,99 @@
+<script type="text/javascript">
+function SetRadio(){
+	var elements = document.getElementsByName ("type");
+	var value = "";
+	for (i in elements)
+	{
+		value =	elements[i].value;
+		if (value == {%$TEMPLATE_VARS['GROUPINFO'][0]["type"]%}){
+			elements[i].checked=true;
+		}		
+	}
+}
+
+function SetCheck(){
+	var display_on_legend = document.getElementsByName ("display_on_legend");
+	var founder_manage = document.getElementsByName ("founder_manage");
+	founder_manage[0].checked=false;display_on_legend[0].checked=false;
+	if (1 == {%$TEMPLATE_VARS['GROUPINFO'][0]["founder_manage"]%}){
+		founder_manage[0].checked=true;
+	}
+	if (1 == {%$TEMPLATE_VARS['GROUPINFO'][0]["display_on_legend"]%}){
+		display_on_legend[0].checked=true;
+	}
+}
+
+function showStuff(id) {
+	document.getElementById(id).style.display = 'block';
+}
+function hideStuff(id) {
+	document.getElementById(id).style.display = 'none';
+}
+
+function Setrank(){
+	var rank = document.getElementById("Grouprank");
+	for (i = 0; i < rank.length; i++){
+		if(rank.options[i].value == "{%$TEMPLATE_VARS['GROUPINFO'][0]['rank']%}"){
+			rank.selectedIndex = i;
+			break;
+		}
+	}
+}
+
+var ret_data =  "";
+
+function pickcolor(){
+    CreateWindow({title:"Select color",x:"25%",y:"25%", width:"170px;", height:"130px", resizable:false});
+    $.get( "./color_picker.html", function( data ) {
+        ret_data = data;
+        $("#wincontent").html(data);
+    });
+}
+
+function setcolor(color){
+    	$("#color").val(color);
+        $('#win').remove();
+}
+
+</script>
+<h2>{%$MODULE_TITLE%}</h2>
+<form action="./acp.php?id={%$_GET['id']%}&a={%$_GET['a']%}&mode=groupupdate&gid={%$_GET["gid"]%}" method="post" action="post" name="group_edit">
+	<table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
+		<tbody>
+			<tr>
+				<td>{%$language['ui']['group']%}:</td>
+				<td><input id="group_name" name="name" onkeypress="update_preview();" onchange="update_preview();" value="{%$TEMPLATE_VARS['GROUPINFO'][0]["name"]%}"></td>
+			</tr>
+			<tr>
+				<td>{%$language['ui']['group_description']%}:</td>
+				<td><textarea cols="30" rows="3" name="description">{%$TEMPLATE_VARS['GROUPINFO'][0]["description"]%}</textarea></td>
+			</tr>
+			<tr>
+				<td>{%$language['ui']['group_type']%}:</td>
+				<td><input name="type" value="0" type="radio">{%$language['ui']['open']%} <input name="type" value="1" type="radio">{%$language['ui']['request']%} <input name="type" value="2" type="radio"> {%$language['ui']['closed']%} <input name="type" value="3" type="radio">{%$language['ui']['secret']%}</td>
+			</tr>
+			<tr>
+				<td>{%$language['ui']['rank']%}rank:</td>
+				<td><select name="rank" id="Grouprank" onchange="update_preview();"><option value="0">{%$language['ui']['none']%}</option>{%$TEMPLATE_VARS["RANKLISTCOMBO"]%}</select></td>
+			</tr>
+			<tr>
+				<td>{%$language['ui']['color']%}:</td>
+				<td><input id="color" onkeypress="update_preview();" onchange="update_preview();" name="color" value="{%$TEMPLATE_VARS['GROUPINFO'][0]["color"]%}"><span style="position:relative;"><a href="#" onClick="pickcolor();return false;">[{%$language['ui']['select']%}]</a>
+			</span>
+				</td>
+			</tr>
+			<tr>
+				<td>{%$language['ui']['display_legend']%}:</td>
+				<td><input name="display_on_legend" type="checkbox"></td>
+			</tr>
+			<tr>
+				<td>{%$language['ui']['founder_manage']%}:</td>
+				<td><input name="founder_manage" type="checkbox"></td>
+			</tr>
+		</tbody>
+	</table>
+	<div style="text-align: center;">
+		<input value="{%$language['ui']['submit']%}" type="submit"><br>
+	</div>
+</form>
+<script type="text/javascript">SetRadio();SetCheck();Setrank();</script>

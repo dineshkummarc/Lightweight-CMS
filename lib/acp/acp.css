@@ -1,0 +1,184 @@
+ body {
+        font: 13px;
+        font-family: Arial;
+    }
+
+td.this {
+        font: 13px;
+        font-family: Arial;
+    }
+
+    #header ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    #header li {
+        float: left;
+        border: 1px solid #307C99;
+        border-bottom-width: 0;
+        margin: 0px 1px 0px 0px;
+    }
+
+    li.Selected {
+        position: relative;
+        top: 1px;
+        background-color: #dbedff;
+    }
+
+    li.NotSelected {
+        position: relative;
+        top: 1px;
+        background-color: #99ccff;
+    }
+
+    .content {
+        border: 1px solid #307C99;
+        clear: both;
+		background-color: #dbedff;
+    }
+    #group_permissionsTable {
+        border: 1px solid #307C99;
+        clear: both;
+		background-color: #dbedff;
+		float: left;
+		padding:5px;
+    }
+
+TABLE,TR,TD,BODY,SELECT,INPUT,BUTTON,TEXTAREA{font:13px Arial;color:#000}
+INPUT.InputBox{margin:1px; width: 300px;}
+input[type=text],input[type=password], textarea
+{
+	width: 300px;
+}
+INPUT.login{margin:1px; width: 100px;}
+INPUT.short{width: 75px;}
+
+td.GroupsTable{
+	border-left: solid 1px #064C99;
+	border-bottom: solid 1px #064C99;
+	vertical-align: top;
+}
+
+th.GroupsTable{
+	border-left: solid 1px #064C99;
+	border-bottom: solid 1px #064C99;
+	vertical-align: top;
+	background-color: #428AFF;
+	color: #ffffff;
+}
+
+table.pretty_table td{
+	border-left: solid 1px #064C99;
+	border-bottom: solid 1px #064C99;
+	vertical-align: top;
+}
+.oddrowcolor{
+	background-color:#d4e3e5;
+}
+.evenrowcolor{
+	background-color:#c3dde0;
+}
+
+
+td.LeftPanel{
+	width: 200px;
+	vertical-align: top;
+}
+
+td.RightPanel{
+	vertical-align: top;
+	vertical-align: top;
+}
+
+a{
+	text-decoration: none;
+	color: #0011ff;
+}
+
+span.link{
+	cursor: pointer;
+	color: #0011ff;
+}
+
+img.icon{
+	width: 32px;
+	height: 32px;
+}
+
+img.icon24{
+	width: 24px;
+	height: 24px;
+}
+
+img.icon16{
+	width: 16px;
+	height: 16px;
+}
+
+#oprhaned tr:hover{
+    background-color: #c3dde0;
+}
+
+table.sortable{
+    border-top: 1px solid black;
+    border-right: 1px solid black;
+}
+
+table.sortable, table.sortable td{
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+table.sortable td{
+    padding: 3px;
+}
+
+
+table.sortable tbody tr:nth-child(2n) td {
+  background: #77B8FF;
+}
+table.sortable tbody tr:nth-child(2n+1) td {
+  background: #99CCFF;
+}
+
+
+#msgbox{
+    position: fixed;
+    top: 20%;
+    left: 25%;
+    width: 50%;
+    background: rgba(204, 204, 204, 0.42);
+    border: 1px solid #FFF;
+    box-shadow: 0px 0px 5px rgba(1, 1, 1, 0.7);
+    border-radius: 5px;
+    padding:2px;
+}
+
+.colorselector a {
+    display: block;
+    width: 15px;
+    height: 15px;
+    overflow: hidden;
+    border: 1px solid #808080;
+}
+
+#titlebar {
+    padding: 0px;
+    overflow: hidden;
+    height: 22px;
+}
+
+#win{
+    padding: 0px;
+}
+
+table.highlightrow tr:hover td{
+    background-color: #CFA !important;
+}
+
+.cp_menu_selected{
+    padding-left: 10px;
+    font-weight: 800;
+}

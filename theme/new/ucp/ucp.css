@@ -1,0 +1,129 @@
+ body {
+        font: 13px arial, helvetica, sans-serif;
+        background: #E0E0E0;
+    }
+	
+div.code {background: #ffffee;} 
+span.keyword {color: #0000ff;} 
+span.string {color: #A31515;} 
+td.this {
+        font: 13px arial, helvetica, sans-serif;
+    }
+
+    #header ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    #header li {
+        float: left;
+        border: 1px solid #91B1D9;
+        border-bottom-width: 0;
+        margin: 0 1 0 0;
+    }
+
+    li.Selected {
+        position: relative;
+        top: 1px;
+        background-color: #0E51A7;
+    }
+    
+
+    li.NotSelected {
+        position: relative;
+        top: 1px;
+        background-color: #05326D;
+        color: #ccccc;
+    }
+
+    #content {
+        border: 1px solid #91B1D9;
+        clear: both;
+        background-color: #ffffff;
+    }
+    #GroupPermissionsTable {
+        border: 1px solid #307C99;
+        clear: both;
+		background-color: #dbedff;
+		float: left;
+		padding:5px;
+    }
+
+TABLE,TR,TD,BODY,SELECT,INPUT,BUTTON,TEXTAREA{font:12px Tahoma;color:#000}
+INPUT.InputBox{margin:1px; width: 300px;}
+input[type=text],input[type=password]
+{
+	width: 300px;
+}
+INPUT.login{margin:1px; width: 100px;}
+
+td.GroupsTable{
+	border-left: solid 1px #064C99;
+	border-bottom: solid 1px #064C99;
+	vertical-align: top;
+}
+
+th.GroupsTable{
+	border-left: solid 1px #064C99;
+	border-bottom: solid 1px #064C99;
+	vertical-align: top;
+	background-color: #428AFF;
+	color: #ffffff;
+}
+
+td.LeftPanel{
+	width: 200px;
+	vertical-align: top;
+}
+
+td.RightPanel{
+	vertical-align: top;
+	vertical-align: top;
+}
+
+a{
+	text-decoration: none;
+	color: #6997D3;
+}
+
+span.link{
+	cursor: pointer;
+	color: #6997D3;
+}
+
+img.icon{
+	width: 32px;
+	height: 32px;
+}
+
+img.icon24{
+	width: 24px;
+	height: 24px;
+}
+
+h2{
+    color: #1F3D62;
+}
+
+#ACP_ACTIONS_MENU{
+    /*background:#91B1D9;
+    border-style:solid;*/
+    border-right: thin dashed #91B1D9;
+}
+
+body > div:nth-child(1) > div:nth-child(1) > a{
+    color: #ffffff;
+}
+
+#ACP_ACTIONS_MENU > a{
+    color: #1F3D62;
+}
+
+.NotSelected > a, .Selected > a{
+    color: #ffffff;
+}
+
+.sessions > tbody > tr{
+    background-color: #428AFF;
+}

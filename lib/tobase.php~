@@ -1,0 +1,66 @@
+<?php
+//This file takes care of writeing changes to data base.
+
+if (!function_exists("ConnectDataBase")){include("./funcs.php");include("../Settings.php");}
+if (!$GLOBALS_DEFINED == true){include("../Globals.php");}
+if (!function_exists("CreateUser")){include("./login.php");}
+
+$Action = stripslashes(strip_tags($_GET["a"]));
+
+
+switch($Action) {
+	case "general":
+		ToBaseGeneral();
+		break;
+}
+
+function CheckboxToInt($sStr){
+	if($sStr == "on") {return 1;}
+	return 0;
+}
+
+function _mysql_query($sStr) {
+	dbg("Query = ".$sStr);
+	dbg("result = ".mysql_query($sStr));
+}
+
+function ToBaseGeneral() {
+	global $General;
+	$Name = $_POST["SiteName"];
+	$Description = $_POST["SiteDescription"];
+	$MOD = $_POST["SITEMOD"];
+	$Style = $_POST["DefaultStyle"];
+	$Time = $_POST["TimeFormat"];
+	$CBRaters = CheckboxToInt($_POST["Raters"]);
+	$CBCommentators = CheckboxToInt($_POST["Commentators"]);
+	$CBImage = CheckboxToInt($_POST["Image Uploader"]);
+	$CBContributor = CheckboxToInt($_POST["Site contributors"]);
+	$CBModerator = CheckboxToInt($_POST["Moderators"]);
+	$CBAdministrator = CheckboxToInt($_POST["Administrators"]);
+	$CBBlocked = CheckboxToInt($_POST["Blocked"]);
+	$DefaultGroup = $_POST["DefaultGroup"];
+	$BBCode = CheckboxToInt($_POST["AllowBBCode"]);
+	$Smiles = CheckboxToInt($_POST["AllowSmiles"]);
+	$MaxSig = $_POST["Allowsig"];
+	_mysql_query('UPDATE '.$General[this].' SET '.$General["AllowBBCode"].' = "'.$BBCode.'"');
+	_mysql_query('UPDATE '.$General[this].' SET '.$General["AllowSmiles"].' = "'.$Smiles.'"');
+	_mysql_query('UPDATE '.$General[this].' SET '.$General["SignatureMaxLen"].' = "'.$MaxSig.'"');
+	_mysql_query('UPDATE '.$General[this].' SET '.$General["DefaultGroup"].' = "'.$DefaultGroup.'"');
+	_mysql_query('UPDATE '.$General[this].' SET '.$General["SiteName"].' = "'.$Name.'"');
+	_mysql_query('UPDATE '.$General[this].' SET '.$General["SiteDescription"].' = "'.$Description.'"');
+	_mysql_query('UPDATE '.$General[this].' SET '.$General["SiteMOD"].' = "'.$MOD.'"');
+	_mysql_query('UPDATE '.$General[this].' SET '.$General["DefaultStyle"].' = "'.$Style.'"');
+	_mysql_query('UPDATE '.$General[this].' SET '.$General["TimeFormat"] .' = "'.$Time.'"');
+	$group;
+	if ($CBRaters){$group += 1;}
+	if ($CBCommentators){$group += 2;}
+	if ($CBImage){$group += 4;}
+	if ($CBContributor){$group += 8;}
+	if ($CBModerator){$group += 16;}
+	if ($CBAdministrator){$group += 32;}
+	if ($CBBlocked){$group += 64;}
+	_mysql_query('UPDATE '.$General[this].' SET '.$General["DefaultGroupList"].' = "'.$group.'"');
+	
+}
+
+?>

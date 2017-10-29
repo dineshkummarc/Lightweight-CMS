@@ -1,0 +1,19 @@
+<form method="post" action="acp.php?id={%$_GET['id']%}&a=mkuser">
+  <table style="text-align: left;" border="0" cellpadding="2" cellspacing="2">
+    <tbody>
+      <tr>
+        <td style="vertical-align: top;">{%$language['ui']['user']%}:</td>
+        <td><input type="text" name="username"></td>
+      </tr>
+      <tr>
+        <td style="vertical-align: top;">{%$language['ui']['password']%}:</td>
+        <td><input name="user_password" type="password"></td>
+      </tr>
+      <tr>
+        <td style="vertical-align: top;">{%$language['ui']['email']%}:</td>
+        <td><input type="text" name="user_email"></td>
+      </tr>
+    </tbody>
+  </table>
+  <input value="Add" type="submit"><br>
+</form>

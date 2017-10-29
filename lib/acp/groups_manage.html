@@ -1,0 +1,18 @@
+<h2>{%$MODULE_TITLE%}</h2>
+ <br>
+
+<table style="border-top: 1px solid rgb(48, 124, 153); border-right: 1px solid rgb(48, 124, 153); text-align: left; " class="sortable">
+	<tbody>
+		<tr>
+			<td class="GroupsTable" bgcolor="#99ccff">{%$language['ui']['name']%}</td>
+			<td class="GroupsTable" bgcolor="#99ccff">{%$language['ui']['members']%}</td>
+			<td class="GroupsTable" colspan="3" bgcolor="#99ccff">{%$language['ui']['options']%}</td>
+			<td class="GroupsTable" bgcolor="#99ccff">{%$language['ui']['delete']%}</td>
+		</tr>
+{%$TEMPLATE_VARS['groupsTABLE']%}
+	 </tbody>
+</table><br>
+<form action="./acp.php?id={%$_GET['id']%}&a={%$_GET['a']%}&mode=AddGroup" name="AddGroup" method="POST">
+{%$language['ui']['new_group']%}: <input name="group_name"> <input class="button" value="{%$language['ui']['create']%}" type="submit">
+</form>
+

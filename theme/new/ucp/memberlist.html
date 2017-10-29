@@ -1,0 +1,28 @@
+<h2 style="color: {%$list_color%};">{%$list_name%}</h2>
+
+<style>
+table .sortable{
+    border-top: 1px solid black;
+    border-right: 1px solid black;
+}
+</style>
+
+<table class="sortable" style="width: 100%;">
+    <tbody>
+    <tr bgcolor="#428AFF">
+        {%$select_head%}
+        <td><b>{%$language['ui']['avatar']%}</b></td>
+        <td><b>{%$language['ui']['user']%}</b></td>
+        <td><b>{%$language['ui']['rank']%}</b></td>
+        <td><b>{%$language['ui']['posts']%}</b></td>
+        <td><b>{%$language['ui']['joined']%}</b></td>
+        <td><b>{%$language['ui']['last_visit']%}</b></td>
+        <td><b>{%$language['ui']['email']%}</b></td>
+        <td><b>{%$language['ui']['facebook']%}</b></td>
+    </tr>
+    {%$member_rows%}
+    </tbody>
+</table><br>
+
+{%$sel_btn%}
+

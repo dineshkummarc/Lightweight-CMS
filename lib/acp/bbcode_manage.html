@@ -1,0 +1,14 @@
+<h2>{%$MODULE_TITLE%}</h2>
+<table id="bbcodes" cellspacing="0" cellpadding="0" border="0" style="text-align: left; border-top: 1px solid rgb(48, 124, 153); border-right: 1px solid rgb(48, 124, 153);"></table>
+<script type="text/javascript">
+{%$TEMPLATE_VARS['bbcode']%}
+function new_bbcode(){
+	document.location = document.URL+'&edit=0';
+}
+
+text = '<tr><td class="GroupsTable" colspan="5" align="right"><span onclick="new_bbcode();" style="cursor: pointer">{%$language['ui']['add_bbcode']%} <img src="./acp/add.png" width="16" height="16" onclick="new_bbcode();" /></span></td></tr>\n<tr><td class="GroupsTable" ><b>{%$language['ui']['bbcode']%}</b></td><td class="GroupsTable" ><b>{%$language['ui']['edit']%}</b></td><td class="GroupsTable"><b>{%$language['ui']['delete']%}</b></td></tr>';;
+for (i = 0; i < bbcode.length; i++){
+	text += '<tr><td class="GroupsTable" >'+bbcode[i]['bbcode_hint']+'</td><td class="GroupsTable" ><a href="'+document.URL+'&edit='+bbcode[i]['bbcode_id']+'"><img src="./acp/edit.png" class="icon24"/></a></td class="GroupsTable" ><td class="GroupsTable" ><a href="'+document.URL+'&delete='+bbcode[i]['bbcode_id']+'"><img src="./acp/delete.png" class="icon24" /></a></td></tr>';
+}
+document.getElementById('bbcodes').innerHTML=text;
+</script>

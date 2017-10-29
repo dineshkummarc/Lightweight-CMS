@@ -1,0 +1,78 @@
+Here you can ban or unban user name, email or IP address. You can give reason for ban that wil be displayed to user and in logs if you wish.<br>
+<form method="post" action="nodefine" name="ban">
+  <h2>Ban</h2>
+Ban user name, email, or IP. Note that it's enough when you fill 1 of
+these field.<br>
+  <br>
+  <table style="text-align: left;" cellpadding="0" cellspacing="0">
+    <tbody>
+      <tr>
+        <td style="vertical-align: top;" width="200">User name:<br>
+        </td>
+        <td style="vertical-align: top;"><input name="banusername"> find
+        </td>
+      </tr>
+      <tr>
+        <td style="vertical-align: top;">Email:<br>
+        </td>
+        <td style="vertical-align: top;"><input name="banemail"> find
+        </td>
+      </tr>
+      <tr>
+        <td style="vertical-align: top;">IP address:<br>
+        </td>
+        <td style="vertical-align: top;"><input name="ipaddress"> find
+        </td>
+      </tr>
+      <tr>
+        <td style="vertical-align: top;">Lenght:<br>
+        </td>
+        <td style="vertical-align: top;"><br>
+        </td>
+      </tr>
+      <tr>
+        <td style="vertical-align: top;">Reason:<br>
+(Showed for user)<br>
+        </td>
+        <td style="vertical-align: top;"><textarea cols="25" rows="3" name="reason"></textarea><br>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <input class="button" name="Ban" value="Ban" type="submit"><br>
+</form>
+<form method="post" action="notdef" name="unban">
+  <h2>Unban</h2>
+Unban user name, email, or IP. Note that it's enough when you fill 1 of
+these field.<br><br>View list of banned users<br>
+  <br>
+  <table style="text-align: left;" 0="" cellspacing="0">
+    <tbody>
+      <tr>
+        <td style="vertical-align: top;" width="200">User name:<br>
+        </td>
+        <td style="vertical-align: top;"><input name="banusername"> find<br>
+        </td>
+      </tr>
+      <tr>
+        <td style="vertical-align: top;">Email:<br>
+        </td>
+        <td style="vertical-align: top;"><input name="banemail"> find
+        </td>
+      </tr>
+      <tr>
+        <td style="vertical-align: top;">IP address:<br>
+        </td>
+        <td style="vertical-align: top;"><input name="ipaddress"> find
+        </td>
+      </tr>
+      <tr>
+        <td style="vertical-align: top;">Reason: (showed in log)<br>
+        </td>
+        <td style="vertical-align: top;"><textarea cols="25" rows="3" name="reason"></textarea><br>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <input class="button" name="unban" value="Unban" type="submit"><br>
+</form>

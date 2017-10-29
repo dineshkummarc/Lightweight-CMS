@@ -1,0 +1,67 @@
+<div id="account_picker" style="position:absolute; z-index:10; left:50%;margin-left: -25%;
+margin-top: -100px;width: 50%;background-color:#DBEDFF; border:1px solid #428AFF;visibility: hidden">
+</div>
+<h2>{%$language['ui']['post_info']%}Post info</h2><br>
+{%$language['ui']['user']%}: {%$TEMPLATE_VARS[0]['poster'][0]['username']%}<br>
+{%$language['ui']['joined']%}: {%$TEMPLATE_VARS[0]['poster'][0]['user_join_date']%}<br>
+{%$language['ui']['posts']%}: {%$TEMPLATE_VARS[0]['poster'][0]['user_post_count']%}<br>
+{%$language['ui']['warn']%}: {%$TEMPLATE_VARS[0]['poster'][0]['user_warn']%}<br>
+<b>{%$language['ui']['details']%}:</b><br>
+{%$language['ui']['forum']%}: {%$TEMPLATE_VARS[0]['forum'][0]['forum_name']%}<br>
+{%$language['ui']['topic']%}: {%$TEMPLATE_VARS[0]['topic'][0]['title']%}<br>
+{%$language['ui']['ip']%}: {%$TEMPLATE_VARS[0]['ip']%}<br>
+{%$language['ui']['author']%}: {%$TEMPLATE_VARS[0]['poster'][0]['username']%}<br>
+{%$language['ui']['time']%}: {%$TEMPLATE_VARS[0]['time']%}<br>
+<b>{%$language['ui']['title']%}: {%$TEMPLATE_VARS[0]['post_title']%}</b><br>
+<b>{%$language['ui']['content']%}:</b>
+<div>{%$TEMPLATE_VARS[0]['data']%}</div>
+<b>{%$language['ui']['attachments']%}:</b><br>
+{%$TEMPLATE_VARS[0]['attach']%}
+<b>{%$language['ui']['add_warn']%}:</b>
+<form method="post" action="{%$_SERVER['PATH_INFO']%}" name="warn">
+    <table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
+        <tbody>
+        <tr>
+            <td>{%$language['ui']['amount']%}</td>
+            <td><input name="points" value="1"></td>
+        </tr>
+        <tr>
+            <td>{%$language['ui']['verbal']%}:</td>
+            <td><input name="verbal" type="checkbox"></td>
+        </tr>
+        <tr>
+            <td>{%$language['ui']['reason']%}:</td>
+            <td><textarea cols="50" rows="4" name="reason"></textarea></td>
+        </tr>
+        </tbody>
+    </table>
+    <input value="{%$language['ui']['add_warn']%}" type="submit"><br>
+</form>
+<div id="warnlist"></div>
+<script>
+
+    var ToString = [];
+    ToString['0'] = "{%$language['ui']['no']%}";
+    ToString['1'] = "{%$language['ui']['yes']%}";
+
+    {%$TEMPLATE_VARS['WARN']%}
+
+    var Tablestart = '<table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="0"><tbody><tr style="color:#FFFFFF;font-weight:bold;" BGcolor="#428AFF"><td>{%$language["ui"]["post"]%}</td><td>{%$language["ui"]["time"]%}</td><td>{%$language["ui"]["reason"]%}</td><td>{%$language["ui"]["points"]%}</td><td>{%$language["ui"]["verbal"]%}</td></tr>\n';
+
+    var scolor1 = "#99CCFF";
+    var scolor2 = "#77B8FF";
+    var scolor = '';
+    var Tabledata = '';
+
+    for (var i = 0; i < warnings.length; i++) {
+        if (i % 2) {
+            scolor = scolor1
+        } else {
+            scolor = scolor2;
+        }
+        Tabledata += '<tr bgcolor="' + scolor + '"><td><a href="../?p=' + warnings[i]['post_id'] + '">' + warnings[i]['post_title'] + '</a></td><td>' + warnings[i]['time'] + '</td><td>' + warnings[i]['message'] + '</td><td>' + warnings[i]['points'] + '</td><td>' + ToString[warnings[i]['type']] + '</td></tr>\n';
+    }
+    var TableEnd = '</tbody></table>';
+    hWnd = document.getElementById('warnlist');
+    hWnd.innerHTML = Tablestart + Tabledata + TableEnd;
+</script>

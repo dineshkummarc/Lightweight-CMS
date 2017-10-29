@@ -1,0 +1,16 @@
+<div class="header">
+    <div style="float:right; text-align: left;">{%$ACP_LINK%} {%$login_form%}</div>
+    <a href="{%$root_dir%}/"><h1 style="color: #ffffff; margin: 0;">{%$site_settings['site_name']%}</h1></a><span
+        class="description">{%$site_settings['site_desc']%}</span>
+    <div style="text-align: right;">
+        <form style="vertical-align: top;" id="search" method="get" action="{%$root_dir%}/" name="update"><input
+                type="hidden" name="a" value="search"><input type="hidden" name="type"
+                                                             value="{%$forum_info[0]['forum_type']%}">
+            <div style="position: relative;"><span style="color:white;">{%$language['ui']['search']%}: </span><input
+                    id="query" name="q" type="text" value="{%$_GET['q']%}"><img
+                    style="position:absolute; width: 22px; height: 22px; right: 6px; cursor: pointer;" alt="search"
+                    onclick="document.getElementById('search').submit();"
+                    src="{%$root_dir%}/theme/{%$site_settings['template']%}/icons/search.png"></div>
+        </form>
+    </div>
+</div>

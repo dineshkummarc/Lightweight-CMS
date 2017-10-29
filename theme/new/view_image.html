@@ -1,0 +1,27 @@
+<div class="post_container{class}">
+    <div class="post_header">
+        <a href="./?p={post_id}">
+            <h2 id="post{post_id}" style="position:absolute; margin: 0px 0px 1em 0px; padding: 0px; float: left; z-index: 2;">{post_title}</h2>
+        </a>
+        <span style="z-index: 2;position: absolute; right: 10px;">{actions}</span>
+        {back_link}
+        <span class="post_time">{%$language['ui']['post_time']%}</span>
+    </div>
+    {image}
+    {thumbs}
+    <br>
+    {exif}
+    <br>
+    <div class="post_content">{content}</div>
+    <div style="clear:both;"></div>
+    <br>
+    <div>
+        <span id="ht{post_id}" class="{hashtags}" style="float: left;">
+            {hashtags_rendered}
+        </span>
+        <div style="text-align: right; padding-right: 10px; overflow: hidden;">
+            {share} {like}
+        </div>
+    </div>
+    <br>
+</div>

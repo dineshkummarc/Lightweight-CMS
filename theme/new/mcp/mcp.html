@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"><!-- mcp.html -->
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <script type="text/javascript">
+        //var gid = {%$_GET['gid']%};
+
+        var id = '{%$_GET["id"]%}';
+        var action = '{%$_GET["a"]%}';
+        var GET_id = "0";
+        var rootDir = "{%$root_dir%}";
+        var forum_id = "{%$_GET['f']%}";
+        var fid_url = "";
+        if (forum_id != "") {
+            fid_url = "&f=" + forum_id;
+        }
+
+        function Selected(link) {
+            if (id == link) {
+                return "Selected";
+            }
+            return "NotSelected";
+        }
+
+        function AddTabs() {
+            {%$TABS_DATA_JS%}
+            tabtop = "";
+            for (var i in Tabsdata) {
+                tabtop += '<li class="' + Selected(Tabsdata[i]["link"]) + '"><a href="?id=' + Tabsdata[i]["link"] + '">' + Tabsdata[i]["text"] + '</a></li>\n';
+            }
+
+            hTabs = document.getElementById("TabTop");
+            hTabs.innerHTML = tabtop;
+        }
+
+        function LeftMenu() {
+            {%$menu_data_js%}
+            var ACP_ACTIONS_MENU = "";
+            for (var i in ACP_LeftMenu) {
+                if (ACP_LeftMenu[i]['action'] == action) {
+                    ACP_ACTIONS_MENU += '<a href="?id=' + id + "&a=" + ACP_LeftMenu[i]['action'] + '" class="cp_menu_selected">' + ACP_LeftMenu[i]['text'] + '<br></a>\n';
+                } else {
+                    ACP_ACTIONS_MENU += '<a href="?id=' + id + "&a=" + ACP_LeftMenu[i]['action'] + fid_url + '">' + ACP_LeftMenu[i]['text'] + '<br></a>\n';
+                }
+            }
+
+            hMenu = document.getElementById("ACP_ACTIONS_MENU");
+            hMenu.innerHTML = ACP_ACTIONS_MENU;
+        }
+
+    </script>
+    <title>{title} :: {%$MODULE_TITLE%}</title>
+    <script src="./jquery.js"></script>
+    <script src="./jquery-ui.js"></script>
+    <script src="./sorttable.js"></script>
+    <script src="./funcs.js"></script>
+    <link rel="stylesheet" type="text/css" href="../theme/{%$site_settings['template']%}/normalize.css"/>
+    <link rel="stylesheet" type="text/css" href="../theme/{%$site_settings['template']%}/style.css">
+    <link rel="stylesheet" type="text/css" href="./jquery-ui.css">
+</head>
+<body>
+{{{%$root_dir%}/theme/{%$site_settings['template']%}/header.html}}
+
+{%$NOTICE%}
+
+<div id="header">
+
+    <ul id="TabTop">
+    </ul>
+</div>
+
+<div class="content">
+
+
+    <table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
+        <tbody>
+        <tr>
+            <td id="ACP_ACTIONS_MENU" style="vertical-align: top; width: 200px;">
+            </td>
+            <td style="vertical-align: top;">{{{FILE_PATH}}}<br>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<br>
+
+<div class="footer">{%$footer_text%}</div>
+<script type="text/javascript">AddTabs();
+LeftMenu();</script>
+
+</body>
+</html>

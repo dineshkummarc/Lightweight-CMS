@@ -1,0 +1,12 @@
+<h2>{%$MODULE_TITLE%}</h2>
+<form method="post" action="./acp.php?id={%$_GET['id']%}&a={%$_GET['a']%}&save={%$_GET['edit']%}">
+	<table id="bbcodes" cellspacing="0" cellpadding="0" border="0" style="text-align: left; border-top: 1px solid rgb(48, 124, 153); border-right: 1px solid rgb(48, 124, 153);">
+		<tr><td class="GroupsTable">{%$language['ui']['bbcode_usage']%}</td><td class="GroupsTable"><textarea rows="8" cols="60" name="bbcode_in">{%$TEMPLATE_VARS['code']%}</textarea></td></tr>
+		<tr><td class="GroupsTable">{%$language['ui']['bbcode_html']%}</td><td class="GroupsTable"><textarea rows="8" cols="60" name="bbcode_out">{%$TEMPLATE_VARS['HTML']%}</textarea></td></tr>
+		<tr><td class="GroupsTable">{%$language['ui']['bbcode_hint']%}</td><td class="GroupsTable"><input type="text" value="{%$TEMPLATE_VARS['hint']%}" size="60" name="bbcode_hint"></td></tr>
+		<tr><td class="GroupsTable">{%$language['ui']['bbcode_display']%}</td><td class="GroupsTable"><input type="checkbox" {%$TEMPLATE_VARS['show']%} name="bbcode_display"></td></tr>
+                <tr><td class="GroupsTable">{%$language['ui']['bbcode_attrib']%}</td><td class="GroupsTable"><input type="text" value="{%$TEMPLATE_VARS['Attrib']%}" name="bbcode_attrib"></td></tr>
+	</table>
+	<br>
+	<input class="button" value="{%$language['ui']['submit']%}" type="submit">
+</form>

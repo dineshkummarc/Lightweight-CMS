@@ -1,0 +1,202 @@
+<style type="text/css">
+img.rank{
+	width:24;
+	height: 24;
+	cursor: pointer;
+}
+</style>
+<script type="text/javascript">
+{%$TEMPLATE_VARS['RANKS_JS']%}
+
+{%$TEMPLATE_VARS['RANKS_IMAGES_JS']%}
+
+window.addEventListener("keyup", function(e){
+	hWnd = document.getElementById('rank_window');
+	if(hWnd.style.visibility != 'hidden'){
+		if(e.keyCode == 27){
+			close_window();
+		}
+		if(e.keyCode == 13){
+		
+		}
+	} 
+ }, false);
+
+var rankid = 0;
+
+function update_image(image){
+	preview = document.getElementById("preview_image");
+	if (image != ''){
+		preview.innerHTML='<img src="../ranks/'+image+'"/>';
+	}else{
+		preview.innerHTML='';
+	}
+}
+function new_rank(){
+	elem = document.getElementById("rankname");
+	elem.value ='';
+	elem = document.getElementById("rankimage");
+	elem.value ='';
+	var yes = document.getElementById('specialrank_yes');
+	var no = document.getElementById('specialrank_no');
+	no.checked = true;
+	rankid = 0;
+	update_image('');
+	hWnd = document.getElementById('rank_window');
+	hWnd.style.visibility = 'visible';
+}
+
+function Editrank(id)
+{
+	elem = document.getElementById("rankname");
+	elem.value =ranks[id]["name"];
+	elem = document.getElementById("rankimage");
+	elem.value =ranks[id]["image"];
+	elem = document.getElementById("required_posts");
+	elem.value =ranks[id]["required_posts"];
+	var yes = document.getElementById('specialrank_yes');
+	var no = document.getElementById('specialrank_no');
+	yes.checked = false;no.checked = false;
+	if(ranks[id]["special"] == '1'){
+		yes.checked = true;
+	}else{
+		no.checked = true;
+	}
+	rankid = ranks[id]["id"];
+	update_image(ranks[id]["image"]);
+	hWnd = document.getElementById('rank_window');
+	hWnd.style.visibility = 'visible';
+}
+
+function delete_rank(id)
+{
+	input_box=confirm("{%$language['ui']['rank_confirm']%} " + ranks[id]["name"]+" ?");
+	if (input_box==true) { 
+		var Submitdata = [];
+	  	Submitdata["id"] = ranks[id]["id"];
+		var path = "./acp.php?id={%$_GET['id']%}&a=manage_ranks&mode=delete_rank";
+		post_to_url(path, Submitdata); 
+	}
+}
+
+function ToString(val)
+{
+	if(val==''){
+		return '&nbsp;';
+	}
+	return val;
+}
+
+function required_posts(posts, special)
+{
+	if(special=='1'){
+		return '-';
+	}
+	return posts;
+}
+
+function Loadranks(){
+
+	var ranksTable = '<tr><td class="GroupsTable" colspan="5" align="right"><span onclick="new_rank();" style="cursor: pointer">{%$language['ui']['add_rank']%} <img src="./acp/add.png" width="16" height="16" onclick="new_rank();" /></span></td></tr>\n <tr><td class="GroupsTable">{%$language['ui']['rank_image']%}</td><td class="GroupsTable">{%$language['ui']['rank_name']%}</td><td class="GroupsTable">{%$language['ui']['required_posts']%}</td><td class="GroupsTable">{%$language['ui']['edit']%}<td class="GroupsTable">{%$language['ui']['delete']%}</td></tr>\n';;
+
+	for (var i = 0 in ranks){
+		image = '&nbsp;';
+		if(ranks[i]['image']!=''){image = '<img src="../ranks/'+ranks[i]['image']+'"/>';}
+		ranksTable += '<tr><td class="GroupsTable">'+image+'</td><td class="GroupsTable">'+ranks[i]['name']+'</td><td class="GroupsTable">'+required_posts(ranks[i]['required_posts'],ranks[i]["special"]) +'</td><td class="GroupsTable" onclick="Editrank('+i+')"><img src="./acp/edit.png" class="icon" title="'+i+'"  /><td class="GroupsTable" onclick="delete_rank('+i+')"><img src="./acp/delete.png" class="icon" /></td></tr>\n';
+	}
+
+	htable = document.getElementById("rankstable");
+	htable.innerHTML=ranksTable;
+	rank_image_list = '<option value="">{%$language['ui']['none']%}</option>\n';;
+	for (var i = 0 in rankimages){
+		rank_image_list +='<option value="'+rankimages[i]+'">'+rankimages[i]+'</option>\n';
+	}
+	ranklst = document.getElementById("rankimage");
+	ranklst.innerHTML=rank_image_list;
+	//document.getElementById('continue');
+	//continue_button.style.visibility = 'hidden';
+}
+
+function close_window(){
+	hWnd = document.getElementById('rank_window');
+	hWnd.style.visibility = 'hidden';
+}
+
+function Isspecial(){
+	if(document.getElementById("specialrank_yes").checked){return '1';}
+	return '0';
+}
+
+function Save(){
+	var Submitdata = [];
+	Submitdata["name"] = document.getElementById("rankname").value;
+	Submitdata["image"] = document.getElementById("rankimage").value;
+	Submitdata["id"] = rankid;
+	Submitdata["special"] = Isspecial();
+	Submitdata["required_posts"] = document.getElementById("required_posts").value;
+	var path = "./acp.php?id={%$_GET['id']%}&a=manage_ranks&mode=alter_rank";
+	post_to_url(path, Submitdata); 
+}
+
+function post_to_url(path, params, method) {
+    method = method || "post"; // Set method to post by default, if not specified.
+
+    // The rest of this code assumes you are not using a library.
+    // It can be made less wordy if you use one.
+    var form = document.createElement("form");
+    form.setAttribute("method", method);
+    form.setAttribute("action", path);
+
+    for(var key in params) {
+        if(params.hasOwnProperty(key)) {
+            var hiddenField = document.createElement("input");
+            hiddenField.setAttribute("type", "hidden");
+            hiddenField.setAttribute("name", key);
+            hiddenField.setAttribute("value", params[key]);
+
+            form.appendChild(hiddenField);
+         }
+    }
+
+    document.body.appendChild(form);
+    form.submit();
+}
+</script>
+<h2>{%$MODULE_TITLE%}</h2>
+<span>
+<table id="rankstable" style="text-align: left; border-top: 1px solid rgb(48, 124, 153); border-right: 1px solid rgb(48, 124, 153);" border="0" cellpadding="0" cellspacing="0">
+</table>
+</span>
+
+<div id="rank_window" style="position:absolute; z-index:10; left:50%; top:50%;margin-left: -140px;
+margin-top: -100px; width:280px;background-color:#DBEDFF; border:1px solid #428AFF;visibility: hidden">
+<img src="./acp/close.png" width="24" height="24" align="right" onclick="close_window();" style="cursor: pointer;"/>
+<form action="./" name="rankedit">
+  <table style="text-align: left;" border="0" cellpadding="2" cellspacing="2">
+    <tbody>
+      <tr>
+        <td >{%$language['ui']['rank_name']%}</td>
+        <td ><input id='rankname' style="width:150px" name="rankname"></td>
+      </tr>
+      <tr>
+        <td >{%$language['ui']['rank_image']%}</td>
+        <td ><select id="rankimage" style="width:150px" onchange="update_image(this.options[selectedIndex].value);" name="rankimage"></select><div id="preview_image"></div></td>
+      </tr>
+      <tr>
+        <td >{%$language['ui']['rank_special']%}</td>
+        <td ><input id="specialrank_yes" name="specialrank_yesno" value="yes" type="radio">{%$language['ui']['yes']%}
+        <input id="specialrank_no" name="specialrank_yesno" name="specialrank" value="no" type="radio">{%$language['ui']['no']%}</td>
+      </tr>
+      <tr>
+        <td >{%$language['ui']['required_posts']%}</td>
+        <td ><input id="required_posts" style="width:150px" name="required_posts"></td>
+      </tr>
+    </tbody>
+  </table>
+  <input name="submit" value="{%$language['ui']['submit']%}" onclick="Save();" type="button"></form>
+
+</div>
+
+<script type="text/javascript">
+Loadranks();
+</script>

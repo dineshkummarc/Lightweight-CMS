@@ -1,0 +1,25 @@
+<script>
+    function view(cid) {
+        alert("view not implemented");
+    }
+
+    function removecomment(tid, cid) {
+        GET_id = tid;
+        deletecomment(cid);
+        console.log("done");
+    }
+</script>
+<h2>{%$MODULE_TITLE%}</h2>
+<table class="sortable" style="width: 100%;">
+    <tbody>
+    <tr>
+        <td><b>{%$language['ui']['post']%}</b></td>
+        <td><b>{%$language['ui']['posted']%}</b></td>
+        <td><b>{%$language['ui']['preview']%}</b></td>
+        <td><b>{%$language['ui']['author']%}</b></td>
+        <td><b>{%$language['ui']['approve']%}</b></td>
+    </tr>
+    {%$TEMPLATE_VARS['ROWS']%}
+    </tbody>
+</table>
+

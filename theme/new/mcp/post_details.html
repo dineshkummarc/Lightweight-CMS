@@ -1,0 +1,36 @@
+<script type="text/javascript" src="./acp/pickacc.js"></script>
+<div id="account_picker" style="position:absolute; z-index:10; left:50%;margin-left: -25%;
+margin-top: 0px;width: 50%;background-color:#DBEDFF; border:1px solid #428AFF;visibility: hidden">
+</div>
+<h2>{%$MODULE_TITLE%}</h2><br>
+<b>{%$language['ui']['details']%}:</b><br>
+{%$language['ui']['forum']%}: {%$TEMPLATE_VARS[0]['forum'][0]['forum_name']%}<br>
+{%$language['ui']['topic']%}: {%$TEMPLATE_VARS[0]['topic'][0]['title']%}<br>
+{%$language['ui']['reason']%}: {%$TEMPLATE_VARS[0]['ip']%}<br>
+{%$language['ui']['author']%}: <span id="change">{%$TEMPLATE_VARS[0]['poster'][0]['username']%}</span><br>
+{%$language['ui']['time']%}: {%$TEMPLATE_VARS[0]['time']%}<br>
+{%$language['ui']['edit_by']%}: {%$TEMPLATE_VARS[0]['editor'][0]['username']%}<br>
+{%$language['ui']['edit_time']%}: {%$TEMPLATE_VARS[0]['edit_time']%}<br>
+{%$language['ui']['edit_reason']%}: {%$TEMPLATE_VARS[0]['edit_reason']%}<br>
+{%$language['ui']['edit_count']%}: {%$TEMPLATE_VARS[0]['edit_count']%}<br>
+<b>{%$language['ui']['title']%}: {%$TEMPLATE_VARS[0]['post_title']%}</b><br>
+<b>{%$language['ui']['content']%}:</b>
+<div>{%$TEMPLATE_VARS[0]['data']%}</div>
+<b>{%$language['ui']['attachments']%}:</b><br>
+{%$TEMPLATE_VARS[0]['attach']%}
+<div></div>
+
+<script type="text/javascript">
+    var user = '{%$TEMPLATE_VARS[0]["poster"][0]["username"]%}';
+    var form = '<form method="post" action="' + document.location + '">';
+    form += '<input style="vertical-align: top; " id="username" name="username" value="' + user + '"> <a  STYLE="cursor: pointer;" onmousedown="createUserSelector()">[Select]</a> ';
+    form += '<input class="button" value="{%$language["ui"]["update"]%}" type="submit">';
+    form += '</form>';
+    if ({%$TEMPLATE_VARS['m_change_post_author']%})
+    {
+        document.getElementById("change").innerHTML = form;
+    } else {
+        document.getElementById("change").innerHTML = user;
+    }
+    RespondTo = 'username';
+</script>

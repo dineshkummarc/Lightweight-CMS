@@ -1,0 +1,25 @@
+<h2>{%$MODULE_TITLE%}</h2><br>
+{%$language['ui']['sessions_tip']%}<br> 
+<br>
+
+<script>
+    function toggle(source) {
+        var inputs = document.getElementsByTagName("input");
+        console.log(inputs);
+        for(var i = 0; i < inputs.length;i++){
+            if (inputs[i].type == "checkbox") {
+                inputs[i].checked = source.checked;
+            }
+        }
+    }
+</script>
+        
+<form method="post" action="./ucp.php?id={%$_GET['id']%}&a={%$_GET['a']%}&mode=notthis">
+<input class="button" value="{%$language['ui']['delete_all_but_this']%}" type="submit">
+</form>
+<br>
+<form method="post" action="./ucp.php?id={%$_GET['id']%}&a={%$_GET['a']%}&mode=update">
+{%$TEMPLATE_VARS['TABLE']%}
+<input type="checkbox" value="all" onClick="toggle(this)" name="sid:all">
+{%$language['ui']['select_all']%} <input class="button" value="{%$language['ui']['end_selected']%}" type="submit">
+</form>

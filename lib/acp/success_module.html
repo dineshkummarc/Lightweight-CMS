@@ -1,0 +1,12 @@
+<div style="background-color: #00AA30;color: #FFFFFF;padding:5px;">{%$TEMPLATE_VARS['SUCCESSMSG']%}</div>
+<script>
+    function redirect(url){
+        document.location = url;
+    }
+    
+    var to = "{%$redirect_to%}";
+    var delay = "{%$redirect_delay%}";
+    if(to.length > 0){
+        window.setTimeout(redirect(to), parseInt(delay)*1000);
+    }
+</script>

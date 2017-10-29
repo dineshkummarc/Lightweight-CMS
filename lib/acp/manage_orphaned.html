@@ -1,0 +1,38 @@
+<h2>{%$MODULE_TITLE%}</h2>
+{%$TEMPLATE_VARS['ATTACHMENTS']%}
+
+<form id="orphanedform" action="./acp.php?id={%$_GET['id']%}&a=manage_orphaned" style="display: none;" method="POST">
+    <input id="orphaned_data" type="text" name="orphaned_data">
+</form>
+
+<script>
+    function submitForm(){
+        //
+        //return false;
+        var result = "";
+        inputs = document.getElementById("oprhaned").getElementsByTagName('input');
+
+        for(var i = 0; i < inputs.length;i++){
+            if(inputs[i].type == "checkbox"){
+                result += inputs[i].checked+";";
+            }else{
+                result += inputs[i].value+";";
+            }
+            if((i+1) % 3 == 0){
+                result += ":";
+            }
+        }
+        document.getElementById("orphaned_data").value = result;
+        document.getElementById("orphanedform").submit();
+    }
+    
+    function selectAll(){
+        inputs = document.getElementsByTagName('input');
+
+        for(var i = 0; i < inputs.length;i++){
+            if(inputs[i].type == "checkbox"){
+                inputs[i].checked = true
+            }
+        }
+    }
+</script>

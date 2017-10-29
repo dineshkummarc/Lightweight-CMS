@@ -1,0 +1,21 @@
+<div class="content">
+    <table class="content_table">
+        <tbody>
+        <tr>
+            <td id="ACP_ACTIONS_MENU" class="navigation">
+                {{{%$root_dir%}/theme/{%$site_settings['template']%}/navigation.html}}
+            </td>
+            <td style="vertical-align: top;padding-left: 5px;">{%$topic_data%}
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<div style="text-align: right">{%$mod_tools%}</div>
+<br/>
+
+{{./theme/{%$site_settings['template']%}/comments.html}}
+
+<script>
+    parseList();
+</script>

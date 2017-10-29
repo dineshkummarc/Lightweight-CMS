@@ -1,0 +1,68 @@
+<table id="topic_list" class="sortable">
+</table>
+<script>
+    {%$TEMPLATE_VARS['TOPICS']%}
+
+    function renderTopics() {
+        topics.sort(sortByOrder);
+        var table = "<tr><td><b>{%$language['ui']['title']%}</b></td><td><b>{%$language['ui']['time']%}</b></td><td><b>{%$language['ui']['author']%}</b></td><td><b>{%$language['ui']['order']%}</b></td><td><b>{%$language['ui']['order_manual']%}</b></td></tr>\n";
+        for (var i = 0; i < topics.length; i++) {
+            table += '<tr><td><a href="../?id=' + topics[i]['topic_id'] + '" class="topic_type' + topics[i]['type'] + '">' + topics[i]['title'] + '</a></td><td>' + topics[i]['time'] + '</td><td>' + topics[i]['poster_name'] + '</td><td><img src="./acp/up.png" width="16" height="16" onclick="changePos(' + topics[i]['topic_id'] + ',1)"><img src="./acp/down.png" width="16" height="16" onclick="changePos(' + topics[i]['topic_id'] + ',-1)"></td><td><input id="' + topics[i]['topic_id'] + '" onblur="setPos(' + topics[i]['topic_id'] + ',this)" value="' + topics[i]['display_order'] + '"></td></tr>' + "\n";
+        }
+
+        $('#topic_list').html(table);
+    }
+
+
+    function changePos(id, amount) {
+        for (var i = 0; i < topics.length; i++) {
+            if (topics[i]['topic_id'] == id) {
+                topics[i]["display_order"] = (parseInt(topics[i]["display_order"]) + amount).toString();
+                $("#" + id).val(topics[i]["display_order"]);
+                $.post("./mcp.php?id={%$_GET['id']%}&a=reorder", {
+                    'id': id,
+                    'order': topics[i]['display_order']
+                }, function (result) {
+                });
+                break;
+            }
+        }
+        renderTopics();
+    }
+
+    function setPos(id, element) {
+        for (var i = 0; i < topics.length; i++) {
+            if (topics[i]['topic_id'] == id) {
+                topics[i]["display_order"] = element.value;
+                $("#" + id).val(topics[i]["display_order"]);
+                $.post("./mcp.php?id={%$_GET['id']%}&a=reorder", {
+                    'id': id,
+                    'order': topics[i]['display_order']
+                }, function (result) {
+                });
+                break;
+            }
+        }
+        renderTopics();
+    }
+
+
+    function sortByOrder(a, b) {
+        if (parseInt(a["type"]) === parseInt(b["type"])) {
+            if (parseInt(a["display_order"]) === parseInt(b["display_order"])) {
+                if (parseInt(a["time_timestamp"]) === parseInt(b["time_timestamp"])) {
+                    return 0;
+                } else {
+                    return (parseInt(a["time_timestamp"]) > parseInt(b["time_timestamp"])) ? -1 : 1;
+                }
+            } else {
+                return (parseInt(a["display_order"]) > parseInt(b["display_order"])) ? -1 : 1;
+            }
+        }
+        else {
+            return (parseInt(a["type"]) > parseInt(b["type"])) ? -1 : 1;
+        }
+    }
+
+    renderTopics();
+</script>

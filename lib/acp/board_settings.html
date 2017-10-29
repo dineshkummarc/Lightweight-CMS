@@ -1,0 +1,78 @@
+<h2>{%$MODULE_TITLE%}</h2>
+<form method="post" action="./acp.php?id={%$_GET['id']%}&a={%$_GET['a']%}&mode=boardsettingssave">
+<table id="BOARDsettings"></table>
+<input value="Submit" type="submit"></form>
+<script type="text/javascript">
+{%$TEMPLATE_VARS['settings']%}
+{%$TEMPLATE_VARS['LANGUAGE']%}
+
+var specifiers = [];
+
+function BuildTable(){
+	var TableContents = "";
+	var RightSide = "";
+	var settingname;
+	var checked_yes,checked_no;
+        var special_count = 0;
+        var append = true;
+	for (i = 0; i < general.length; i++){
+		RightSide = "";
+		settingname = general[i]["setting"];
+                append = true;
+		if(general[i]["type"]=="bool"){
+			checked_yes = "";
+			checked_no = "";
+			if (general[i]["value"] == "1"){
+				checked_yes = ' checked="CHECKED" ';
+			}else{
+				checked_no = ' checked="yes" ';
+			}
+            RightSide = '<input name="'+settingname+'" value="true"'+checked_yes+' type="radio">{%$language['ui']['yes']%} <input name="'+settingname+'" value="false"'+checked_no+' type="radio">{%$language['ui']['no']%}';
+        }else if(general[i]["type"]=="size"){
+            specifiers[special_count] = general[i];
+            special_count++;
+            append = false;
+        }else if(general[i]["type"]=="template"){
+            RightSide = '{%$TEMPLATE_VARS["TEMPLATES"]%}';
+        }else if(general[i]["type"]=="language"){
+            RightSide = '{%$TEMPLATE_VARS["LANGUAGE_COMBO"]%}';
+        }else if(general[i]["type"]=="multiline"){
+            RightSide = '<textarea type="text" name="'+settingname+'" >' + general[i]["value"] + '</textarea>';
+        }else{
+            RightSide = '<input type="text" name="'+settingname+'" value="'+general[i]["value"]+'">';
+        }
+        if(append){
+            TableContents += "<tr><td><b>"+lang["general_labels"][settingname]+"</b><br>"+lang["general_descriptions"][settingname]+"</td><td>"+RightSide+"</td></tr>\n";
+        }
+	}
+	return TableContents;
+}
+
+function buildsizeCombo(name){
+    var combo = '<span> </span><select name="'+name+'">';
+    combo += '<option value="1">B</option>';
+    combo += '<option value="1024">KB</option>';
+    combo += '<option value="1048576">MB</option>';
+    combo += '<option value="1073741824">GB</option>';
+    combo += '</select>';
+    return combo;
+}
+$('select>option:eq(3)').attr('selected', true);
+function drawSpecifiers(){
+    for(var i = 0; i < specifiers.length; i++){
+        $( buildsizeCombo(specifiers[i]['setting']) ).insertAfter( $( "input[name='max_attachsize']" ));
+        $("[name='"+specifiers[i]['setting']+"']").val(specifiers[i]['value'])
+    }
+}
+
+function setTBodyInnerHTML(tbody, html) {
+  var temp = tbody.ownerDocument.createElement('div');
+  temp.innerHTML = '<table>' + html + '</table>';
+  tbody.parentNode.replaceChild(temp.firstChild.firstChild, tbody);
+}
+
+hgeneral= document.getElementById("BOARDsettings");
+setTBodyInnerHTML(hgeneral,BuildTable());
+drawSpecifiers();
+$("select[name=TEMPLATE]").val("{%$site_settings['template']%}");
+</script>

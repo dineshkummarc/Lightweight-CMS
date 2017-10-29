@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <script type="text/javascript">
+    //var gid = {%$_GET['gid']%};
+
+    var id = '{%$_GET['id']%}';
+    var action = '{%$_GET['a']%}';
+
+    function Selected(link){
+        console.log(action,link);
+        if(id == link || action == link){
+            return 'id="selected_forum"';
+        }
+        return '';
+    }
+
+    function AddTabs(){
+        {%$TABS_DATA_JS%}
+        tabtop = '<div id="forum_list_div"><div class="forum_list">';
+        url = "?id";
+        if(action == "login" || action == "register"){
+            url = "?a";
+        }
+        for (var i in Tabsdata) {
+            tabtop += '<a ' + Selected(Tabsdata[i]["link"]) + ' href="'+url+'='+Tabsdata[i]["link"]+'">'+Tabsdata[i]["text"]+'</a>\n';
+        }
+        tabtop += "</div></div>"
+        $("#header").replaceWith(tabtop);
+    }
+
+    function LeftMenu()
+    {
+        {%$menu_data_js%}
+        var ACP_ACTIONS_MENU = "";
+        for (var i in ACP_LeftMenu) {
+            if (ACP_LeftMenu[i]['action'] == action){
+                ACP_ACTIONS_MENU += '<a href="?id='+id+"&a="+ACP_LeftMenu[i]['action']+'" class="cp_menu_selected">'+ACP_LeftMenu[i]['text']+'<br></a>\n';
+            }else{
+                ACP_ACTIONS_MENU += '<a href="?id='+id+"&a="+ACP_LeftMenu[i]['action']+'">'+ACP_LeftMenu[i]['text']+'<br></a>\n';
+            }
+        }
+
+        hMenu = document.getElementById("ACP_ACTIONS_MENU");
+        hMenu.innerHTML=ACP_ACTIONS_MENU;
+    }
+
+    </script>
+      <title>{title} :: {%$MODULE_TITLE%}</title>
+      <script src="./jquery.js"></script>
+      <script src="./funcs.js"></script>
+      <link rel="stylesheet" type="text/css" href="../theme/{%$site_settings['template']%}/normalize.css"/>
+      <link rel="stylesheet" type="text/css" href="../theme/{%$site_settings['template']%}/style.css" >
+    </head>
+<body>
+{{{%$root_dir%}/theme/{%$site_settings['template']%}/header.html}}
+<div class="forum_path">{%$forum_path%}</div>
+<div id="notice_container" class='forum_list'><div style="background-color: #FFF; margin: 3px; font-size: 14px;">{%$NOTICE%}</div></div>
+
+<script type="text/javascript">
+    var elem = document.getElementById("notice_container");
+    if(elem.childNodes[0].innerHTML == ""){
+        elem.style.display = "none";
+    }  
+</script>
+
+<div id="header">
+</div>
+
+<div class="content">
+
+
+	<table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
+	  <tbody>
+		<tr>
+		  <td id="ACP_ACTIONS_MENU" style="vertical-align: top; width: 200px;">
+		  </td>
+		  <td style="vertical-align: top;">{{{FILE_PATH}}}<br>
+		  </td>
+		</tr>
+	  </tbody>
+	</table>
+</div>
+<br>
+
+<div class="footer">{%$footer_text%}</div>
+<script type="text/javascript">AddTabs();LeftMenu();</script>
+
+</body></html>

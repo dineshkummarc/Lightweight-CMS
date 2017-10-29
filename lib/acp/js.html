@@ -1,0 +1,167 @@
+<script type="text/javascript">
+
+{%$TEMPLATE_VARS['permissions_table']%}
+
+{%$TEMPLATE_VARS['group_permissions_js']%}
+
+var gid = "{%$TEMPLATE_VARS['Gid']%}";
+var fid = "{%$_POST['forum_name']%}";
+
+
+function ArrayFind(aArray,sString){
+	for (j in aArray) {
+		if (aArray[j] == sString){return true;}
+	}
+	return false;
+}
+
+var sLastTab="none",sLastid="1",sTabsdata="";
+var TableOpen = '<table border="0" cellpadding="0" cellspacing="0"><tbody>\n<tr style="color:#FFFFFF;font-weight:bold;" BGcolor="#428AFF"><td>{%$language["ui"]["permission"]%}</td><td style="width: 75px;"><span style="cursor:pointer; color:#FFFFFF;" OnClick="AllYesNo(false);">{%$language["ui"]["yes"]%}</span></td><td style="width: 75px;" ><span style="cursor:pointer; color:#FFFFFF;" OnClick="AllYesNo(true);">{%$language["ui"]["no"]%}</span></td></tr>\n';
+var TableClose = '</tbody><table>\n';
+var scolor1 = "#99CCFF";
+var scolor2 = "#77B8FF";
+
+function Load(){
+	delete Tables;
+	Tables = [];
+	var scolor = "";
+	var bToggle = true;
+	for (i in permissions) {
+		if(bToggle){scolor = scolor1;bToggle = false;}else{scolor = scolor2;bToggle = true;}
+		if((typeof Tables[permissions[i]['permission_class']]) == "undefined") {
+			Tables[permissions[i]['permission_class']] = [];
+			Tables[permissions[i]['permission_class']]['HTML'] ="";
+			Tables[permissions[i]['permission_class']]['Elem'] =[];
+			Tables[permissions[i]['permission_class']]['Checked'] =[];
+		}
+
+		Tables[permissions[i]['permission_class']]['HTML']+='<tr BGcolor="'+scolor+'" ><td>'+permissions[i]['translated']+'</td><td><input id="'+i+'yes" name="'+permissions[i]['name']+'"type="radio"></td><td><input id="'+i+'no" name="'+permissions[i]['name']+'" type="radio"></td></tr>\n';
+		Tables[permissions[i]['permission_class']]['Elem'].push(i+'yes',i+'no');
+		var yes = false;
+		var no = false;
+		if(ArrayFind(group_permissions,permissions[i]['permission_id'])){yes = true;}else{no = true;}
+		Tables[permissions[i]['permission_class']]['Checked'].push(yes,no);
+	}
+	iCount = 1;
+	for (key in Tables){
+		Tables[key]['HTML'] = TableOpen+Tables[key]['HTML']+TableClose;
+		sTabsdata += '<li class="NotSelected" id="'+iCount+'" onclick="SetTab(\''+key+'\','+iCount+')">'+key.charAt(0).toUpperCase()+key.slice(1)+'</li>\n';
+		iCount ++;
+	}
+}
+
+Load();
+
+function SetTab(sTab,sid){
+	if(sLastTab != "none"){
+		Tables[sLastTab]['HTML'] = document.getElementById('group_permissionsTable').innerHTML;
+		for(i in Tables[sLastTab]['Elem']){
+			var hRadio = document.getElementById(Tables[sLastTab]['Elem'][i]);
+			Tables[sLastTab]['Checked'][i] = hRadio.checked;
+		}
+
+	}
+	document.getElementById('group_permissionsTable').innerHTML = Tables[sTab]['HTML'];
+	for(i in Tables[sTab]['Elem']){
+		var hRadio = document.getElementById(Tables[sTab]['Elem'][i]);
+		hRadio.checked = Tables[sTab]['Checked'][i];
+	}
+	sLastTab = sTab;
+	var liold = document.getElementById(sLastid);
+	var linew = document.getElementById(sid);
+	liold.setAttribute("class","NotSelected");
+	linew.setAttribute("class","Selected");
+	sLastid = sid;
+}
+
+function AllYesNo(bAllNo)
+{
+	for(i in Tables[sLastTab]['Elem']){
+	if ((i % 2) == bAllNo){
+			var hRadio = document.getElementById(Tables[sLastTab]['Elem'][i]);
+			hRadio.checked = true;
+		}
+	}
+}
+
+function Submit()
+{
+	SetTab(sLastTab,sLastid);//Save changes before submit these
+	var Submit = "";
+	permission_id = 0;
+	var aYesNo=[];
+	for(key in Tables){
+		for(i in Tables[key]['Checked']){
+			if ((permission_id % 2) == false){
+				if(Tables[key]['Checked'][i]){
+					Submit += (parseInt(Tables[key]['Elem'][i].replace("yes",""))+1)+"|";				
+				}
+			}
+			permission_id++;
+		}
+	}
+	Submit = Submit.substring(0, Submit.length-1);
+	var Submitdata = [];
+	Submitdata["permissions"] = Submit;
+	Submitdata["gid"] = gid;
+	if(fid != ""){
+		Submitdata["fid"] = fid;
+	}
+	var path = document.URL.replace(/&mode=\w+/,"")+"&mode={%$_GET['mode']%}";
+	post_to_url(path, Submitdata); 
+}
+
+function Reset()
+{
+	var liold = document.getElementById(sLastid);
+	liold.setAttribute("class","NotSelected");
+	var tab= sLastTab, id =sLastid;
+	sLastTab="none";sLastid="1";
+	Load();
+	SetTab(tab,id)
+}
+
+function post_to_url(path, params, method) {
+    method = method || "post"; // Set method to post by default, if not specified.
+
+    // The rest of this code assumes you are not using a library.
+    // It can be made less wordy if you use one.
+    var form = document.createElement("form");
+    form.setAttribute("method", method);
+    form.setAttribute("action", path);
+
+    for(var key in params) {
+        if(params.hasOwnProperty(key)) {
+            var hiddenField = document.createElement("input");
+            hiddenField.setAttribute("type", "hidden");
+            hiddenField.setAttribute("name", key);
+            hiddenField.setAttribute("value", params[key]);
+
+            form.appendChild(hiddenField);
+         }
+    }
+
+    document.body.appendChild(form);
+    form.submit();
+}
+
+</script>
+<h2>{%$MODULE_TITLE%}</h2>
+<b>{%$language['ui']['group']%}:</b> {%$TEMPLATE_VARS['group_name']%} <br>
+<p>{%$language['ui']['permissions_hint']%}.</p>
+<span id="header">
+
+<ul>
+<script type="text/javascript">document.write(sTabsdata)</script>
+</ul>
+</span>
+
+
+<div id="group_permissionsTable">
+<script type="text/javascript">SetTab("user","1")</script>
+</div>
+
+<div style="clear:both;">
+<input value="{%$language['ui']['reset']%}" type="button" onclick="Reset();"><input value="{%$language['ui']['submit']%}" type="button" onclick="Submit();">
+</div>
+

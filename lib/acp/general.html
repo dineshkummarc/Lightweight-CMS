@@ -1,0 +1,47 @@
+<form method="post" action="tobase.php?a=general" name="General">
+  <h2>General settings</h2>
+  <br>
+  <table border="0" cellpadding="2" cellspacing="2">
+    <tbody>
+      <tr>
+        <td class="LeftPanel">Site name:</td>
+        <td class="RightPanel"><input name="SiteName" value="{SITENAME}"></td>
+      </tr>
+      <tr>
+        <td class="LeftPanel">Site description:</td>
+        <td class="RightPanel"><input  name="SiteDescription" value="{SITEDESCRIPTION}"><br>
+        </td>
+      </tr>
+      <tr><td style="vertical-align: top;">Message of day:<br></td><td style="vertical-align: top;"><input  name="SITEMOD" value="{SITEMOD}"><br></td></tr><tr>
+        <td class="LeftPanel">Default style:<br>
+        </td>
+        <td class="RightPanel">{DefaultStyle}<br>
+        </td>
+      </tr>
+      <tr><td style="vertical-align: top;">Time Format:<br></td><td style="vertical-align: top;"><input name="TimeFormat" value="{TIMEFORMAT}"><br></td></tr>
+      {DefaultGroupList}
+     <tr><td style="vertical-align: top;">Default group for new users:<br></td><td style="vertical-align: top;">{DefaultGroup}</td></tr>
+    </tbody>
+  </table>
+  <h2>Posting</h2>
+  <br>
+  <table border="0" cellpadding="2" cellspacing="2">
+    <tbody>
+      <tr>
+        <td class="LeftPanel">Allow Bbcode:<br>
+        </td>
+        <td class="RightPanel"><input {AllowBBCode} name="AllowBBCode" type="checkbox"><br></td>
+      </tr>
+      <tr>
+        <td class="LeftPanel">Allow smiles:<br>
+        </td>
+        <td class="RightPanel"> <input {AllowSmiles} name="AllowSmiles" type="checkbox"><br></td>
+      </tr>
+      <tr>
+        <td class="LeftPanel">Allow signature:<br>
+        </td>
+        <td class="RightPanel"> <input name="Allowsig" value="{SignatureMaxLen}"><br></td>
+      </tr>
+    </tbody>
+  </table><input class="button" name="Submit" value="Submit" type="submit">&nbsp; <input class="button" name="Reset" value="Reset" type="reset">
+</form>

@@ -1,0 +1,288 @@
+<script type="text/javascript">
+var ResponseText = '';
+var NotificationVisible = 'visible';
+var LastModule = 0;
+var _GETparent = '{%$_GET["pid"]%}';
+if (_GETparent == ""){
+	_GETparent = "0";
+}
+function altRows(id){
+	if(document.getElementsByTagName){  
+		var table = document.getElementById(id);  
+		var rows = table.getElementsByTagName("tr"); 
+		 
+		for(i = 0; i < rows.length; i++){          
+			if(i % 2 == 0){
+				rows[i].classname = "evenrowcolor";
+			}else{
+				rows[i].classname = "oddrowcolor";
+			}      
+		}
+	}
+}
+
+function filltable(id){
+	{%$TEMPLATE_VARS['MODULES']%}
+	contents = '<tr><td colspan="3" align="right"><span onclick="EditModule(0);" style="cursor: pointer">{%$language['ui']['add_module']%} <img src="./acp/add.png" width="16" height="16" onclick="EditModule(0);" /></span></td></tr><tr><td>{%$language['ui']['module_name']%}</td><td>{%$language['ui']['edit']%}</td><td>{%$language['ui']['delete']%}</td></tr>';;
+	
+	CurrentURL = document.URL.replace(/&pid=\d/,""); 
+	for(i = 0;i < ModuleList.length; i++){
+		contents += '<tr><td><a href="'+CurrentURL+'&pid='+ModuleList[i]['module_id']+'">'+ModuleList[i]['module_name']+'</a></td><td onclick="EditModule('+ModuleList[i]['module_id']+')"><img src="./acp/edit.png" class="icon24"/></td><td onclick="DeleteModule('+ModuleList[i]['module_id']+')"><img src="./acp/delete.png" class="icon24" /></td></tr>';
+	}
+
+	document.getElementById(id).innerHTML=contents;
+}
+
+{%$TEMPLATE_VARS['ALLMODULES']%}
+var EmptyModuleIndex = module_list_all.length-1;
+
+function close_window(){
+	hWnd = document.getElementById('module_window');
+	hWnd.style.visibility = 'hidden';
+}
+
+function GetModuleById(id){
+	for (i = 0; i < module_list_all.length; i++){
+		if (module_list_all[i]['module_id'] == id){
+			var ret = [];
+			ret["module_name"] = module_list_all[i]['module_name'];
+			ret["module_id"] = module_list_all[i]['module_id'];
+			ret["enabled"] = module_list_all[i]['enabled'];
+			ret["parent_id"] = module_list_all[i]['parent_id'];
+			ret["type"] = module_list_all[i]['type'];
+			return ret;
+		}
+	}
+}
+
+function LoadModule(id){
+	var module = GetModuleById(id);
+	modulelist = '<option value="0">{%$language['ui']['none']%}</option>\n';;
+	for (i = 0; i < module_list_all.length; i++){
+		if(i != EmptyModuleIndex && module_list_all[i]['type'] == 0){
+			modulelist +='<option value="'+module_list_all[i]['module_id']+'">'+module_list_all[i]['module_name']+'</option>\n';
+		}
+	}
+	modulecombo = document.getElementById("parent_module");
+	modulecombo.innerHTML=modulelist;
+	modulecombo.value =module["parent_id"];
+	document.getElementById("module_name").value=module["module_name"];
+	var yes = document.getElementById('module_enabled_yes');
+	var no = document.getElementById('module_enabled_no');
+	yes.checked = false;no.checked = false;
+	if(module["enabled"] == '1'){
+		yes.checked = true;
+	}else{
+		no.checked = true;
+	}
+	var yes = document.getElementById('type_yes');
+	var no = document.getElementById('type_no');
+	yes.checked = false;no.checked = false;
+	if(module["type"] == '0'){
+		yes.checked = true;
+	}else{
+		no.checked = true;
+	}
+}
+
+function EditModule(id){
+	LoadModule(id);
+	LastModule = id;
+	hWnd = document.getElementById('module_window');
+	hWnd.style.visibility = 'visible';
+}
+
+function DeleteModule(id){
+	module = GetModuleById(id);
+	if(confirm('{%$language['ui']['delete_confirm']%} '+module['module_name']+'?'))
+	{
+		CurrentURL = document.URL.replace(/&pid=\d/,""); 
+		loadXMLDoc(CurrentURL+"&mid="+id+"&ma=delete");
+		if(ResponseText == "success"){
+			var table = document.getElementById("forums");  
+			var rows = table.getElementsByTagName("tr"); 
+		 
+			for(i = 0; i < rows.length; i++){
+				if(rows[i].innerHTML.indexOf("pid="+id) !== -1){
+					table.deleteRow(i);
+					break;
+				}
+			}
+			altRows("forums");		
+		}else{
+			hResponsedata = document.getElementById('server_response_data');
+			hResponse = document.getElementById('server_response');
+			hResponse.style.left = (100-((hResponse.offsetWidth/document.getElementById('content').offsetWidth)*100))/2 +'%';
+			hResponsedata.innerHTML=ResponseText;
+			ServerNotificationToggle();
+		}
+	}
+};
+
+function loadXMLDoc(url)
+{
+	var xmlhttp;
+	if (window.XMLHttpRequest)
+	{// code for IE7+, Firefox, Chrome, Opera, Safari
+		xmlhttp=new XMLHttpRequest();
+	}
+	else
+	{// code for IE6, IE5
+		xmlhttp=new activeXObject("Microsoft.XMLHTTP");
+	}
+	xmlhttp.onreadystatechange=function()
+	{
+		if (xmlhttp.readyState==4 && xmlhttp.status==200)
+		{
+			ResponseText = xmlhttp.responseText.replace(/\\/g, "\\\\");
+		}
+	};
+        console.log(url);
+	xmlhttp.open("GET",url,false);
+	xmlhttp.send();
+}
+
+function post_to_url(path, params, method) {
+    method = method || "post"; // Set method to post by default, if not specified.
+
+    // The rest of this code assumes you are not using a library.
+    // It can be made less wordy if you use one.
+    var form = document.createElement("form");
+    form.setAttribute("method", method);
+    form.setAttribute("action", path);
+
+    for(var key in params) {
+        if(params.hasOwnProperty(key)) {
+            var hiddenField = document.createElement("input");
+            hiddenField.setAttribute("type", "hidden");
+            hiddenField.setAttribute("name", key);
+            hiddenField.setAttribute("value", params[key]);
+
+            form.appendChild(hiddenField);
+         }
+    }
+
+    document.body.appendChild(form);
+    form.submit();
+}
+
+window.onload=function(){
+	filltable('forums');
+	altRows('forums');
+};
+
+function ServerNotificationToggle(){
+	hWnd = document.getElementById('server_response');
+        hWnd.style.visibility = NotificationVisible;
+	if(NotificationVisible == "visible"){
+		NotificationVisible = 'hidden';
+	}else{
+		NotificationVisible = "visible";
+	}
+	
+}
+
+function Save(){
+	CurrentURL = document.URL.replace(/&pid=\d+/,"");
+	module_name = document.getElementById('module_name').value;
+	parent_module = document.getElementById('parent_module').value;
+	module_enabled_yes = document.getElementById('module_enabled_yes').checked;
+	enabled = 0;
+	if (module_enabled_yes){
+		enabled = 1;
+	}
+	typeyes = document.getElementById('type_yes').checked;
+	type = 1;
+	if (typeyes){
+		type = 0;
+	}
+	var urltoload = CurrentURL+"&mid="+LastModule+"&ma=edit&module_name="+module_name+"&parent_module="+parent_module+"&module_enabled="+enabled+"&type="+type;
+
+	loadXMLDoc(urltoload);
+	close_window();
+	var table = document.getElementById("forums");  
+	var rows = table.getElementsByTagName("tr"); 
+	if(ResponseText == "success" || !isNaN(ResponseText)){
+	 
+		if(LastModule > 0){
+			for(i = 0; i < rows.length; i++){
+				if(rows[i].innerHTML.indexOf("pid="+LastModule) !== -1){
+					for (j = 0; j < module_list_all.length; j++){
+						if (module_list_all[j]['module_id'] == LastModule){
+							module_list_all[j]['enabled'] = enabled;
+							module_list_all[j]['parent_id'] = parent_module;
+							module_list_all[j]['module_name'] = module_name;
+							module_list_all[j]['type'] = type;
+						}
+					}
+					if(_GETparent == parent_module){
+						rows[i].innerHTML = '<tr><td><a href="'+CurrentURL+'&pid='+LastModule+'">'+module_name+'</a></td><td onclick="EditModule('+LastModule+')"><img src="./acp/edit.png" class="icon24"/></td><td onclick="DeleteModule('+LastModule+')"><img src="./acp/delete.png" class="icon24" /></td></tr>';
+					}else{
+						table.deleteRow(i);
+					}
+					break;
+				}
+			}
+		}else{
+			module_list_all[String(module_list_all.length)]=[];
+			module_list_all[String(module_list_all.length-1)]["module_name"]=module_name;
+			module_list_all[String(module_list_all.length-1)]["module_id"]=ResponseText;
+			module_list_all[String(module_list_all.length-1)]["enabled"]=enabled;
+			module_list_all[String(module_list_all.length-1)]["parent_id"]=parent_module;
+			module_list_all[String(module_list_all.length-1)]["type"]=type;
+			table.insertRow(table.rows.length);
+			if(parent_module == _GETparent){
+				rows[table.rows.length-1].innerHTML = '<tr><td><a href="'+CurrentURL+'&pid='+ResponseText+'">'+module_name+'</a></td><td onclick="EditModule('+ResponseText+')"><img src="./acp/edit.png" class="icon24"/></td><td onclick="DeleteModule('+ResponseText+')"><img src="./acp/delete.png" class="icon24" /></td></tr>';
+			}
+		}
+		altRows("forums");		
+	}else{
+		hResponsedata = document.getElementById('server_response_data');
+		hResponse = document.getElementById('server_response');
+		hResponse.style.left = (100-((hResponse.offsetWidth/document.getElementById('content').offsetWidth)*100))/2 +'%';
+		hResponsedata.innerHTML=ResponseText;
+		ServerNotificationToggle();
+	}
+}
+</script>
+<h2>{%$MODULE_TITLE%}</h2>
+{%$language['ui']['module_hint']%}.<br><br>
+<table class="pretty_table" id="forums" cellspacing="0" cellpadding="0" border="0" style="text-align: left; border-top: 1px solid rgb(48, 124, 153); border-right: 1px solid rgb(48, 124, 153);">
+</table>
+
+<div id="module_window" style="position:absolute; z-index:10; left:50%; top:50%;margin-left: -140px;
+margin-top: -100px; width:280px;background-color:#DBEDFF; border:1px solid #428AFF;visibility: hidden">
+<img src="./acp/close.png" width="24" height="24" align="right" onclick="close_window();" style="cursor: pointer;"/>
+<table style="text-align: left;" border="0" cellpadding="2" cellspacing="2">
+    <tbody>
+      <tr>
+        <td>{%$language['ui']['module_name']%}</td>
+        <td><input id='module_name' style="width:150px" name="module_name"></td>
+      </tr>
+      <tr>
+        <td>{%$language['ui']['parent_module']%}</td>
+        <td ><select id="parent_module" style="width:150px" onchange="update_image(this.options[selectedIndex].value);" name="parent_module"></select><div id="preview_image"></div></td>
+      </tr>
+      <tr>
+        <td>{%$language['ui']['enabled']%}</td>
+        <td ><input id="module_enabled_yes" name="module_enabled_yesno" value="1" type="radio">{%$language['ui']['yes']%}
+        <input id="module_enabled_no" name="module_enabled_yesno" value="0" type="radio">{%$language['ui']['no']%}</td>
+      </tr>
+	  <tr>
+        <td >{%$language['ui']['category']%}</td>
+        <td ><input id="type_yes" name="category_yesno" value="1" type="radio">{%$language['ui']['yes']%}
+        <input id="type_no" name="category_yesno" value="0" type="radio">{%$language['ui']['no']%}</td>
+      </tr>
+    </tbody>
+  </table>
+  <input name="submit" value="{%$language['ui']['submit']%}" onclick="Save();" type="button">
+</div>
+
+<script type="text/javascript">
+LoadModule();
+</script>
+
+<div id="server_response" style="position:absolute; z-index:10; background-color:#DBEDFF; border:1px solid #428AFF;visibility: hidden">
+<div style="text-align: left; width: 100%;"><b>{%$language['ui']['server_response']%}:</b><div style="float:right; text-align: left;"><span class="link" onclick="ServerNotificationToggle()">{%$language['ui']['close']%}</span></div></div>
+<div id="server_response_data">{%$language['ui']['none']%}</div>
+</div>

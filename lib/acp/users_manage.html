@@ -1,0 +1,239 @@
+
+<script type="text/javascript" src="./acp/pickacc.js"></script> 
+
+<script type="text/javascript">
+
+
+
+	function setempty()
+
+	{
+
+		document.getElementById("passinput").value = "";
+
+	}
+
+
+
+    function preview(form)
+
+    {
+
+		var imageUrl = form.avatar.value;
+
+        document.getElementById("avatar").innerHTML = '<img src="'+imageUrl+'" alt="'+imageUrl+'"/>' ;
+
+    }
+    
+	function LoadUser()
+	{
+		val = document.getElementById('username');
+		val = val.value;
+		window.location= location.href+"&u="+val;
+
+	}
+
+	function RemoveJunk()
+	{
+		username = "{%$_GET['uid']%}";
+		if (username == ""){username = "{%$_GET['u']%}";}
+		if (username == ""){
+			  document.getElementById("userinfo").innerHTML = '<h2>{%$MODULE_TITLE%}</h2><div>Please select user: <input style="vertical-align: top; "  id="username" name="username"  value=""> <a STYLE="cursor: pointer;" onclick="createUserSelector()">Select</a> <a STYLE="cursor: pointer;" onclick="LoadUser()">Go</a></div>';
+		}	
+	}
+
+	function Setrank(){
+		var rank = document.getElementById("user_rank");
+		for (i = 0; i < rank.length; i++){
+			if(rank.options[i].value == "{%$TEMPLATE_VARS['SELECTEDUSER']['user_rank']%}"){
+				rank.selectedIndex = i;
+				break;
+			}
+		}
+	}
+	
+	function SetGroup(){
+		var rank = document.getElementById("UserGroup");
+		for (i = 0; i < rank.length; i++){
+			if(rank.options[i].value == "{%$TEMPLATE_VARS['SELECTEDUSER']['user_default_group']%}"){
+				rank.selectedIndex = i;
+				break;
+			}
+		}
+	}
+	
+        function submitGroups(){
+            var sel = "";
+            var uid = $("input[name='uid']").val();
+            $('#gm input:checkbox').each(function () {
+                 sel += (this.checked ? $(this).attr("name")+"|" : "");
+            });
+            var data= { 'groups': uid+":"+sel };
+            postdata("./acp.php?id={%$_GET['id']%}&a=manage_users&mode=updategroups", 'post', data);
+        }
+	
+	set_url = function(){
+		var theForm=document.getElementById("usereditor");
+		action_url = document.URL+"&mode=updateuser";
+		theForm.action = action_url;
+	}
+</script>
+<div id="userinfo">
+<h2>Currently viewing: {%$TEMPLATE_VARS['SELECTEDUSER']['username']%}</h2>
+<form method="post" action="{%$_SERVER['REQUEST_URI']%}&mode=updateuser" id="usereditor" name="update">
+  <table style="text-align: left;" border="0" cellpadding="0" cellspacing="0">
+    <tbody>
+      <tr>
+        <td>{%$language['ui']['user']%} <span style="color: rgb(255, 0, 0);"></span></td>
+        <td><input style="vertical-align: top; "  id="username" name="username" type="text" value="{%$TEMPLATE_VARS['SELECTEDUSER']['username']%}"><br>
+        </td>
+      </tr>
+      <tr>
+        <td>{%$language['ui']['activated']%}</td>
+        <td><input style="vertical-align: top; "  name="active" {%$TEMPLATE_VARS['SELECTEDUSER']['active']%} type="checkbox"></td>
+      </tr>
+      <tr>
+        <td>{%$language['ui']['password']%} </td>
+        <td><input style="vertical-align: top; " id="passinput" name="password"  type="password"></td>
+      </tr>
+      <tr>
+        <td>{%$language['ui']['password_confirm']%}</td>
+        <td><input style="vertical-align: top; " name="password_confirm"  type="password"></td>
+      </tr>
+      <tr>
+        <td>{%$language['ui']['email']%} </td>
+        <td><input style="vertical-align: top;" name="email" value="{%$TEMPLATE_VARS['SELECTEDUSER']['user_email']%}"  type="text"></td>
+      </tr>
+      <tr>
+        <td>{%$language['ui']['facebook']%}</td>
+        <td><input style="vertical-align: top; " name="facebook" value="{%$TEMPLATE_VARS['SELECTEDUSER']['user_facebook']%}"  type="text"></td>
+      </tr>
+      <tr>
+        <td>{%$language['ui']['avatar']%}</td>
+        <td><input style="vertical-align: top; " name="avatar" value="{%$TEMPLATE_VARS['SELECTEDUSER']['user_avatar']%}"  type="text">
+      </tr>
+      <tr>
+        <td>{%$language['ui']['show_email']%}</td>
+        <td><input style="vertical-align: top; "  name="show_email" {%$TEMPLATE_VARS['SELECTEDUSER']['user_show_mail']%} type="checkbox"></td>
+      </tr>
+      <tr>
+        <td>{%$language['ui']['show_facebook']%}</td>
+        <td><input style="vertical-align: top; "  name="show_facebook" {%$TEMPLATE_VARS['SELECTEDUSER']['user_show_facebook']%} type="checkbox"></td>
+      </tr>
+      <tr>
+        <td>{%$language['ui']['cover_image']%}</td>
+        <td><input style="vertical-align: top; "  name="cover" value="{%$TEMPLATE_VARS['SELECTEDUSER']['cover']%}" type="text"></td>
+      </tr>
+      <tr>
+        <td>{%$language['ui']['cover_offset']%}</td>
+        <td><input style="vertical-align: top; "  name="cover_h_offset" value="{%$TEMPLATE_VARS['SELECTEDUSER']['cover_h_offset']%}" type="text"></td>
+      </tr>
+      <tr>
+        <td>{%$language['ui']['about']%}<br>
+        </td>
+        <td><textarea cols="100" rows="5" name="about">{%$TEMPLATE_VARS['SELECTEDUSER']['about']%}</textarea><br>
+        </td>
+      </tr>
+      <tr>
+        <td>{%$language['ui']['signature']%}<br>
+        </td>
+        <td><textarea cols="100" rows="5" name="signature">{%$TEMPLATE_VARS['SELECTEDUSER']['user_signature']%}</textarea><br>
+        </td>
+      </tr>
+      <tr>
+        <td><br>
+        <br>
+        </td>
+        <td><br>
+        </td>
+      </tr>
+      <tr>
+        <td>{%$language['ui']['warn']%}
+        </td>
+        <td><input name="warn"  style="vertical-align: top; " value="{%$TEMPLATE_VARS['SELECTEDUSER']['user_warn']%}">
+        </td>
+      </tr>      
+	   <tr>
+        <td><br>
+        </td>
+        <td><br>
+        <br>
+        </td>
+      </tr>
+      <tr>
+        <td>{%$language['ui']['founder']%}<br>
+        <span style="color: rgb(153, 153, 153);">{%$language['ui']['founder_hint']%}</span><br>
+        </td>
+        <td style="vertical-align: top;"><input name="founder" type="checkbox" {%$TEMPLATE_VARS['SELECTEDUSER']['user_founder']%}><br>
+        </td>
+      </tr>
+      <tr>
+        <td>{%$language['ui']['rank']%}rank<br>
+            <span style="color: rgb(153, 153, 153);">{%$language['ui']['rank_hint']%}</span><br>
+        </td>
+        <td><select name="rank" id="user_rank"><option value="0">{%$language['ui']['none']%}</option>{%$TEMPLATE_VARS['RANK']%}</select><br>
+        </td>
+      </tr>
+      <tr>
+        <td><br>
+        </td>
+        <td><br>
+        </td>
+      </tr>
+      <tr>
+      </tr>
+      <tr>
+        <td>{%$language['ui']['defailt_group']%}<br>
+        </td>
+        <td><select name="group" id="UserGroup" onchange="update_preview();">{%$TEMPLATE_VARS['RANK']%}</select><br>
+        </td>
+      </tr><tr>
+        <td><br>
+        </td>
+        <td><br>
+        </td>
+      </tr>
+      <tr>
+        <td>{%$language['ui']['delete']%}<br>
+        </td>
+        <td style="vertical-align: top; color: red;"><input name="delete_account" type="checkbox">({%$language['ui']['no_undo']%})<br>
+        </td>
+      </tr>
+      <tr>
+        <td>{%$language['ui']['posts']%}<br>
+        </td>
+        <td><input name="posts" value="Delete" type="radio"> {%$language['ui']['delete']%} <input name="posts" value="remain" type="radio">{%$language['ui']['remain']%} <input name="posts" value="merge" type="radio">{%$language['ui']['merge_user']%} <input name="merge_user" >
+        </td>
+      </tr>
+	  <tr>
+        <td>
+        </td>
+        <td><input name="uid"  style="vertical-align: top;visibility:hidden; " value="{%$TEMPLATE_VARS['uid']%}">
+        </td>
+      </tr>
+
+    </tbody>
+  </table>
+  <br>
+  <input class="button" value="{%$language['ui']['update']%}" type="submit"> {%$language['ui']['or']%}
+  <a href="?id{%$_GET['id']%}" color="red"><b><span style="color: rgb(200, 0, 10);">{%$language['ui']['cancel']%}</span></b></a><br>
+</form>
+
+<br>
+{%$language['ui']['avatar_preview']%}:<br>
+
+<p id="avatar"><img style="max-height: 150px; max-width: 150px;" src="{%$TEMPLATE_VARS['SELECTEDUSER']['user_avatar']%}"></p>
+{%$TEMPLATE_VARS['GROUP_TABLE']%}
+</div> 
+
+<script type="text/javascript">
+
+		setempty();
+		RemoveJunk();
+		Setrank();SetGroup();
+		set_url();
+</script>
+
+<div id="account_picker" style="position:absolute; z-index:10; left:50%;margin-left: -25%;
+margin-top: -100px;width: 50%;background-color:#DBEDFF; border:1px solid #428AFF;visibility: hidden">
+</div>

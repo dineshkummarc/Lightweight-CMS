@@ -1,0 +1,76 @@
+<script>
+{%$TEMPLATE_VARS['forums_js']%}
+function getChilds(parent){ //see voiks ette anda foorumid prioriteedi jargi jarestatult foorumid et neid blokkide kaupa jarjestada
+    ret = [];
+    for(var i = 0; i < forums.length; i++){
+        if(forums[i]['parent_id'] == parent){
+            ret.push(forums[i]);
+        }
+    }
+    
+    ret.sort(sortByOrder);
+    
+    return ret;   
+}
+
+var test = "";
+
+function recTable(id, level){
+    var childs = getChilds(id);
+    for(var i = 0; i < childs.length; i++){
+        test += "<tr><td><a href=\"../?f="+childs[i]['forum_id']+"\">"+level+childs[i]['forum_name']+"</a></td><td>"+childs[i]['description']+"</td><td><a href=\"#\" onclick=\"editPermissions("+childs[i]['forum_id']+');">{%$language['ui']['edit_permissions']%}</a></td><td><img src="./acp/up.png" width="16" height="16" onclick="changePos('+childs[i]['forum_id']+',1)"><img src="./acp/down.png" width="16" height="16" onclick="changePos('+childs[i]['forum_id']+',-1)"></td><td><a href="./acp.php?id=10&a=manage_forums&mode=edit&f='+childs[i]['forum_id']+"\">{%$language['ui']['edit']%}</a></td><td><a href=\"./acp.php?id=10&a=manage_forums&mode=delete&f="+childs[i]['forum_id']+"\">{%$language['ui']['delete']%}</a></td></tr>\n";
+        recTable(childs[i]['forum_id'],level+"&nbsp;&nbsp;&nbsp;&nbsp;");
+    }
+}
+
+function changePos(id,amount){
+    for(var i = 0; i < forums.length; i++){
+        if(forums[i]['forum_id'] == id){
+            forums[i]["display_order"] = (parseInt(forums[i]["display_order"])+amount).toString();
+            $.post("acp.php?id={%$_GET['id']%}&a=manage_forums&mode=setorder",{'fid':forums[i]['forum_id'],'order':forums[i]['display_order']},function(result){});
+            break;
+        }
+    }
+    $(".sortable tbody tr:gt(1)").remove();
+    test = "";
+    recTable("0", "");
+    $(test).appendTo($(".sortable tbody"));
+}
+
+function sortByOrder(a, b) {
+    if (a["display_order"] === b["display_order"]) {
+        return 0;
+    }
+    else {
+        return (a["display_order"] > b["display_order"]) ? -1 : 1;
+    }
+}
+
+
+</script>
+<h2>{%$MODULE_TITLE%}</h2>
+<form method="post" action="?a=forum_permissions&mode=forum_permissions_manage" id="groupjunkie" name="GroupManage" style="display: none;">
+<input name="forum_id">
+<input class="button" value="OK" type="submit"></form>
+
+<table class="sortable highlightrow" style="text-align: left; width: 100%;" border="0"
+ cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+        <td colspan="6"><a href="./acp.php?id={%$_GET['id']%}&a=manage_forums&mode=edit&f=0">{%$language['ui']['new']%} <img src="./acp/add.png" width="16" height="16"></a></td>
+    </tr>
+    <tr>
+      <td><b>{%$language['ui']['name']%}</b></td>
+      <td><b>{%$language['ui']['description']%}</b></td>
+      <td><b>{%$language['ui']['actions']%}</b></td>
+      <td><b>{%$language['ui']['order']%}</b></td>
+      <td><b>{%$language['ui']['edit']%}</b></td>
+      <td><b>{%$language['ui']['delete']%}</b></td>
+    </tr>
+  </tbody>
+</table>
+
+<script>
+    recTable("0", "");
+    $(test).appendTo($(".sortable tbody"));
+</script>

@@ -1,0 +1,171 @@
+
+<script language="javascript" type="text/javascript">
+
+
+
+	function setempty()
+
+	{
+
+		document.getElementById("passinput").value = "";
+
+	}
+
+
+
+    function preview(form)
+
+    {
+
+		var ImageUrl = form.avatar.value;
+
+        document.getElementById("avatar").innerHTML = '<img src="'+ImageUrl+'" alt="'+ImageUrl+'"/>' ;
+
+    }
+
+</script>
+<h2>Currently viewing: {USERNAME}</h2>
+<form method="post" action="ucp.php?a=update" name="update">
+  <table style="text-align: left;" border="0" cellpadding="0" cellspacing="0">
+    <tbody>
+      <tr>
+        <td>Username <span style="color: rgb(255, 0, 0);"></span></td>
+        <td><input name="Username" style="width: 250px;" value="{USERNAME}"> <a href="go">Go</a><br>
+        </td>
+      </tr>
+      <tr>
+        <td>Password </td>
+        <td><input id="passinput" name="password" style="width: 250px;" type="password"></td>
+      </tr>
+      <tr>
+        <td>Password confirm</td>
+        <td><input name="passwordconfirm" style="width: 250px;" type="password"></td>
+      </tr>
+      <tr>
+        <td>Email </td>
+        <td><input name="email" value="{EMAIL}" style="width: 250px;" type="text"></td>
+      </tr>
+      <tr>
+        <td>MSN</td>
+        <td><input name="msn" value="{MSN}" style="width: 250px;" type="text"></td>
+      </tr>
+      <tr>
+        <td>Avatar</td>
+        <td><input name="avatar" value="{AVATAR}" style="width: 250px;" type="text">
+      </tr>
+      <tr>
+        <td>Show email</td>
+        <td><input name="showemail" {showmail} type="checkbox"></td>
+      </tr>
+      <tr>
+        <td>Show MSN</td>
+        <td><input name="showMSN" {showmsn} type="checkbox"></td>
+      </tr>
+      <tr>
+        <td>Signature<br>
+        </td>
+        <td><textarea cols="100" rows="5" name="Signature">{SIGNATURE}</textarea><br>
+        </td>
+      </tr>
+      <tr>
+        <td><br>
+        <br>
+        </td>
+        <td><br>
+        </td>
+      </tr>
+      <tr>
+        <td>Ban user<br>
+        </td>
+        <td><input name="BanUser" type="checkbox" {BANNED}><br>
+        </td>
+      </tr>
+      <tr>
+        <td>Ban expire<br>
+        </td>
+        <td><input name="BanExpire" style="width: 250px;" value="{BanExpireDate}"><br>
+        </td>
+      </tr>
+      <tr>
+        <td>Ban reason<br>
+        </td>
+        <td><textarea cols="45" rows="3" name="BanReason">{BanReason}</textarea><br>
+        </td>
+      </tr>
+      <tr>
+        <td>Warn
+        </td>
+        <td><input name="warn" style="width: 250px;" value="{WARN}">
+        </td>
+      </tr>
+	   <tr>
+        <td><br>
+        </td>
+        <td><br>
+        <br>
+        </td>
+      </tr>
+      <tr>
+        <td>Founder<br>
+        <span style="color: rgb(153, 153, 153);">Founders have all permissions</span><br style="color: rgb(153, 153, 153);">
+        <span style="color: rgb(153, 153, 153);">and can never be banned altered</span><br style="color: rgb(153, 153, 153);">
+        <span style="color: rgb(153, 153, 153);">or deleted by non founders</span><br>
+        </td>
+        <td><input name="Founder" type="checkbox"><br>
+        </td>
+      </tr>
+      <tr>
+        <td>Rank<br>
+        <span style="color: rgb(153, 153, 153);">Special title displayed below</span><br style="color: rgb(153, 153, 153);">
+        <span style="color: rgb(153, 153, 153);">user name.</span><br>
+        </td>
+        <td><textarea cols="45" rows="3" name="Rank">{RANK}</textarea><br>
+        </td>
+      </tr>
+      <tr>
+        <td><br>
+        </td>
+        <td><br>
+        </td>
+      </tr>
+      <tr>
+        {USERGROUPLIST}
+      </tr>
+      <tr>
+        <td>Defaul group<br>
+        </td>
+        <td><br>
+        </td>
+      </tr><tr>
+        <td><br>
+        </td>
+        <td><br>
+        </td>
+      </tr>
+      <tr>
+        <td>Delete<br>
+        </td>
+        <td style="vertical-align: top; color: red;"><input name="DeleteAccount" value="(Cannot be undone)" type="checkbox">(Cannot be undone)<br>
+        </td>
+      </tr>
+      <tr>
+        <td>Posts<br>
+        </td>
+        <td><input name="posts" value="Delete" type="radio"> Delete <input name="posts" value="remain" type="radio">Remain <input name="posts" value="merge" type="radio">Merge with user <input name="MergeUser" style="width: 250px;">
+        </td>
+      </tr>
+
+    </tbody>
+  </table>
+  <br>
+  <input value="Update" type="submit"><input onmousedown="preview(this.form)" value="Preview avatar" type="button">OR
+  <a href="{BBACK}" color="red"><b><span style="color: rgb(200, 0, 10);">Cancel</span></b></a><br>
+</form>
+
+<script type="text/javascript" language="JavaScript">
+
+		setempty();
+
+		</script>Avatar preview:<br>
+
+<p id="avatar"><img src="{AVATAR}"></p>
