@@ -104,7 +104,10 @@ INSERT INTO `general` (`setting`, `class`, `type`, `value`, `readonly`) VALUES
 ('validate_browser', 'security', 'bool', 0x30, 0),
 ('validate_ip', 'security', 'bool', 0x31, 0),
 ('webmaster', 'general', 'string', '{SITemail}', 0),
-('language', 'general', 'language', 'english', 0);
+('language', 'general', 'language', 'english', 0),
+('ad_client', 'google', 'string', 'ca-pub-4401807183386757', 0),
+('ad_slot', 'google', 'string', '6836209829', 0),
+('tracking_id', 'google', 'string', 'UA-92533778-1', 0);
 
 -- --------------------------------------------------------
 
@@ -754,7 +757,10 @@ INSERT INTO `input` (`id`, `name`, `method`, `type`) VALUES
 (148, 'site_announcement', 'POST', 'html'),
 (149, 'language', 'POST', 'string'),
 (150, 'lock', 'POST', 'check'),
-(151, 'google_fragment', 'POST', 'check');
+(151, 'google_fragment', 'POST', 'check'),
+(152, 'ad_client', 'POST', 'string'),
+(153, 'ad_slot', 'POST', 'string'),
+(154, 'tracking_id', 'POST', 'string');
 -- --------------------------------------------------------
 
 --
@@ -806,7 +812,10 @@ INSERT INTO `modules` (`module_id`, `module_name`, `enabled`, `parent_id`, `type
 (52, 'view_logs', 1, 51, 1, 'mcp'),
 (53, 'manage_ranks', 1, 3, 1, 'acp'),
 (55, 'manage_attachments', 1, 15, 1, 'ucp'),
-(56, 'reorder', 1, 24, 1, 'mcp');
+(56, 'reorder', 1, 24, 1, 'mcp'),
+(57, 'approval', 1, 12, 1, 'acp'),
+(58, 'google_settings', 1, 12, 1, 'acp');
+(57, 'google_settings', 1, 12, 1, 'acp');
 
 -- --------------------------------------------------------
 --

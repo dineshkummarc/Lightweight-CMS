@@ -423,7 +423,7 @@
     }
 
     function addAttachment() {
-        $.get( "http://localhost/lib/upload.php?form=" + formid + "&frame=" + frame_count + "&p=0", function( data ) {
+        $.get( "./lib/upload.php?form=" + formid + "&frame=" + frame_count + "&p=0", function( data ) {
             $( ".result" ).html( data );
             $("#upload_frames").append(data);
         });
@@ -439,7 +439,7 @@
         for (var i = 0; i < AttachmentList.length; i++) {
             //var ifrm = document.createElement("IFRAME");
             //ifrm.setAttribute("src", "./lib/upload.php?form=" + formid + p + "&a=preview&file=" + AttachmentList[i]);
-            $.get( "http://localhost/lib/upload.php?form=" + formid + p + "&frame=" + frame_count + "&p=0" + "&a=preview&file=" + AttachmentList[i], function( data ) {
+            $.get( "./lib/upload.php?form=" + formid + p + "&frame=" + frame_count + "&p=0" + "&a=preview&file=" + AttachmentList[i], function( data ) {
                 $( ".result" ).html( data );
                 $("#upload_frames").append(data);
             });
