@@ -815,6 +815,8 @@ INSERT INTO `modules` (`module_id`, `module_name`, `enabled`, `parent_id`, `type
 (56, 'reorder', 1, 24, 1, 'mcp'),
 (57, 'approval', 1, 12, 1, 'acp'),
 (58, 'google_settings', 1, 12, 1, 'acp');
+(57, 'google_settings', 1, 12, 1, 'acp');
+
 -- --------------------------------------------------------
 --
 -- Table structure for table `permissions`
