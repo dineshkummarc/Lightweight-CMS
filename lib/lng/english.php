@@ -511,6 +511,7 @@ Expires is the date when the session will expire (when your session expires you 
         'exposure' => 'Exposure',
         'aperture' => 'Aperture',
         'focal_length' => 'Focal length',
+        'focal_length_35mm' => '35mm Equivalent',
         'download_original' => 'Download original image',
         'size' => 'Size',
         'times' => 'time(s)',

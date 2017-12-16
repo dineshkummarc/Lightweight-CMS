@@ -32,7 +32,6 @@ include_once("./view_topic.php");
 include_once("./modules.php");
 include_once("./permissions.php");
 }
-
 $p = "";
 if(isset($_GET['p'])){
     $p = $_GET['p'];
@@ -149,6 +148,26 @@ function resize($src,$dst,$size,$quality){
     imagejpeg($thumb, $file_name, $quality);
 }
 
+function compute_focal_length($focal_length){
+    $parts = explode("/", $focal_length);
+    if(count($parts) == 2){
+        return $parts[0] / $parts[1];
+    }
+    return $focal_length;
+}
+
+
+function compute_exposure($exposure){
+    $parts = explode("/", $exposure);
+    if(count($parts) == 2){
+        if($parts[0] == 1){
+            return "1/" . $parts[1];
+        }
+        return "1/" . ($parts[1]/$parts[0]);
+    }
+    return $exposure;
+}
+
 switch($_GET['a']){
     case 'upload' :
         if($site_settings['allow_upload'] == "0" ){
@@ -183,14 +202,15 @@ switch($_GET['a']){
             if($is_image == 1){
                 resize($target,"../images/large/".$random_name,$site_settings['max_image_size'],95);
                 resize($target,"../images/small/".$random_name,$site_settings['max_thumb_size'],100);
-                $arr = exif_read_data($target);
+                $arr = @exif_read_data($target);
                 $new = array(
                     'FileDateTime' => strtotime($arr['DateTimeOriginal']),
                     'Model' => $arr['Model'],
                     'ISOSpeedRatings' => $arr['ISOSpeedRatings'],
                     'ApertureFNumber' => $arr['COMPUTED']['ApertureFNumber'],
-                    'Exposuretime' => $arr['ExposureTime'],
-                    'FocalLengthIn35mmFilm' => $arr['FocalLengthIn35mmFilm']
+                    'ExposureTime' => compute_exposure($arr['ExposureTime']),
+                    'FocalLengthIn35mmFilm' => $arr['FocalLengthIn35mmFilm'],
+                    'FocalLength' => compute_focal_length($arr['FocalLength'])
                 );
                 $exif = json_encode($new);
             }
