@@ -39,6 +39,12 @@ $connection = -1;
 $DB_CONNECTED = false;
 $DB_CONNECTION = ConnectdataBase();
 
+if(!$DB_CONNECTION){
+    error_push_title("Connection failed");
+    error_push_body("Failed to connect to database");
+    error_call();
+}
+
 $site_settings = get_table_contents("general",array('setting','value'));
 for ($i = 0;$i < count($site_settings);$i++)
 {
@@ -394,6 +400,9 @@ function sting_replace_var($string){
 				}
 			}
 			eval ($cmd);
+			if(isset($data) && $data === false){
+			    $data = "false";
+            }
 		}
 
 		//~ global $SITE_GLOBALS; $data = $SITE_GLOBALS["views"];
@@ -537,7 +546,7 @@ Link ..........:
 Example .......:
 ;==========================================================================================*/
 function display_error($stitle, $sText, $bReturn = false){
-	global $logindata,$root_dir;
+	global $root_dir;
 	$html = file_read($root_dir."/error.html");
 	//$html = str_replace("{login}", $logindata, $html);
 	$html = str_replace("{ERROR_TITLE}", $stitle, $html);
@@ -910,7 +919,7 @@ function replace_if($string,$Path = ""){
         $result = "";
         $replaced = str_replace('/[0-9a-zA-Z]{1,}\(/', "",$cond_match[1][0]); //Do not allow function calls
         $replaced = sting_replace_var($replaced);
-        $cond = eval('return '.$replaced.';');
+        $cond = eval('global $render_albums; return '.$replaced.';');
         if($cond){
             $string = str_replace("{?".$matches[1][$key]."?}",$matches[1][$key],$string);
         }else{

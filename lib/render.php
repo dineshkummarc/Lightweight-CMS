@@ -125,24 +125,16 @@ function render_attachment($attachments, $post, $render_image = false, $render_n
             $image = '<div class="large_container"><div class="large_container_inner">' . $image . $nav . '</div></div>';
             $nav = "";
             $exif = json_decode($attachments[$j]['exif_info'], true);
-            $exposure = explode("/", $exif['Exposuretime']);
-            if ($exposure[1] != '') {
-                $exp = $exposure[0] / $exposure[1];
-            } else {
-                $exp = "None";
-            }
-            if ($exp < 1 && $exp != 'None') {
-                $exp = "1/" . ($exposure[1] / $exposure[0]);
-            }
             $pid_image[$posts[$i]['id']] = '/images/large/' . $attachments[$j]['actual_name'];
             $replacements = array(
                 '{date_taken}' => date($site_settings['time_format'], $exif['FileDateTime']),
                 '{model}' => $exif['Model'],
                 '{iso}' => $exif['ISOSpeedRatings'],
                 '{post_id}' => $post['id'],
-                '{exposure}' => $exp,
+                '{exposure}' => $exif['ExposureTime'],
                 '{aperture}' => $exif['ApertureFNumber'],
-                '{focal_length}' => $exif['FocalLengthIn35mmFilm'],
+                '{focal_length}' => $exif['FocalLength'],
+                '{focal_length_35mm}' => $exif['FocalLengthIn35mmFilm'],
                 '{download_link}' => $attachments[$j]['id'],
                 '{download_name}' => $attachments[$j]['file_name'],
                 '{download_allowed}' => $site_settings['allow_download'],

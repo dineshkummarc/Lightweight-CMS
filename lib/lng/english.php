@@ -341,7 +341,10 @@ $language = array(
         'site_announcement' => 'Site announcement',
         'ad_client' => 'Ad client',
         'ad_slot' => 'Ad slot',
-        'tracking_id' => 'Tracking id'
+        'tracking_id' => 'Tracking id',
+        'thumbnail_quality' => 'Thumbnail quality',
+        'image_quality' => 'Image quality',
+        'resize_method' => 'Resize method'
     ),
     'setting_description' => array(
         'max_attachsize' => 'Maximum attachment size in bytes',
@@ -386,7 +389,10 @@ $language = array(
         'site_announcement' => '',
         'ad_client' => '',
         'ad_slot' => '',
-        'tracking_id' => ''
+        'tracking_id' => '',
+        'thumbnail_quality' => 'Ranges from 0 (smaller file) to 100 (best quality)',
+        'image_quality' => 'Ranges from 0 (smaller file) to 100 (best quality)',
+        'resize_method' => 'Image processing library'
     ),
     'ui' => array(
         'signout' => 'Signout',
@@ -511,6 +517,7 @@ Expires is the date when the session will expire (when your session expires you 
         'exposure' => 'Exposure',
         'aperture' => 'Aperture',
         'focal_length' => 'Focal length',
+        'focal_length_35mm' => '35mm Equivalent',
         'download_original' => 'Download original image',
         'size' => 'Size',
         'times' => 'time(s)',

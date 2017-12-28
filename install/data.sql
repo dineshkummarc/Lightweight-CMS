@@ -760,7 +760,11 @@ INSERT INTO `input` (`id`, `name`, `method`, `type`) VALUES
 (151, 'google_fragment', 'POST', 'check'),
 (152, 'ad_client', 'POST', 'string'),
 (153, 'ad_slot', 'POST', 'string'),
-(154, 'tracking_id', 'POST', 'string');
+(154, 'tracking_id', 'POST', 'string'),
+(155, 'thumbnail_quality', 'POST', 'int'),
+(156, 'image_quality', 'POST', 'int'),
+(157, 'resize_method', 'POST', 'string'),
+(158, 'frame', 'GET', 'int');
 -- --------------------------------------------------------
 
 --

@@ -32,7 +32,6 @@ include_once("./view_topic.php");
 include_once("./modules.php");
 include_once("./permissions.php");
 }
-
 $p = "";
 if(isset($_GET['p'])){
     $p = $_GET['p'];
@@ -75,6 +74,44 @@ function rnd_string($len)
     return $str;
 }
 
+function resize_image_imagick($src, $dst,$size, $quality){
+
+    $im = new Imagick();
+
+    $im->readImage( $src );
+    $height = $im->getImageHeight();
+    $width = $im->getImageWidth();
+
+    $max_orig = max($width,$height);
+    $thumb_max = $size;
+    $percent = $thumb_max/$max_orig;
+
+
+    $thumb_width = $width*$percent;
+    $thumb_height = $height*$percent;
+
+    $original_aspect = $width / $height;
+    $thumb_aspect = $thumb_width / $thumb_height;
+
+    if ( $original_aspect >= $thumb_aspect )
+    {
+        // If image is wider than thumbnail (in aspect ratio sense)
+        $new_height = $thumb_height;
+        $new_width = $width / ($height / $thumb_height);
+    }
+    else
+    {
+        // If the thumbnail is wider than the image
+        $new_width = $thumb_width;
+        $new_height = $height / ($width / $thumb_width);
+    }
+
+    $im->resizeImage($new_width, $new_height,Imagick::FILTER_LANCZOS,1);
+    $im->setCompressionQuality($quality);
+    $im->writeImage($dst);
+    $im->destroy();
+}
+
 function is_image($ext){
     $ext = strtolower($ext);
     $images = array("jpg","png","gif","svg", "bmp");
@@ -100,7 +137,7 @@ if($_GET['a'] == "download_nocount"){
 }
 
 
-function resize($src,$dst,$size,$quality){
+function resize_image_gd($src,$dst,$size,$quality){
     global $width,$height;
     $image = @imagecreatefromjpeg($src);
     if (!$image)
@@ -149,6 +186,39 @@ function resize($src,$dst,$size,$quality){
     imagejpeg($thumb, $file_name, $quality);
 }
 
+function resize_image($src,$dst,$size,$quality){
+    global $site_settings;
+    if($site_settings['resize_method'] == 'gd'){
+        resize_image_gd($src,$dst,$size,$quality);
+    }else if($site_settings['resize_method'] == 'im'){
+        try {
+            resize_image_imagick($src, $dst, $size, $quality);
+        }catch (Exception $e) {
+            dbg("FAILED");
+        }
+    }
+}
+
+function compute_focal_length($focal_length){
+    $parts = explode("/", $focal_length);
+    if(count($parts) == 2){
+        return $parts[0] / $parts[1];
+    }
+    return $focal_length;
+}
+
+
+function compute_exposure($exposure){
+    $parts = explode("/", $exposure);
+    if(count($parts) == 2){
+        if($parts[0] == 1){
+            return "1/" . $parts[1];
+        }
+        return "1/" . ($parts[1]/$parts[0]);
+    }
+    return $exposure;
+}
+
 switch($_GET['a']){
     case 'upload' :
         if($site_settings['allow_upload'] == "0" ){
@@ -181,16 +251,17 @@ switch($_GET['a']){
             $is_image = is_image(end($parts));
             $exif = "";
             if($is_image == 1){
-                resize($target,"../images/large/".$random_name,$site_settings['max_image_size'],95);
-                resize($target,"../images/small/".$random_name,$site_settings['max_thumb_size'],100);
-                $arr = exif_read_data($target);
+                resize_image($target,"../images/large/".$random_name,$site_settings['max_image_size'],95);
+                resize_image($target,"../images/small/".$random_name,$site_settings['max_thumb_size'],100);
+                $arr = @exif_read_data($target);
                 $new = array(
                     'FileDateTime' => strtotime($arr['DateTimeOriginal']),
                     'Model' => $arr['Model'],
                     'ISOSpeedRatings' => $arr['ISOSpeedRatings'],
                     'ApertureFNumber' => $arr['COMPUTED']['ApertureFNumber'],
-                    'Exposuretime' => $arr['ExposureTime'],
-                    'FocalLengthIn35mmFilm' => $arr['FocalLengthIn35mmFilm']
+                    'ExposureTime' => compute_exposure($arr['ExposureTime']),
+                    'FocalLengthIn35mmFilm' => $arr['FocalLengthIn35mmFilm'],
+                    'FocalLength' => compute_focal_length($arr['FocalLength'])
                 );
                 $exif = json_encode($new);
             }
