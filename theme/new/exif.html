@@ -34,7 +34,7 @@
       <td class="exifleft"> </td>
       <td>&nbsp;</td>
     </tr>
-    {?<?{%$site_settings['allow_download']%}==1?><tr>
+    {?<?{download_allowed}><tr>
       <td class="exifleft">{%$language['ui']['download_original']%}:</td>
       <td><a id="download_original_link_{post_id}" href="./lib/upload.php?a=download&file={download_link}">{download_name}</a></td>
     </tr>?}
