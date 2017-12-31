@@ -764,7 +764,8 @@ INSERT INTO `input` (`id`, `name`, `method`, `type`) VALUES
 (155, 'thumbnail_quality', 'POST', 'int'),
 (156, 'image_quality', 'POST', 'int'),
 (157, 'resize_method', 'POST', 'string'),
-(158, 'frame', 'GET', 'int');
+(158, 'frame', 'GET', 'int'),
+(159, 'fullscreen', 'GET', 'check');
 -- --------------------------------------------------------
 
 --

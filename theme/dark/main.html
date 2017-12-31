@@ -17,8 +17,14 @@
         var autoResize = true;
         var rootDir = "{%$root_dir%}";
         var templatename = "{%$site_settings['template']%}";
+        var pid = "{%$_GET['p']%}";
 
         var GET_id = "{%$_GET['id']%}";
+        var isMobile = '{%$INCLUDE_MOBILE%}';
+        var toicTitle = '{%$CURRENT_TOPIC[0]["title"]%}';
+        var firstImage = '{%$first_image%}';
+        var prevLink = '{%$prev_link%}';
+        var nextLink = '{%$next_link%}';
 
         //In case older browsers dont have it.
         if (!document.getElementsByClassName) {
@@ -53,7 +59,7 @@
 
 {%$announcement%}
 
-{?<?{%$forum_info[0]['google_fragment']%}==1?>
+{?<?$forum_info[0]['google_fragment']==1?>
 {{{%$root_dir%}/theme/{%$site_settings['template']%}/google_fragment.html}}
 ?}
 
@@ -81,7 +87,6 @@ resizeWin();</script>
 
 
 <script type="text/javascript">
-    var fullscreen = window.location.hash == "#fullscreen";
 
     var imageWidth = '{%$image_width%}';
     var imageHeight = '{%$image_height%}';
@@ -128,37 +133,6 @@ resizeWin();</script>
     }
 
 
-    try {
-        if (fullscreen) {
-            fullscreenSetup();
-            fullscreenInit();
-        }
-    } catch (e) {
-    }
-
-    function fullscreenSetup() {
-        var pid = "{%$_GET['p']%}";
-        if (pid == '') {
-            $("#fullscreencontainer > a > h2").html($('h2[id^="post"]').get(0).innerHTML);
-            $("#fullscreenimg").attr('src', $('img[id^="post_img"]').get(0).src);
-        } else {
-            $("#fullscreencontainer > a > h2").html($('#post' + pid).get(0).innerHTML);
-            $("#fullscreenimg").attr('src', $('#post_img' + pid).get(0).src);
-        }
-    }
-
-
-    if ('{%$INCLUDE_MOBILE%}' != "") {
-        var items = $("div > a > img:nth-child(1)");
-        //var strongs = $("div.thumb > strong");
-        for (var i = 0; i < items.length; i++) {
-            items[i].onclick = function () {
-                initFullscreen2(this);
-                return false;
-            }
-        }
-    }
-    resize_full();
     try {
         if ("{%$_GET['p']%}".length > 0)
             document.getElementById('post{%$_GET["p"]%}').srollIntoView();

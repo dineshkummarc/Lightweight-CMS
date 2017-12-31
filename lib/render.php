@@ -19,6 +19,7 @@ $next_link = "";
 $links_list_sub = "";
 $forum_info = null;
 $forum_links_tabs = "";
+$first_image = "";
 
 
 function render_logs($type)
@@ -101,7 +102,7 @@ function generate_og_tags()
 
 function render_attachment($attachments, $post, $render_image = false, $render_navigation = false)
 {
-    global $site_settings, $root_dir, $forum_info, $prev_link, $next_link, $pid_image, $current_user;
+    global $site_settings, $root_dir, $forum_info, $prev_link, $next_link, $pid_image, $current_user, $first_image;
     $pid_image = array();
     $exif_file = load_template_file($root_dir . "/theme/" . $site_settings['template'] . "/exif.html");
     $exif_file = template_replace($exif_file, array());
@@ -126,6 +127,9 @@ function render_attachment($attachments, $post, $render_image = false, $render_n
             $nav = "";
             $exif = json_decode($attachments[$j]['exif_info'], true);
             $pid_image[$posts[$i]['id']] = '/images/large/' . $attachments[$j]['actual_name'];
+            if($first_image == ""){
+               $first_image = '/images/large/' . $attachments[$j]['actual_name'];
+            }
             $can_download = $site_settings['allow_download'] && has_permission($current_user['permissions'][$forum_info[0]['forum_id']], 'f_can_download') && has_permission($current_user['permissions']['global'],'u_download_files') || has_permission($current_user['permissions']['global'], 'a_manage_attachments');
             $replacements = array(
                 '{date_taken}' => date($site_settings['time_format'], $exif['FileDateTime']),

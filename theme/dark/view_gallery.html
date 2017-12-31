@@ -17,28 +17,5 @@
 
 {{./theme/{%$site_settings['template']%}/comments.html}}
 <script type="text/javascript">
-    $(document).keydown(function (e) {
-        //console.log(e.target.tagName);
-        if (e.target.tagName.toLowerCase() !== 'input' &&
-                e.target.tagName.toLowerCase() !== 'textarea') {
-            switch (e.which) {
-                case 37: // left
-                    window.location = $("#prev").attr("href") + window.location.hash;
-                    break;
-
-                case 39: // right
-                    window.location = $("#next").attr("href") + window.location.hash;
-                    break;
-
-                case 27:
-                    fullscreenClose();
-                    break;
-
-                default:
-                    return; // exit this handler for other keys
-            }
-            e.preventDefault(); // prevent the default action (scroll / move caret)
-        }
-    });
     $('.post_header')[0].scrollIntoView( true );
 </script>
