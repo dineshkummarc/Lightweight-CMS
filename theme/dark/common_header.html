@@ -1,0 +1,51 @@
+<head>
+    <title>{%$site_settings['site_name']%}: {%$CURRENT_TOPIC[0]['title']%}</title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {%$OG_TAGS%}
+    <link type="text/css" rel="stylesheet" href="./lib/syntaxhighlighter/styles/shCore.css"/>
+    <link type="text/css" rel="stylesheet" href="./lib/syntaxhighlighter/styles/tomorrow-night.css"/>
+    <script src="./lib/jquery.js"></script>
+    <script src="./lib/funcs.js"></script>
+    <script src="./lib/sorttable.js"></script>
+    <script src="./lib/jquery-ui.js"></script>
+    <script type="text/javascript">
+        var olddata = "";
+        var showbtn = false;
+        var autoResize = true;
+        var rootDir = "{%$root_dir%}";
+        var templatename = "{%$site_settings['template']%}";
+        var pid = "{%$_GET['p']%}";
+
+        var GET_id = "{%$_GET['id']%}";
+        var isMobile = '{%$INCLUDE_MOBILE%}';
+        var toicTitle = '{%$CURRENT_TOPIC[0]["title"]%}';
+        var firstImage = '{%$first_image%}';
+        var prevLink = '{%$prev_link%}';
+        var nextLink = '{%$next_link%}';
+
+        //In case older browsers dont have it.
+        if (!document.getElementsByClassName) {
+            document.getElementsByClassName = function (cn) {
+                var allT = document.getElementsBytagName('*'), allCN = [], i = 0, a;
+                while (a = allT[i++]) {
+                    a.classname == cn ? allCN[allCN.length] = a : null;
+                }
+                return allCN
+            }
+        }
+
+
+        String.prototype.insert = function (index, string) {
+            if (index > 0)
+                return this.substring(0, index) + string + this.substring(index, this.length);
+            else
+                return string + this;
+        };
+
+    </script>
+    <link rel="stylesheet" type="text/css" href="{%$root_dir%}/theme/{%$site_settings['template']%}/normalize.css"/>
+    <link rel="stylesheet" type="text/css" href="{%$root_dir%}/theme/{%$site_settings['template']%}/style.css"/>
+    <link rel="stylesheet" type="text/css" href="./lib/jquery-ui.css">
+    {%$INCLUDE_MOBILE%}
+</head>
