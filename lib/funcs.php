@@ -916,12 +916,10 @@ function replace_if($string){
     preg_match_all($pattern, $string, $matches);
     foreach ($matches[0] as $key => $match) {
         preg_match_all('/<\?(.*?)\?>/s',$matches[1][$key],$cond_match);
-        $result = "";
         $replaced = str_replace('/[0-9a-zA-Z]{1,}\(/', "",$cond_match[1][0]); //Do not allow function calls
 
         $php_variables = '/\$([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)/';
         preg_match_all($php_variables, $replaced, $used_variables);
-
         $globals = "";
         if(isset($used_variables) && is_array ($used_variables)){
             foreach ($used_variables[0] as $value){

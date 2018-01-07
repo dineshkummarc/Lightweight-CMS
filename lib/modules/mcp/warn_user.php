@@ -44,7 +44,7 @@ WHERE  warn.id =  '".$_POST['warn']."'
                             $query = "INSERT INTO ".warn." VALUES (NULL, ".$_GET['uid'].", 0, ".time().", '".$_POST['reason']."', ".$_POST['points']." ,".$isVerbal.")";
                             //SELECT post_id, 'time', message, points, type,  post_title  FROM warn, post WHERE $post_info[0]['user_id'] AND post.user_id = warn.user_id
                             $update = "UPDATE ".users." SET user_warn=user_warn+".$_POST['points']." WHERE user_id=".$_GET['uid'];
-                            _mysql_query($query);dbg($_POST);
+                            _mysql_query($query);
                             _mysql_query($update);
                             log_event('MODERATOR', $current_user['name'], $_SERVER['REMOTE_ADDR'], "WARN USER", 'Warned user <a href="../profile.php?uid='.$_GET['uid'].'">'.$uinfo[0]['username'].'</a>');
                             $this->template = "success_module";
@@ -107,7 +107,7 @@ WHERE  warn.id =  '".$_POST['warn']."'
                         $uid = user_get_id_by_name($_POST['username']);
                         if($uid){
                             $warn_js = array_to_js(get_table_contents("","","",false,"SELECT ".warn.".*, COALESCE(post.post_title,'') AS post_title FROM warn LEFT JOIN post ON post.id = warn.post_id AND post.user_id=warn.user_id WHERE warn.user_id=".$uid, array('time')),"warnings",true,true);
-                            $this->template = "warn_user";dbg("sss", $uid);
+                            $this->template = "warn_user";
                             $this->vars['WARN']=$warn_js;
                             $this->vars['USER']=user_get_info_by_id($uid);
                         }else{
@@ -126,7 +126,7 @@ WHERE  warn.id =  '".$_POST['warn']."'
             case "list_warn":
                 $warnings = get_table_contents("","","",false,"SELECT warn.*, COALESCE(post.post_title,'') AS post_title, users.username, users.user_warn FROM users,warn LEFT JOIN post ON post.id = warn.post_id AND post.user_id=warn.user_id WHERE users.user_id=warn.user_id",array("time"));
                 $warn_js = array_to_js($warnings,"warnings",true,true);
-                $this->template = "warn_list";dbg("sss");
+                $this->template = "warn_list";
                 $this->vars=array(
                     'WARN' => $warn_js
                 );

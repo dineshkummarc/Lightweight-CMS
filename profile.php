@@ -34,13 +34,13 @@ render_last_update();
 define_bbcodes();
 
 $login_form = get_login_form();
-$load = array('File');
+$load = array('File', 'if');
 if (!has_permission($current_user['permissions']['global'], 'u_view_profiles')) {
     render_acp_links();
     generate_og_tags();
     render_mobile_css();
     $login_form = get_login_form();
-    $load = array('File');
+    $load = array('File', 'if');
     $acp_action = "./theme/" . $site_settings['template'] . "/ucp/failure_module.html";
     $notification = "You do not have permission to view user profiles";
     $content = file_get_contents("./theme/" . $site_settings['template'] . "/main.html");
