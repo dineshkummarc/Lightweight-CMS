@@ -35,11 +35,8 @@ margin-top: -100px;width: 50%;background-color:#DBEDFF; border:1px solid #428AFF
 
     {%$TEMPLATE_VARS['WARN']%}
 
-    var Tablestart = '<table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="0"><tbody><tr style="color:#FFFFFF;font-weight:bold;" BGcolor="#428AFF"><td>{%$language["ui"]["post"]%}</td><td>{%$language["ui"]["time"]%}</td><td>{%$language["ui"]["reason"]%}</td><td>{%$language["ui"]["points"]%}</td><td>{%$language["ui"]["verbal"]%}</td><td>{%$language["ui"]["delete"]%}</td></tr>\n';
+    var Tablestart = '<table class="sortable" style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="0"><thead><tr><td>{%$language["ui"]["post"]%}</td><td>{%$language["ui"]["time"]%}</td><td>{%$language["ui"]["reason"]%}</td><td>{%$language["ui"]["points"]%}</td><td>{%$language["ui"]["verbal"]%}</td><td>{%$language["ui"]["delete"]%}</td></tr></thead><tbody>\n';
 
-    var scolor1 = "#99CCFF";
-    var scolor2 = "#77B8FF";
-    var scolor = '';
     var Tabledata = '';
 
     function deleteWarn() {
@@ -47,12 +44,7 @@ margin-top: -100px;width: 50%;background-color:#DBEDFF; border:1px solid #428AFF
     }
 
     for (var i = 0; i < warnings.length; i++) {
-        if (i % 2) {
-            scolor = scolor1
-        } else {
-            scolor = scolor2;
-        }
-        Tabledata += '<tr bgcolor="' + scolor + '"><td><a href="../?p=' + warnings[i]['post_id'] + '">' + warnings[i]['post_title'] + '</a></td><td>' + warnings[i]['time'] + '</td><td>' + warnings[i]['message'] + '</td><td>' + warnings[i]['points'] + '</td><td>' + ToString[warnings[i]['type']] + '</td><td><a href="#" onclick="deleteWarn(' + warnings[i]['id'] + ')">Delete<span></a></td></tr>\n';
+        Tabledata += '<tr><td><a href="../?p=' + warnings[i]['post_id'] + '">' + warnings[i]['post_title'] + '</a></td><td>' + warnings[i]['time'] + '</td><td>' + warnings[i]['message'] + '</td><td>' + warnings[i]['points'] + '</td><td>' + ToString[warnings[i]['type']] + '</td><td><a href="#" onclick="deleteWarn(' + warnings[i]['id'] + ')">Delete<span></a></td></tr>\n';
     }
     var TableEnd = '</tbody></table>';
     hWnd = document.getElementById('warnlist');
