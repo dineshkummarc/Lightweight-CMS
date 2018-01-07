@@ -958,3 +958,13 @@ div.attachment {
     text-align: center;
     background: #021825;
 }
+
+.window_title {
+    background-color: #021825;
+}
+
+.window {
+    background-color: #030D13;
+    border: thin #01B2F1;
+    box-shadow: 0 0 5px #01B2F1;
+}
