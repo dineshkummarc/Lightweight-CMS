@@ -66,7 +66,6 @@ WHERE  warn.id =  '".$_POST['warn']."'
                     if($post_info){
                         if(isset($_POST['points'])){
                             $query = "INSERT INTO warn VALUES (NULL, ".$post_info[0]['user_id'].", ".$post_info[0]['id'].", ".time().", '".$_POST['reason']."', ".$_POST['points']." ,".checkbox_to_int($_POST['verbal']).")";
-                            //SELECT post_id, 'time', message, points, type,  post_title  FROM warn, post WHERE $post_info[0]['user_id'] AND post.user_id = warn.user_id
                             $update = "UPDATE ".users." SET user_warn=user_warn+".$_POST['points']." WHERE user_id=".$post_info[0]['user_id'];
                             log_event('MODERATOR', $current_user['name'], $_SERVER['REMOTE_ADDR'], "WARN USER", 'Warned user <a href="../profile.php?uid='.$post_info[0]['user_id'].'">'.$post_info[0]['username'].'</a> for post <a href="'.$post_info[0]['id'].'">'.$post_info[0]['post_title'].'</a>');
                             _mysql_query($query);
@@ -78,7 +77,7 @@ WHERE  warn.id =  '".$_POST['warn']."'
                             break;
                         }
                         //$columns = array("id","user_id","time","message","points","type","post_title");
-                        $warn_js = array_to_js(get_table_contents("","","",false,"SELECT warn.*, COALESCE(post.post_title,'') AS post_title FROM warn LEFT JOIN post ON post.id = warn.post_id AND post.user_id=warn.user_id WHERE warn.user_id=".$post_info[0]['user_id'],array('time')),"warnings",true,true);
+                        $warn_js = json_encode(get_table_contents("","","",false,"SELECT warn.*, COALESCE(post.post_title,'') AS post_title FROM warn LEFT JOIN post ON post.id = warn.post_id AND post.user_id=warn.user_id WHERE warn.user_id=".$post_info[0]['user_id'],array('time')));
                         $post_info[0]['topic'] = topic_get_info($post_info[0]['topic_id']);
                         $post_info[0]['poster'] = user_get_info_by_id($post_info[0]['user_id']);
                         $tags= get_table_contents(bbcode,'ALL');
@@ -106,7 +105,9 @@ WHERE  warn.id =  '".$_POST['warn']."'
                     if(isset($_POST['username'])){
                         $uid = user_get_id_by_name($_POST['username']);
                         if($uid){
-                            $warn_js = array_to_js(get_table_contents("","","",false,"SELECT ".warn.".*, COALESCE(post.post_title,'') AS post_title FROM warn LEFT JOIN post ON post.id = warn.post_id AND post.user_id=warn.user_id WHERE warn.user_id=".$uid, array('time')),"warnings",true,true);
+                            $query = "SELECT ".warn.".*, COALESCE(post.post_title,'') AS post_title FROM warn LEFT JOIN post ON post.id = warn.post_id AND post.user_id=warn.user_id WHERE warn.user_id=".$uid;
+                            $warn_list = get_table_contents("","","",false, $query, array('time'));
+                            $warn_js = json_encode($warn_list);
                             $this->template = "warn_user";
                             $this->vars['WARN']=$warn_js;
                             $this->vars['USER']=user_get_info_by_id($uid);
@@ -124,8 +125,9 @@ WHERE  warn.id =  '".$_POST['warn']."'
                 }
                 break;
             case "list_warn":
-                $warnings = get_table_contents("","","",false,"SELECT warn.*, COALESCE(post.post_title,'') AS post_title, users.username, users.user_warn FROM users,warn LEFT JOIN post ON post.id = warn.post_id AND post.user_id=warn.user_id WHERE users.user_id=warn.user_id",array("time"));
-                $warn_js = array_to_js($warnings,"warnings",true,true);
+                $query = "SELECT warn.*, COALESCE(post.post_title,'') AS post_title, users.username, users.user_warn FROM users,warn LEFT JOIN post ON post.id = warn.post_id AND post.user_id=warn.user_id WHERE users.user_id=warn.user_id";
+                $warnings = get_table_contents("","","",false, $query, array("time"));
+                $warn_js = json_encode($warnings);
                 $this->template = "warn_list";
                 $this->vars=array(
                     'WARN' => $warn_js

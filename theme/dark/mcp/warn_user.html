@@ -6,9 +6,10 @@ margin-top: -100px;width: 50%;background-color:#DBEDFF; border:1px solid #428AFF
 {%$language['ui']['joined']%}: {%$TEMPLATE_VARS['USER'][0]['user_join_date']%}<br>
 {%$language['ui']['posts']%}: {%$TEMPLATE_VARS['USER'][0]['user_post_count']%}<br>
 {%$language['ui']['warn']%}: {%$TEMPLATE_VARS['USER'][0]['user_warn']%}<br>
+<br>
 <b>{%$language['ui']['add_warn']%}:</b>
 <form method="post" action="{%$_SERVER['REQUEST_URI']%}&uid={%$TEMPLATE_VARS['USER'][0]['user_id']%}" name="warn">
-    <table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
+    <table class="form-table">
         <tbody>
         <tr>
             <td>{%$language['ui']['amount']%}:</td>
@@ -22,9 +23,11 @@ margin-top: -100px;width: 50%;background-color:#DBEDFF; border:1px solid #428AFF
             <td>{%$language['ui']['reason']%}:</td>
             <td><textarea cols="50" rows="4" name="reason"></textarea></td>
         </tr>
-        </tbody>
+        <tr>
+            <td></td>
+            <td> <input value="{%$language['ui']['add_warn']%}" type="submit"></td>
     </table>
-    <input value="{%$language['ui']['add_warn']%}" type="submit"><br>
+   <br>
 </form>
 <div id="warnlist"></div>
 <script>
@@ -33,20 +36,38 @@ margin-top: -100px;width: 50%;background-color:#DBEDFF; border:1px solid #428AFF
     ToString['0'] = "{%$language['ui']['no']%}";
     ToString['1'] = "{%$language['ui']['yes']%}";
 
-    {%$TEMPLATE_VARS['WARN']%}
+    var tableConfig = [
+        {
+            title: '{%$language["ui"]["post"]%}',
+            template: '<a href="../?p={post_id}">{post_title}</a>'
+        },
+        {
+            title: '{%$language["ui"]["time"]%}',
+            template: '{time}'
+        },
+        {
+            title: '{%$language["ui"]["reason"]%}',
+            template: '{message}'
+        },
+        {
+            title: '{%$language["ui"]["points"]%}',
+            template: '{points}'
+        },
+        {
+            title: '{%$language["ui"]["verbal"]%}',
+            template: '{type}'
+        },
+        {
+            title: '{%$language["ui"]["delete"]%}',
+            template: '<a href="#" onclick="deleteWarn(\'{id}\')" class="delete">Delete<span'
+        }
+    ];
 
-    var Tablestart = '<table class="sortable" style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="0"><thead><tr><td>{%$language["ui"]["post"]%}</td><td>{%$language["ui"]["time"]%}</td><td>{%$language["ui"]["reason"]%}</td><td>{%$language["ui"]["points"]%}</td><td>{%$language["ui"]["verbal"]%}</td><td>{%$language["ui"]["delete"]%}</td></tr></thead><tbody>\n';
-
-    var Tabledata = '';
+    var tableData = {%$TEMPLATE_VARS['WARN']%}
 
     function deleteWarn() {
         postdata('./mcp.php?id={%$_GET["id"]%}&a={%$_GET["a"]%}&mode=delete', 'post', {'warn': id});
     }
-
-    for (var i = 0; i < warnings.length; i++) {
-        Tabledata += '<tr><td><a href="../?p=' + warnings[i]['post_id'] + '">' + warnings[i]['post_title'] + '</a></td><td>' + warnings[i]['time'] + '</td><td>' + warnings[i]['message'] + '</td><td>' + warnings[i]['points'] + '</td><td>' + ToString[warnings[i]['type']] + '</td><td><a href="#" onclick="deleteWarn(' + warnings[i]['id'] + ')">Delete<span></a></td></tr>\n';
-    }
-    var TableEnd = '</tbody></table>';
     hWnd = document.getElementById('warnlist');
-    hWnd.innerHTML = Tablestart + Tabledata + TableEnd;
+    hWnd.innerHTML = buildTable(tableConfig, tableData);
 </script>

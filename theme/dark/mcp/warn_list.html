@@ -6,16 +6,42 @@
     ToString['0'] = "{%$language['ui']['no']%}";
     ToString['1'] = "{%$language['ui']['yes']%}";
 
-    {%$TEMPLATE_VARS['WARN']%}
+    var tableConfig = [
+        {
+            title: '{%$language["ui"]["user"]%}',
+            template: '<a href="../profile.php?uid={user_id}">{username}</a>'
+        },
+        {
+            title: '{%$language["ui"]["post"]%}',
+            template: '<a href="../?p={post_id}">{post_title}</a>'
+        },
+        {
+            title: '{%$language["ui"]["time"]%}',
+            template: '{time}'
+        },
+        {
+            title: '{%$language["ui"]["reason"]%}',
+            template: '{message}'
+        },
+        {
+            title: '{%$language["ui"]["points"]%}',
+            template: '{points}'
+        },
+        {
+            title: '{%$language["ui"]["verbal"]%}',
+            template: '{type}'
+        },
+        {
+            title: '{%$language["ui"]["delete"]%}',
+            template: '<a href="#" onclick="deleteWarn(\'{id}\')" class="delete">Delete<span'
+        }
+    ];
 
-    var Tablestart = '<table class="sortable"><thead><tr class="sortable_head"><td>{%$language["ui"]["user"]%}</td><td>{%$language["ui"]["post"]%}</td><td>{%$language["ui"]["time"]%}</td><td>{%$language["ui"]["reason"]%}</td><td>{%$language["ui"]["points"]%}</td><td>{%$language["ui"]["verbal"]%}</td><td>{%$language["ui"]["user_total"]%}</td></tr></thead><tbody>\n';
+    var tableData = {%$TEMPLATE_VARS['WARN']%}
 
-    var Tabledata = '';
-
-    for (var i = 0; i < warnings.length; i++) {
-        Tabledata += '<tr><td>' + warnings[i]['username'] + '</td><td><a href="../?p=' + warnings[i]['post_id'] + '">' + warnings[i]['post_title'] + '</a></td><td>' + warnings[i]['time'] + '</td><td>' + warnings[i]['message'] + '</td><td>' + warnings[i]['points'] + '</td><td>' + ToString[warnings[i]['type']] + '</td><td>' + warnings[i]['user_warn'] + '</td></tr>\n';
+    function deleteWarn() {
+        postdata('./mcp.php?id={%$_GET["id"]%}&a={%$_GET["a"]%}&mode=delete', 'post', {'warn': id});
     }
-    var TableEnd = '</tbody></table>';
     hWnd = document.getElementById('warnlist');
-    hWnd.innerHTML = Tablestart + Tabledata + TableEnd;
+    hWnd.innerHTML = buildTable(tableConfig, tableData);
 </script>
