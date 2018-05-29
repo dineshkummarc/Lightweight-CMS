@@ -50,9 +50,12 @@ margin-top: -100px;width: 50%;background-color:#DBEDFF; border:1px solid #428AFF
 <div id="warnlist"></div>
 <script>
 
-    var ToString = [];
-    ToString['0'] = "{%$language['ui']['no']%}";
-    ToString['1'] = "{%$language['ui']['yes']%}";
+    var valueMap = [
+        {'type' : {
+            '0': "{%$language['ui']['no']%}",
+            '1': "{%$language['ui']['yes']%}"
+        }}
+    ];
 
     var tableConfig = [
         {
@@ -77,7 +80,7 @@ margin-top: -100px;width: 50%;background-color:#DBEDFF; border:1px solid #428AFF
         },
         {
             title: '{%$language["ui"]["delete"]%}',
-            template: '<a href="#" onclick="deleteWarn(\'{id}\')" class="delete">Delete<span'
+            template: '<a href="#" onclick="deleteWarn(\'{id}\')" class="delete">{%$language["ui"]["delete"]%}</a>'
         }
     ];
 
@@ -87,6 +90,6 @@ margin-top: -100px;width: 50%;background-color:#DBEDFF; border:1px solid #428AFF
         postdata('./mcp.php?id={%$_GET["id"]%}&a={%$_GET["a"]%}&mode=delete', 'post', {'warn': id});
     }
     hWnd = document.getElementById('warnlist');
-    hWnd.innerHTML = buildTable(tableConfig, tableData);
+    hWnd.innerHTML = buildTable(tableConfig, tableData, valueMap);
 
 </script>
