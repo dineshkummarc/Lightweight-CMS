@@ -688,12 +688,12 @@ table.sortable {
     border-right: 1px solid #01B2F1;
 }
 
-table.sortable, table.sortable td {
+table.sortable, table.sortable td, table.sortable th {
     border: 1px solid #01B2F1;
     border-collapse: collapse;
 }
 
-table.sortable td {
+table.sortable td, table.sortable th {
     padding: 3px;
 }
 
@@ -902,10 +902,6 @@ table.forums tbody tr:nth-child(2n+1) td {
     background: #CFA;
 }
 
-#warnlist a {
-    color: #005AD1;
-}
-
 .up_strong {
     font-weight: 800;
     text-transform: uppercase;
@@ -967,4 +963,13 @@ div.attachment {
     background-color: #030D13;
     border: thin #01B2F1;
     box-shadow: 0 0 5px #01B2F1;
+}
+
+.form-table td{
+    padding-bottom: 10px;
+    padding-right: 10px;
+}
+
+.delete {
+   color: #cc0000;
 }
