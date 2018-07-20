@@ -927,9 +927,9 @@ table.forums tbody tr:nth-child(2n+1) td {
 }
 
 blockquote {
-    background: rgb(243, 243, 243) none repeat scroll 0% 0%;
+    background: #021825 none repeat scroll 0% 0%;
     border-radius: 5px;
-    box-shadow: 0 0 3px #4D4D4D;
+    box-shadow: 0 0 3px #01B2F1;;
 }
 
 .attachment {
