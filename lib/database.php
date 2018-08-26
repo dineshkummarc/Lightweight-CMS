@@ -253,7 +253,7 @@ function _mysql_fetch_field($result) {
 
 function _mysql_real_escape_string($str){
     global $MODE,$DB;
-        if($MODE=='mysql'){
+    if($MODE=='mysql'){
         $res = mysql_real_escape_string($str,$DB);
     }elseif($MODE=='mysqli'){
         $res = mysqli_real_escape_string($DB,$str);
@@ -264,4 +264,29 @@ function _mysql_real_escape_string($str){
     return $res;
 }
 
-?>
+/**
+ * Runs a prepared query
+ * Prepared query should be passed in the following form:
+ * array(
+ * "query" => "query string with :param1, param2, ...",
+ * "params" => array(
+ *   ":param1" => ":param1 value",
+ *   ":param2" => ":param2 value"
+ * )
+ * );
+ */
+function _mysql_prepared_query($query){
+    global $MODE,$DB;
+    if($MODE=='mysql'){
+        die("_mysql_preparedQuery not implemented for mysql mode yet");
+    }elseif($MODE=='mysqli') {
+        $statement = $DB->prepare($query["query"]);
+        foreach ($query["params"] as $param_name => $param_value){
+            $statement->bindParam($param_name, $param_value);
+        }
+        $statement->execute();
+    }
+}
+
+
+?> 
