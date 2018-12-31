@@ -261,8 +261,20 @@ function post_approve($id, $state = 1)
 function topic_update_first_post($tid)
 {
     $posts = topic_get_data_ex($tid);
-    $sql = "UPDATE topic SET time='" . $posts[0]['time_timestamp'] . "', first_post_id='" . $posts[0]['id'] . "', title='" . $posts[0]['post_title'] . "', Poster='" . $posts[0]['user_id'] . "', poster_name='" . $posts[0]['username'] . "', poster_color='" . $posts[0]['user_color'] . "'  WHERE topic_id='" . $tid . "'";
-    _mysql_query($sql);
+    _mysql_prepared_query(
+        array(
+            'query' => 'UPDATE topic SET time=:time, first_post_id=:first_post_id, title=:title, Poster=:Poster, poster_name=:poster_name, poster_color=:poster_color  WHERE topic_id=:topic_id',
+            'params' => array(
+                ':time' => $posts[0]['time_timestamp'],
+                ':first_post_id' => $posts[0]['id'],
+                ':title' => $posts[0]['post_title'],
+                ':Poster' => $posts[0]['user_id'],
+                ':poster_name' => $posts[0]['username'],
+                ':poster_color' => $posts[0]['user_color'],
+                ':topic_id' => $tid
+            )
+        )
+    );
 }
 
 

@@ -264,29 +264,35 @@ function _mysql_real_escape_string($str){
     return $res;
 }
 
+function replaceValues($value){
+    if(is_string($value)){
+        return "'" . _mysql_real_escape_string($value) . "'";
+    }
+    return $value;
+}
+
 /**
  * Runs a prepared query
  * Prepared query should be passed in the following form:
  * array(
- * "query" => "query string with :param1, param2, ...",
+ * "query" => "query string with :param1, :param2, ...",
  * "params" => array(
  *   ":param1" => ":param1 value",
  *   ":param2" => ":param2 value"
  * )
  * );
  */
-function _mysql_prepared_query($query){
-    global $MODE,$DB;
-    if($MODE=='mysql'){
-        die("_mysql_preparedQuery not implemented for mysql mode yet");
-    }elseif($MODE=='mysqli') {
-        $statement = $DB->prepare($query["query"]);
-        foreach ($query["params"] as $param_name => $param_value){
-            $statement->bindParam($param_name, $param_value);
+function _mysql_prepared_query($query, $debug = false){
+    global $MODE;
+    if($MODE=='mysql' || $MODE=='mysqli'){
+        // For backwards vompatibility
+        $paramsCopy = array_map("replaceValues", $query["params"]);
+        $queryString = strtr($query["query"], $paramsCopy);
+        if($debug){
+            dbg($query,$queryString);
         }
-        $statement->execute();
+        _mysql_query($queryString);
     }
 }
-
 
 ?> 
