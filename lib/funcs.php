@@ -407,7 +407,9 @@ function sting_replace_var($string){
 
 		//~ global $SITE_GLOBALS; $data = $SITE_GLOBALS["views"];
 		//~ dbg($cmd,$SITE_GLOBALS);
-		$string = str_replace("{%".$matches[1][$key]."%}",$data,$string);
+		$string = str_replace("'{%".$matches[1][$key]."%}'", "'".addslashes($data)."'" ,$string);
+		$string = str_replace('"{%'.$matches[1][$key].'%}"', '"'.addslashes($data).'"', $string);
+		$string = str_replace("{%".$matches[1][$key]."%}" ,$data, $string);
 	}
 	//~ dbg($string);
 	return $string;
