@@ -173,7 +173,7 @@ function test_active($user, $protect_special = true) {
 function login($user_name = '',$password = '',$remember = false, $hide = 0){
     $crawler = is_crawler($_SERVER['HTTP_USER_AGENT']);
     if($crawler){return user_get_info_by_name($crawler);}
-    global $NOTICE, $PASSWORD_login;
+    global $IS_BANNED;
     $user = false;
     if($_GET['a'] != "signin"){
         $user = lonin_cookie();
@@ -202,7 +202,7 @@ function login($user_name = '',$password = '',$remember = false, $hide = 0){
             $IS_BANNED = true;
         }
     }
-     _mysql_query("UPDATE users SET last_active='".time()."' WHERE user_id='".$user['user_id']."';");
+    _mysql_query("UPDATE users SET last_active='".time()."' WHERE user_id='".$user['user_id']."';");
     return $user;
 }
 
@@ -241,8 +241,12 @@ function session_new($uid,$remember, $hide)
 
     //$query = 'DELETE FROM sessions WHERE user_id = '.$uid; //allow only single login
     //@_mysql_query($query);
+    $hideDbVal = '0';
+    if($hide){
+        $hideDbVal = '1';
+    }
 
-    $query = "INSERT INTO sessions VALUES ('".$session_id."', '".$uid."', '".$ip."', '".$user_agent."', '".$start."', '".$end."', ".$hide.");";
+    $query = "INSERT INTO sessions VALUES ('".$session_id."', '".$uid."', '".$ip."', '".$user_agent."', '".$start."', '".$end."', ".$hideDbVal.");";
     @_mysql_query($query);
     //dbg($query);
 
