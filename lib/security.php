@@ -109,5 +109,3 @@ function secure_url($url) {
 function secure_facebook($fb) {
     return $fb;
 }
-
-?>

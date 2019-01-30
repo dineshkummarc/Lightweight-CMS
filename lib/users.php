@@ -228,6 +228,3 @@ function user_list($start,$end)
 {
     return get_table_contents("users",array('user_id','username','user_email','user_post_count','user_join_date'),'ORDER BY username ASC LIMIT '.$start.', '.$end);
 }
-
-
-?>

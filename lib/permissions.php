@@ -73,4 +73,3 @@ Example .......:
 function permissions_list($fields = 'ALL'){
 	return get_table_contents("permissions",$fields);
 }
-?>

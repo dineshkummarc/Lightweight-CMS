@@ -185,4 +185,3 @@ if ($_GET["ajax"] == "1") {
     print($content);
 }
 
-?>

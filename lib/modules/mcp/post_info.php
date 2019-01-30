@@ -68,5 +68,3 @@ class post_info{
         }
     }
 }
-
-?>

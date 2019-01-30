@@ -127,5 +127,3 @@ if(isset($_GET['a'])){
 }
 
 die("none");
-
-?> 

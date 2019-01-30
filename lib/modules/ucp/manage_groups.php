@@ -275,5 +275,3 @@ WHERE user_password != '' AND user_group_id = '".$_GET['g']."'", array("user_joi
         }
     }
 }
-
-?>

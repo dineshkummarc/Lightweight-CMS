@@ -30,5 +30,3 @@ class manage_comments{
         }
     }
 }
-
-?>

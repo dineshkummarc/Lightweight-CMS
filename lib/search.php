@@ -303,6 +303,3 @@ function display_search($queries, $forum_type) {
 $TYPE = $_GET['type'] == '' || !isset($_GET['type']) ? 'ALL' : $_GET['type'];
 $queries = build_search($_GET['q'], $TYPE);
 display_search($queries, $TYPE);
-
-
-?>

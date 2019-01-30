@@ -89,5 +89,3 @@ function update_current_user(){
         }
     }
 }
-
-?>

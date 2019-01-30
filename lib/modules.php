@@ -116,6 +116,4 @@ function module_build_tabs($tab_info){
 function module_get_name_by_id($id){
     $res = _mysql_query("SELECT module_name FROM modules WHERE module_id='".$id."'");
     return _mysql_result($res, 0);
-} 
-
-?>
+}

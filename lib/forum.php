@@ -212,6 +212,3 @@ function display_topic($posts,$tags,$topic,$no_permissions = false){
     }
     return $ret;
 }
-
-
-?>

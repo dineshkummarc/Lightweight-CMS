@@ -233,5 +233,3 @@ function load($main_page, $title, $module_file)
     $CONTENT_OUT = $content;
 
 }
-
-?>

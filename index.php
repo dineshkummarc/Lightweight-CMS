@@ -555,4 +555,3 @@ $generation_time = ($milliseconds2 - $milliseconds) / 1000;
 
 $content = template_replace($content, $load);
 $CONTENT_OUT = $content;
-?>

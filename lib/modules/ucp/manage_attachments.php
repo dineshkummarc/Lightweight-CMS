@@ -45,5 +45,3 @@ class manage_attachments{
         }
     }
 }
-
-?>

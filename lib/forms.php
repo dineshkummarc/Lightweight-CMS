@@ -29,5 +29,3 @@ function form_is_valid($id,$action)
     }
     return false;
 }
-
-?>

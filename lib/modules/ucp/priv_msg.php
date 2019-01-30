@@ -260,5 +260,3 @@ class priv_msg{
         }
     }
 }
-
-?>

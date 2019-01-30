@@ -115,5 +115,3 @@ class group_forum_permissions{
         }
     }
 }
-
-?>

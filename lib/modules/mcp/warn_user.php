@@ -136,5 +136,3 @@ WHERE  warn.id =  '".$_POST['warn']."'
         }
     }
 }
-
-?>

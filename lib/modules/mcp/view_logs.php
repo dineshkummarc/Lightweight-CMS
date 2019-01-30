@@ -28,5 +28,3 @@ class view_logs{
         }
     }
 }
-
-?>

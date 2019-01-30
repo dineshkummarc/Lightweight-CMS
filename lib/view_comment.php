@@ -258,5 +258,3 @@ if($posts == null){
     }
     die($ret);
 }
-
-?> 

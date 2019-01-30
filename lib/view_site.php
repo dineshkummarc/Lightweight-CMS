@@ -119,5 +119,3 @@ function preview($a = ""){
         $notification = $language['notifications']['form'].$notification_back_link;
     }
 }
-
-?>

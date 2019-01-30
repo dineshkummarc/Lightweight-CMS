@@ -552,8 +552,3 @@ function group_remove_hidden_selective($groups){
     $groups = array_values($groups);
     return $groups;
 }
-
-
-
-//~ function UserG
-?>

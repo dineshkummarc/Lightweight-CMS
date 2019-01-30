@@ -118,8 +118,6 @@ function bbcode_to_regex($tags, $bbcode_key = 'bbcode', $html_key = 'HTML'){
 		$bbcode_regex[$j]['bbcode'] = $bbcode;
 		$bbcode_regex[$j]['bbcode_html'] = $bbcode_html;
 
-		$bbcode_count ++;
-
 		unset($match); //Cleanup
 	}
 	//~ print_r($bbcodeRegex);
@@ -225,6 +223,3 @@ function bbcode_attach_tag($matches)
         return "";
     }
 }
-
-
-?>

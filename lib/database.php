@@ -294,5 +294,3 @@ function _mysql_prepared_query($query, $debug = false){
         _mysql_query($queryString);
     }
 }
-
-?> 

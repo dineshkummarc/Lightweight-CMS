@@ -37,5 +37,3 @@ class manage_ranks{
         }
     }
 }
-
-?>

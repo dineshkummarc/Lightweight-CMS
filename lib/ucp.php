@@ -253,4 +253,3 @@ render_forum_path();
         $notification = $language['notifications']['not_authorized'];
         load($MAIN_PAGE[$CURRENT_MODULE], $PAGE_TITLE[$CURRENT_MODULE], $FILE_PATH[$CURRENT_MODULE]);
     }
-?>

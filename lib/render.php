@@ -540,6 +540,3 @@ function render_user_link($user)
     }
     return '<a style="color:' . $color . ' ;" href="./profile.php?u=' . $user['user_id'] . '">' . $user['username'] . '</a>';
 }
-
-
-?>

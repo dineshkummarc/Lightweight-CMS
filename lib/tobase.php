@@ -276,5 +276,3 @@ function to_base_bbcode(){
         return _mysql_query("UPDATE bbcode SET bbcode_hint='".$_POST["bbcode_hint"]."', bbcode='".$_POST["bbcode_in"]."', bbcode_html='".$_POST["bbcode_out"]."', bbcode_show='".$_POST["bbcode_display"]."', attrib_func='".$_POST['bbcode_attrib']."' WHERE bbcode_id='".$_GET["save"]."'");
     }
 }
-
-?>

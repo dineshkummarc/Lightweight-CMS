@@ -246,5 +246,3 @@ class manage_groups{
         }
     }
 }
-
-?>

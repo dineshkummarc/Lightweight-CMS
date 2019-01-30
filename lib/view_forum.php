@@ -432,6 +432,3 @@ SET users.user_post_count = users.user_post_count  -  B.c");
         }
     }
 }
-
-
-?>

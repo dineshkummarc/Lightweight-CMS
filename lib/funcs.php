@@ -1197,5 +1197,3 @@ function shutdown(){
 
 
 register_shutdown_function('shutdown');
-
-?>

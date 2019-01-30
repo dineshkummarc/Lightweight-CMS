@@ -45,6 +45,3 @@ $template_directory = $root_dir . "/theme/" . $site_settings['template'];
 
 
 $form_path = array('FORMS' => $template_directory . "/forms");
-
-
-?>

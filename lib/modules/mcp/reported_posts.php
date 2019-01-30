@@ -40,5 +40,3 @@ ON post_id = post.id",
         }
     }
 }
-
-?>

@@ -347,4 +347,3 @@ switch($_GET['a']){
         }
         break;
 }
-?>

@@ -600,7 +600,4 @@ Expires is the date when the session will expire (when your session expires you 
         'avatar_preview' => 'Avatar preview'
     )
 
-)
-
-
-?>
+);

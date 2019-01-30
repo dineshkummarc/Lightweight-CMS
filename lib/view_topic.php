@@ -965,5 +965,3 @@ function topic_get_post_actions($post, $has_topic = true, $js = false, $topic = 
     }
     return $str;
 }
-
-?>

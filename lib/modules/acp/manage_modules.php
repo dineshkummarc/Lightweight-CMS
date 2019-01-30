@@ -147,5 +147,3 @@ class manage_modules{
         }
     }
 }
-
-?>

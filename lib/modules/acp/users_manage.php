@@ -191,5 +191,3 @@ function update_user_groups(){
         }
     }
 }
-
-?>

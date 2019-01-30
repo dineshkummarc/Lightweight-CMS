@@ -2,9 +2,9 @@
 if (!function_exists("ConnectDataBase")){include_once("./groups.php");include_once("./users.php");include_once("./funcs.php");include_once("./tobase.php");include_once("../settings.php");}
 if (!$GLOBALS_DEFINED == true){include_once("../globals.php");}
 if (!function_exists("CreateUser")){include_once("./login.php");}
-//~ if($Action == "") {$Action = "user";}
+
 $LoginURL = "./auth.php?a=login";
-//~ die("STOP".$DATABASE_NAME);
+
 ConnectDataBase();
 
 if ($_GET['login']){
@@ -28,6 +28,3 @@ if ($_GET['login']){
     }
 }
 echo TemplateReplace(file_get_contents($form_path['FORMS'].'/auth.html'), array());
-
-
-?>

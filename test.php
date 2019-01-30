@@ -19,7 +19,4 @@ exec("convert -version", $out, $rcode);
 //Print the return code: 0 if OK, nonzero if error. 
 echo "Version return code is $rcode <br>"; 
 //Print the output of "convert -version"    
-echo alist($out); 
-?>
-
-?>
+echo alist($out);

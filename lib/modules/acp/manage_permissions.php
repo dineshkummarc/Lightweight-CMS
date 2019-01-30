@@ -55,5 +55,3 @@ class manage_permissions{
         }
     }
 }
-
-?>

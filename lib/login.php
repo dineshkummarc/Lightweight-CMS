@@ -309,4 +309,3 @@ function get_login_form()
         return template_replace(file_get_contents($form_path['FORMS'].'/loggedin.html'), array());
     }
 }
-?>
