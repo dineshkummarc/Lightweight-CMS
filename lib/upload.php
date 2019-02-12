@@ -303,18 +303,21 @@ switch ($_GET['a']) {
             _mysql_query($sql);
             $id = _mysql_insert_id();
             if ($is_image == 1) {
-                echo '<table style="width: 100px;">
-  <tbody>
-    <tr>
-      <td valign="top">File: ' . basename($_FILES['uploaded']['name']) . ' <a href="./lib/upload.php?a=delete&file=' . $id . '">delete</a> <a href="./lib/upload.php?a=download&file=' . $id . '&form=' . $_GET['form'] . '">download</a></td>
-      <td valign="top">preview:<br><img src="../images/small/' . $random_name . '"></td>
-    </tr>
-  </tbody>
-</table><script>callb();</script>
-';
+                $replacements = array(
+                    '{file_name}' => basename($_FILES['uploaded']['name']),
+                    '{file_id}' => $id,
+                    '{form_id}' => $_GET['form'],
+                    '{actual_name}' => $random_name
+                );
+                echo renderResponse('preview_upload_image.html', $replacements);
                 die();
             } else {
-                echo "File: " . basename($_FILES['uploaded']['name']) . ' <a href="./lib/upload.php?a=delete&file=' . $id . '">delete</a> <a href="./upload.php?a=download&file=' . $id . '&form=' . $_GET['form'] . '">download</a>';
+                $replacements = array(
+                    '{file_name}' => basename($_FILES['uploaded']['name']),
+                    '{file_id}' => $id,
+                    '{form_id}' => $_GET['form']
+                );
+                echo renderResponse('preview_upload.html', $replacements);
             }
         } else {
             echo "Sorry, there was a problem uploading your file.";
@@ -330,7 +333,13 @@ switch ($_GET['a']) {
                 || has_permission($current_user['permissions']['global'], 'm_edit_posts')
                 || has_permission($current_user['permissions'][$forum_id_const], 'm_edit_posts')) {
                 $result = _mysql_query("SELECT * FROM attachments WHERE id = " . $_GET['file']);
-                echo "<div class='attachment'>File: " . _mysql_result($result, 0, 'file_name') . ' <a href="./lib/upload.php?a=delete&file=' . _mysql_result($result, 0, 'id') . '">delete</a> <a href="./lib/upload.php?a=download&file=' . _mysql_result($result, 0, 'id') . '&form=' . $_GET['form'] . '">download</a></div><br>';
+
+                $replacements = array(
+                    '{file_name}' => _mysql_result($result, 0, 'file_name'),
+                    '{file_id}' => _mysql_result($result, 0, 'id'),
+                    '{form_id}' => $_GET['form']
+                );
+                echo renderResponse('preview_upload.html', $replacements);
             } else {
                 die("You are not authorized to alter attachments for this post");
             }
@@ -380,4 +389,11 @@ switch ($_GET['a']) {
             die("You do not have permission to view this file");
         }
         break;
+}
+
+function renderResponse($template_name, $replacements){
+    global $template_directory;
+    $content = file_get_contents($template_directory . '/' . $template_name);
+    $content = strtr($content, $replacements);
+    return $content;
 }
