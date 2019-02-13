@@ -407,14 +407,17 @@ function sting_replace_var($string){
 
 		//~ global $SITE_GLOBALS; $data = $SITE_GLOBALS["views"];
 		//~ dbg($cmd,$SITE_GLOBALS);
-		$string = str_replace("'{%".$matches[1][$key]."%}'", "'".addslashes($data)."'" ,$string);
-		$string = str_replace('"{%'.$matches[1][$key].'%}"', '"'.addslashes($data).'"', $string);
+		$string = str_replace("'{%".$matches[1][$key]."%}'", "'".addlashes_char($data, "'")."'" ,$string);
+		$string = str_replace('"{%'.$matches[1][$key].'%}"', '"'.addlashes_char($data, '"').'"', $string);
 		$string = str_replace("{%".$matches[1][$key]."%}" ,$data, $string);
 	}
 	//~ dbg($string);
 	return $string;
 }
 
+function addlashes_char($string,  $char){
+    return str_replace($char, "\\".$char, $string);
+}
 //Lists files in directory
 // directory - directory to list
 // filter - filter to use (string that file name must contain (ex: .jpg)
