@@ -862,7 +862,7 @@ function int_to_time($table_name,$table_data){
         "forms" =>'time',
         "post"=>'time|edit_time',
         "report"=>'time|close_time',
-        "sessions"=>'start|End',
+        "sessions"=>'start|end|last_seen',
         "topic"=>'time|last_post_time',
         "users"=>'user_join_date|last_active',
         "warn"=>'time',

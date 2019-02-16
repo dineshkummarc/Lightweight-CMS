@@ -133,7 +133,7 @@ if($IS_BANNED){
     
     if($_GET['a'] == 'signin'){
         $MODULE_TITLE = 'Sign in';
-        $user = login($_POST['username'],$_POST['password'],Checkboxto_bool($_POST['remember']), checkbox_to_int($_POST['anonymous']));
+        $user = login($_POST['username'],$_POST['password'],Checkboxto_bool($_POST['remember']), Checkboxto_bool($_POST['anonymous']));
         //_sendcookie();
         if(!$IS_BANNED){
             if($user['user_id'] > 1){
