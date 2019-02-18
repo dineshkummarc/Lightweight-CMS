@@ -172,7 +172,7 @@ function test_active($user, $protect_special = true)
 }
 
 
-function login($user_name = '', $password = '', $remember = false, $hide = 0)
+function login($user_name = '', $password = '', $remember = false, $hide = false)
 {
     $crawler = is_crawler($_SERVER['HTTP_USER_AGENT']);
     if ($crawler) {
@@ -260,7 +260,12 @@ function session_new($uid, $remember, $hide)
         $hideDbVal = '1';
     }
 
-    $query = "INSERT INTO sessions VALUES ('" . $session_id . "', '" . $uid . "', '" . $ip . "', '" . $user_agent . "', '" . $start . "', '" . $end . "', " . time() . ", '" . $hideDbVal . "');";
+    $rememberDbVal = '0';
+    if ($remember) {
+        $rememberDbVal = '1';
+    }
+
+    $query = "INSERT INTO sessions VALUES ('" . $session_id . "', '" . $uid . "', '" . $ip . "', '" . $user_agent . "', '" . $start . "', '" . $end . "', " . time() . ", '" . $hideDbVal . "', '" . $rememberDbVal . "');";
     @_mysql_query($query);
 
     if (!$remember) {

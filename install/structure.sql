@@ -424,7 +424,8 @@ CREATE TABLE `sessions` (
   `start` int(11) NOT NULL,
   `end` int(11) NOT NULL,
   `last_seen` int(11) NOT NULL,
-  `hide` tinyint(4) NOT NULL
+  `hide` tinyint(1) NOT NULL,
+  `remeber` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 -- --------------------------------------------------------
