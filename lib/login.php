@@ -91,7 +91,13 @@ function test_email_ban($user, $uid = -1, $protect_special = true)
     if ($user == null || $user['user_email'] == "") {
         return false;
     }
-    $ban = _mysql_query("SELECT * FROM bans WHERE end_at > " . time() . " AND email='" . $user['user_email'] . "' ORDER BY end_at DESC LIMIT 0,1");
+    $ban = _mysql_prepared_query(array(
+        "query" => "SELECT * FROM bans WHERE end_at > :time AND email=:email ORDER BY end_at DESC LIMIT 0,1",
+        "params" => array(
+            ":time" => time(),
+            ":email" => $user['user_email']
+        )
+    ));
     $arr = _mysql_fetch_assoc($ban);
     if ($arr != false) {
         if ($user['user_id'] > -1 && has_permission(permissions_to_string(user_get_permissions($user['user_id'])), 'u_ignore_ban')) {
@@ -112,7 +118,13 @@ function test_user_ban($user, $protect_special = true)
     if ($user['user_id'] < 2 && $protect_special) {
         return false;
     }
-    $ban = _mysql_query("SELECT * FROM bans WHERE end_at > " . time() . " AND banned_user_id='" . $user['user_id'] . "' ORDER BY end_at DESC LIMIT 0,1");
+    $ban = _mysql_prepared_query(array(
+        "query"=>"SELECT * FROM bans WHERE end_at > :time AND banned_user_id=:uid ORDER BY end_at DESC LIMIT 0,1",
+        "params"=>array(
+            ":time" => time(),
+            ":uid" => $user['user_id']
+        )
+    ));
     $arr = _mysql_fetch_assoc($ban);
     if ($arr != false) {
         if ($user['user_id'] > -1 && has_permission(permissions_to_string(user_get_permissions($user['user_id'])), 'u_ignore_ban')) {
@@ -133,7 +145,13 @@ function test_ip_ban($user, $protect_special = true)
     if ($user['user_id'] < 2 && $protect_special) {
         return false;
     }
-    $ban = _mysql_query("SELECT * FROM bans WHERE end_at > " . time() . " AND ip_address='" . $_SERVER['REMOTE_ADDR'] . "' ORDER BY end_at DESC LIMIT 0,1");
+    $ban = _mysql_prepared_query(array(
+        "query" => "SELECT * FROM bans WHERE end_at > :time AND ip_address=:ip ORDER BY end_at DESC LIMIT 0,1",
+        "params" => array(
+            ":time" => time(),
+            ":ip" => $_SERVER['REMOTE_ADDR']
+        )
+    ));
     $arr = _mysql_fetch_assoc($ban);
     if ($arr != false) {
         if ($arr['banned_user_id'] == '0' && $arr['ip_address'] == $_SERVER['REMOTE_ADDR']) {
@@ -213,20 +231,40 @@ function login($user_name = '', $password = '', $remember = false, $hide = false
             $IS_BANNED = true;
         }
     }
-    _mysql_query("UPDATE users SET last_active='" . time() . "' WHERE user_id='" . $user['user_id'] . "';");
+    _mysql_prepared_query(array(
+        "query"=>"UPDATE users SET last_active=:time WHERE user_id=:user;",
+        "params" => array(
+            ":time" => time(),
+            ":user" => $user['user_id']
+
+        )
+    ));
     return $user;
 }
 
 function login_password($name, $password)
 {
     global $site_settings, $PASSWORD_login;
-    $fail_count = _mysql_query("SELECT COUNT(*) FROM login_attempts WHERE ip='" . $_SERVER['REMOTE_ADDR'] . "' AND (" . time() . " - time) < 600");
+    $fail_count = _mysql_prepared_query(array(
+        "query" => "SELECT COUNT(*) FROM login_attempts WHERE ip=:ip AND (:time - time) < 600",
+        "params" => array(
+            ":ip" => $_SERVER['REMOTE_ADDR'],
+            ":time" => time()
+        )
+    ));
     $attempts = 0;
     if ($fail_count) {
         $attempts = _mysql_result($fail_count, 0);
     }
     if ($attempts > $site_settings['max_login_attempts']) {
-        _mysql_query("INSERT INTO bans VALUES(NULL, 0, '" . $_SERVER['REMOTE_ADDR'] . "', '', " . time() . ", '" . (time() + $site_settings['login_ban_length']) . "', 'Too many failed login attempts','Too many failed login attempts', 0)");
+        _mysql_prepared_query(array(
+            "query" => "INSERT INTO bans VALUES(NULL, 0, :ip, '', :time, :ban_length, 'Too many failed login attempts','Too many failed login attempts', 0)",
+            "params" => array(
+                ":ip" => $_SERVER['REMOTE_ADDR'],
+                ":time" => time(),
+                ":ban_length" => time() + $site_settings['login_ban_length']
+            )
+        ));
         log_event("USER", $name, $_SERVER['REMOTE_ADDR'], "login", "ip banned for failed attempts.");
     }
     $user = user_get_info_by_name($name);
@@ -238,7 +276,15 @@ function login_password($name, $password)
     $pass = $user['user_password'];
     if ($pass != encrypt($password . $salt)) {
         $user = false;
-        _mysql_query("INSERT INTO login_attempts VALUES ('" . $name . "', '" . time() . "', '" . $_SERVER['REMOTE_ADDR'] . "', '" . $_SERVER['HTTP_USER_AGENT'] . "');");
+        _mysql_prepared_query(array(
+            "query" => "INSERT INTO login_attempts VALUES (:name, :time, :ip, :user_agent);",
+            "params" => array(
+                ":name" => $name,
+                ":time" => time(),
+                ":ip" => $_SERVER['REMOTE_ADDR'],
+                ":user_agent" => $_SERVER['HTTP_USER_AGENT'],
+            )
+        ));
         throw new Exception('Password does not match', 1);
     }
     $PASSWORD_login = true;
@@ -265,8 +311,21 @@ function session_new($uid, $remember, $hide)
         $rememberDbVal = '1';
     }
 
-    $query = "INSERT INTO sessions VALUES ('" . $session_id . "', '" . $uid . "', '" . $ip . "', '" . $user_agent . "', '" . $start . "', '" . $end . "', " . time() . ", '" . $hideDbVal . "', '" . $rememberDbVal . "');";
-    @_mysql_query($query);
+    $query = "INSERT INTO sessions VALUES (:session_id, :uid, :ip, :user_agent, :start, :end, :time, :hide, :remember);";
+    @_mysql_prepared_query(array(
+        "query" => $query,
+        "params" => array(
+            ":session_id" => $session_id,
+            ":uid" => $uid,
+            ":ip" => $ip,
+            ":user_agent" => $user_agent,
+            ":start" => $start,
+            ":end" => $end,
+            ":time" => time(),
+            ":hide" => $hideDbVal,
+            ":remember" => $rememberDbVal
+        )
+    ));
 
     if (!$remember) {
         $end = 0; //cookie will expire at the end of the session (when the browser closes).
@@ -277,28 +336,37 @@ function session_new($uid, $remember, $hide)
 function session_delete($sid)
 {
     _setcookie("Session", "", time() - 3600, "/");
-    $query = "DELETE FROM sessions WHERE session_id = '" . $sid . "'";
-    $query2 = "DELETE FROM forum_session WHERE session_id = '" . $sid . "'";
-    _mysql_query($query2);
-    return _mysql_query($query);
+    _mysql_prepared_query(array(
+        "query" => "DELETE FROM sessions WHERE session_id = :sid",
+        "params" => array(
+            ":sid" => $sid
+        )
+    ));
+    _mysql_prepared_query(array(
+        "query" => "DELETE FROM forum_session WHERE session_id = :sid",
+        "params" => array(
+            ":sid" => $sid
+        )
+    ));
 }
 
 function lonin_cookie()
 {
     global $site_settings;
     $sid = secure_input($_COOKIE['Session']);
-    $query = 'SELECT * FROM sessions, users WHERE session_id = \'' . $sid . '\' AND users.user_id = sessions.user_id';
-    $result = @_mysql_query($query);
-    $user = _mysql_fetch_assoc($result);
+    $result = @_mysql_prepared_query(array(
+        "query" => "SELECT * FROM sessions, users WHERE session_id = :sid AND users.user_id = sessions.user_id",
+        "params" => array(
+            ":sid" => $sid
+        )
+    ));
+    $user = @_mysql_fetch_assoc($result);
     if ($user == false) {
-        session_delete($sid);//Delete invalid cookie
+        session_delete($sid); //Delete invalid cookie
         return false;
     } else {
         if ($user['end'] < time()) {
-            $query = "DELETE FROM sessions WHERE session_id = '" . $sid . "'"; //Delete expired session
-            $query2 = "DELETE FROM forum_session WHERE session_id = '" . $sid . "'"; //Delete expired session
-            @_mysql_query($query);
-            @_mysql_query($query2);
+            session_delete($sid); //Expired session
             return false;
         }
         if ($user['end'] > time()) {
@@ -310,11 +378,16 @@ function lonin_cookie()
                 log_event("USER", $user['username'], $_SERVER['REMOTE_ADDR'], "login", "ip mismatch");
                 return false;
             }
-            @_mysql_query("UPDATE sessions SET last_seen='" . time() . "' WHERE session_id = '" . $sid . "'");
+            @_mysql_prepared_query(array(
+                "query" => "UPDATE sessions SET last_seen=:time WHERE session_id = :sid",
+                "params" => array(
+                    ":time" => time(),
+                    ":sid" => $sid
+                ))
+            );
             return $user;
         }
     }
-    //session_delete();//Delete invalid cookie
     return false;
 }
 

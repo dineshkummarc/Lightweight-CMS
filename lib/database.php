@@ -215,8 +215,6 @@ function _mysql_fetch_assoc($result) {
     if($MODE=='mysql'){
         $res = mysql_fetch_assoc($result);
     }elseif($MODE=='mysqli'){
-        if($result == false){
-        dbg(debug_backtrace());}
         $res = mysqli_fetch_assoc($result);
         if($res == NULL){
             return false;
@@ -291,6 +289,6 @@ function _mysql_prepared_query($query, $debug = false){
         if($debug){
             dbg($query,$queryString);
         }
-        _mysql_query($queryString);
+        return _mysql_query($queryString);
     }
 }
