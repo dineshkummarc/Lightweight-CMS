@@ -283,7 +283,7 @@ function replaceValues($value){
 function _mysql_prepared_query($query, $debug = false){
     global $MODE;
     if($MODE=='mysql' || $MODE=='mysqli'){
-        // For backwards vompatibility
+        // For backwards compatibility
         $paramsCopy = array_map("replaceValues", $query["params"]);
         $queryString = strtr($query["query"], $paramsCopy);
         if($debug){

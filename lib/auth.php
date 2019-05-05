@@ -19,8 +19,6 @@ if ($_GET['login']){
     if (Login($_POST['UserName'], $_POST['UserPassword']) > 1){
         //success
         $AuthReply='You have successfully logged in.<br><br>Click <a href="'.$_SERVER['HTTP_REFERER'].'">here</a> if your browser does not automatically redirect you.'."<br>";
-        dbg("rd2");
-        die("sss");
         //header('Refresh: 3; url='.$_SERVER['HTTP_REFERER']);
     }else{
         //fail.

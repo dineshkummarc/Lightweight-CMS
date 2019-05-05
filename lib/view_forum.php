@@ -23,13 +23,23 @@ function forum_get_last_poster()
 
 function forum_get_post_count($fid)
 {
-    $result = _mysql_query("SELECT COUNT(id) FROM post WHERE forum_id='" . $fid . "'");
+    $result = _mysql_prepared_query(array(
+        "query" => "SELECT COUNT(id) FROM post WHERE forum_id=:fid",
+        "params" => array(
+            ":fid" => $fid
+        )
+    ));
     return _mysql_result($result, 0);
 }
 
 function forum_get_topic_count($fid)
 {
-    $result = _mysql_query("SELECT COUNT(topic_id) FROM topic WHERE forum_id='" . $fid . "'");
+    $result = _mysql_prepared_query(array(
+        "query" => "SELECT COUNT(topic_id) FROM topic WHERE forum_id=:fid",
+        "params" => array(
+            ":fid" => $fid
+        )
+    ));
     return _mysql_result($result, 0);
 }
 
@@ -81,14 +91,26 @@ function forum_list_all_comment_forums()
 }
 
 
-function forum_move_forums($source, $target)
+function forum_move_forums($source, $destination)
 {
-    _mysql_query("UPDATE forum SET parent_id='$target' WHERE forum_id='$source'");
+    _mysql_prepared_query(array(
+        "query" => "UPDATE forum SET parent_id=:destination WHERE forum_id=:source",
+        "params" => array(
+            ":destination" => $destination,
+            ":source" => $source
+        )
+    ));
 }
 
 function forum_move_topics($source, $destination)
 {
-    _mysql_query("UPDATE topic SET forum_id='$target' WHERE forum_id='$source'");
+    _mysql_prepared_query(array(
+        "query" => "UPDATE topic SET forum_id=:destination WHERE forum_id=:source",
+        "params" => array(
+            ":destination" => $destination,
+            ":source" => $source
+        )
+    ));
 }
 
 function forum_get_children($id)
@@ -98,7 +120,7 @@ function forum_get_children($id)
 
 function forum_get_children_by_type($id, $type)
 {
-    return get_table_contents(forum, "ALL", "WHERE parent_id=" . $id . " AND forum_type='".$type."'");
+    return get_table_contents(forum, "ALL", "WHERE parent_id=" . $id . " AND forum_type='" . $type . "'");
 }
 
 function forum_get_child_list($id)
@@ -139,18 +161,33 @@ function forum_delete_attachments($id)
             unlink($root_dir . '/images/small/' . $attachments[$i]['actual_name']);
         }
     }
-    $sql = "DELETE FROM attachments WHERE forum_id='" . $id . "'";
-    _mysql_query($sql);
+    _mysql_prepared_query(array(
+        "query" => "DELETE FROM attachments WHERE forum_id=:fid",
+        "params" => array(
+            ":fid" => $id
+        )
+    ));
 }
 
 function forum_move_attachments($id, $target_forum)
 {
-    _mysql_query("UPDATE attachments SET forum_id='" . $target_forum . "' WHERE topic_id='" . $id . "'");
+    _mysql_prepared_query(array(
+        "query" => "UPDATE attachments SET forum_id=:fid WHERE topic_id=:tid",
+        "params" => array(
+            ":fid" => $target_forum,
+            ":tid" => $id
+        )
+    ));
 }
 
 function forum_remove($id, $subforums = false)
 {
-    _mysql_query("DELETE FROM topic WHERE forum_id='$id'");
+    _mysql_prepared_query(array(
+        "query" => "DELETE FROM topic WHERE forum_id=:fid",
+        "params" => array(
+            ":fid" => $id
+        )
+    ));
     $childs = ForumListChilds($id);
     for ($i = 0; $i < count($childs); $i++) {
         forum_remove($childs[$i], true);
@@ -159,19 +196,48 @@ function forum_remove($id, $subforums = false)
 
 function forum_exists($id)
 {
-    $result = _mysql_query("SELECT 1 FROM forum WHERE forum_id='$id'");
+    $result = _mysql_prepared_query(array(
+        "query" => "SELECT 1 FROM forum WHERE forum_id=:fid",
+        "params" => array(
+            ":fid" => $id
+        )
+    ));
     return _mysql_num_rows($result) == 1;
 }
 
 function forum_copy_permissions($source_id, $target_id)
 {
-    _mysql_query("DELETE FROM group_permissions WHERE forum_id='" . $target_id . "'");
-    _mysql_query("INSERT INTO group_permissions SELECT group_id, '" . $target_id . "' AS forum_id, permission_id FROM group_permissions WHERE forum_id='" . $source_id . "'");
+    _mysql_prepared_query(array(
+        "query" => "DELETE FROM group_permissions WHERE forum_id=:target",
+        "params" => array(
+            ":target" => $target_id
+        )
+    ));
+    _mysql_prepared_query(array(
+        "query" => "INSERT INTO group_permissions SELECT group_id, :target AS forum_id, permission_id FROM group_permissions WHERE forum_id=:source",
+        "params" => array(
+            ":target" => $target_id,
+            ":source" => $source_id
+        )
+    ));
 }
 
 function forum_add($type, $parent, $name, $description, $comment, $display, $display_order, $password, $google_fragment)
 {
-    _mysql_query("INSERT INTO forum VALUES (NULL, '$parent','$name','$description', '$type', '$comment', '$display', '$display_order', '$password', '0', '0', '0', '0', '', '0', '', '', '" . $google_fragment . "')");
+    _mysql_prepared_query(array(
+        "query" => "INSERT INTO forum VALUES (NULL, :parent, :name, :description, :type, :comment, :display, :display_order, :password, '0', '0', '0', '0', '', '0', '', '', :google_fragment)",
+        "params" => array(
+            ":parent" => $parent,
+            ":name" => $name,
+            ":description" => $description,
+            ":type" => $type,
+            ":comment" => $comment,
+            ":display" => $display,
+            ":display_order" => $display_order,
+            ":password" => $password,
+            ":google_fragment" => $google_fragment
+        )
+    ));
     $insert_id = _mysql_insert_id();
     if ($_POST['permissions_id'] > 0) {
         forum_copy_permissions($_POST['permissions_id'], $insert_id);
@@ -183,12 +249,30 @@ function forum_edit($id, $type, $parent, $name, $description, $comment, $display
 {
     $old_password = forum_get_info($id);
     $old_password = $old_password[0]['forum_password'];
-    _mysql_query("UPDATE forum SET parent_id='$parent', forum_name='$name', description='$description', forum_type='$type', comments='$comment', display='$display', forum_password='$password', google_fragment='$google_fragment' WHERE forum_id='$id'");
+    _mysql_prepared_query(array(
+        "query" => "UPDATE forum SET parent_id=:parent, forum_name=:name, description=:description, forum_type=:type, comments=:comment, display=:display, forum_password=:password, google_fragment=:google_fragment WHERE forum_id=:fid",
+        "params" => array(
+            ":parent" => $parent,
+            ":name" => $name,
+            ":description" => $description,
+            ":type" => $type,
+            ":comment" => $comment,
+            ":display" => $display,
+            ":password" => $password,
+            ":google_fragment" => $google_fragment,
+            ":fid" => $id
+        )
+    ));
     if ($_POST['permissions_id'] > 0) {
         forum_copy_permissions($_POST['permissions_id'], $id);
     }
     if ($password != $old_password) {
-        _mysql_query("DELETE FROM forum_session WHERE forum_id='" . $id . "' ");
+        _mysql_prepared_query(array(
+            "query" => "DELETE FROM forum_session WHERE forum_id=:fid",
+            "params" => array(
+                ":fid" => $id
+            )
+        ));
     }
 }
 
@@ -295,7 +379,7 @@ function forum_get_parent($id)
 
 function forum_get_info($forum_id, $debug = false)
 {
-    if(is_array($forum_id)){
+    if (is_array($forum_id)) {
         $forum_id = implode(",", $forum_id);
     }
     return get_table_contents("forum", "ALL", "WHERE forum_id IN (" . $forum_id . ") ", $debug);
@@ -334,22 +418,6 @@ function forum_get_actions($id, $topic = 0)
     return $str;
 }
 
-
-/*  #FUNCTION# ;===============================================================================
-
-  name...........: forum_list_to_combo
-  description ...:
-  Syntax.........: forum_list_to_combo([$group_list = 0])
-  Parameters ....: $group_list - [Optional]
-  Author ........:
-  Modified.......:
-  Remarks .......:
-  Related .......:
-  Parameters ....:
-  Link ..........:
-  Example .......:
-  ;========================================================================================== */
-
 function forum_list_to_combo($forum_list = 0)
 {
     if ($forum_list == 0) {
@@ -361,28 +429,26 @@ function forum_list_to_combo($forum_list = 0)
 function forum_list_custom()
 {
     $sql_custom =
-        "SELECT forum. * , COUNT( post.forum_id ) AS posts, (
-
-    SELECT COUNT( topic.topic_id )
-    FROM topic
-    WHERE topic.forum_id = post.forum_id
-) AS topics, p.post_title, p.user_id, p.time, users.username, p.id
-
-FROM forum
-LEFT JOIN post ON forum.forum_id = post.forum_id
-LEFT JOIN (
-    SELECT post_title, user_id, forum_id, time, id
-    FROM post
-    WHERE id
-    IN (
-        SELECT MAX( id )
-        FROM post
-        GROUP BY forum_id
-    )
-) AS p ON forum.forum_id = p.forum_id
-LEFT JOIN topic ON post.topic_id = topic.topic_id
-LEFT JOIN users ON p.user_id = users.user_id
-LIMIT 0 , 30";
+        "SELECT forum. * , COUNT( post.forum_id ) AS posts, ("
+        . "    SELECT COUNT( topic.topic_id )"
+        . "     FROM topic"
+        . "     WHERE topic.forum_id = post.forum_id"
+        . " ) AS topics, p.post_title, p.user_id, p.time, users.username, p.id"
+        . " FROM forum"
+        . " LEFT JOIN post ON forum.forum_id = post.forum_id"
+        . " LEFT JOIN ("
+        . "     SELECT post_title, user_id, forum_id, time, id"
+        . "     FROM post"
+        . "     WHERE id"
+        . "     IN ("
+        . "         SELECT MAX( id )"
+        . "         FROM post"
+        . "         GROUP BY forum_id"
+        . "     )"
+        . " ) AS p ON forum.forum_id = p.forum_id"
+        . " LEFT JOIN topic ON post.topic_id = topic.topic_id"
+        . " LEFT JOIN users ON p.user_id = users.user_id"
+        . " LIMIT 0 , 30";
 
 //$SQL_LastPost = "SELECT post_title, user_id FROM post WHERE id IN (SELECT MAX(id) FROM post GROUP BY forum_id)"
 
@@ -396,32 +462,102 @@ function forum_delete($forum_id, $childs, $new_parent)
     $forum_name = forum_get_name_by_id($forum_id);
     log_event('ADMINISTRATOR', $current_user['name'], $_SERVER['REMOTE_ADDR'], "MANAGE forums", 'Deleted forum named ' . $forum_name);
     if ($childs == "move") {
-        _mysql_query("UPDATE topic SET forum_id='" . $new_parent . "' WHERE forum_id='" . $forum_id . "'");
-        _mysql_query("UPDATE post SET forum_id='" . $new_parent . "' WHERE forum_id='" . $forum_id . "'");
-        _mysql_query("UPDATE attachments SET forum_id='" . $new_parent . "' WHERE forum_id='" . $forum_id . "'");
-        _mysql_query("UPDATE forum SET parent_id='" . $new_parent . "' WHERE parent_id='" . $forum_id . "'");
+        _mysql_prepared_query(array(
+            "query" => "UPDATE topic SET forum_id=:new_parent WHERE forum_id=:forum_id",
+            "params" => array(
+                ":new_parent" => $new_parent,
+                ":forum_id" => $forum_id
+            )
+        ));
+        _mysql_prepared_query(array(
+            "query" => "UPDATE post SET forum_id=:new_parent  WHERE forum_id=:forum_id",
+            "params" => array(
+                ":new_parent" => $new_parent,
+                ":forum_id" => $forum_id
+            )
+        ));
+        _mysql_prepared_query(array(
+            "query" => "UPDATE attachments SET forum_id=:new_parent WHERE forum_id=:forum_id",
+            "params" => array(
+                ":new_parent" => $new_parent,
+                ":forum_id" => $forum_id
+            )
+        ));
+        _mysql_prepared_query(array(
+            "query" => "UPDATE forum SET parent_id=:new_parent WHERE parent_id=:forum_id",
+            "params" => array(
+                ":new_parent" => $new_parent,
+                ":forum_id" => $forum_id
+            )
+        ));
         forum_update_statistics_absolute($new_parent);
-        _mysql_query("DELETE FROM forum WHERE forum_id='" . $forum_id . "'");
+        _mysql_prepared_query(array(
+            "query" => "DELETE FROM forum WHERE forum_id=:forum_id",
+            "params" => array(
+                ":forum_id" => $forum_id
+            )
+        ));
         if ($forum_id != "" && $forum_id != "0") {
-            _mysql_query("DELETE FROM group_permissions WHERE forum_id='" . $forum_id . "'");
+            _mysql_prepared_query(array(
+                "query" => "DELETE FROM group_permissions WHERE forum_id=:forum_id",
+                "params" => array(
+                    ":forum_id" => $forum_id
+                )
+            ));
         }
     } else {
         $comments = implode(", ", forum_get_comments_list($forum_id));
-        _mysql_query("UPDATE users 
-INNER JOIN (SELECT user_id, COUNT(user_id) AS c FROM post WHERE forum_id =  '" . $forum_id . "' GROUP BY user_id) AS B
-  ON B.user_id = users.user_id
-SET users.user_post_count = users.user_post_count  -  B.c");
-        _mysql_query("DELETE FROM topic WHERE forum_id='" . $forum_id . "'");
-        _mysql_query("DELETE FROM post WHERE forum_id='" . $forum_id . "'");
-        _mysql_query("DELETE FROM forum WHERE forum_id='" . $forum_id . "'");
+        $sql = "UPDATE users"
+            . " INNER JOIN (SELECT user_id, COUNT(user_id) AS c FROM post WHERE forum_id = :forum_id GROUP BY user_id) AS B"
+            . " ON B.user_id = users.user_id"
+            . " SET users.user_post_count = users.user_post_count  -  B.c";
+
+        _mysql_prepared_query(array(
+            "query" => $sql,
+            "params" => array(
+                ":forum_id" => $forum_id
+            )
+        ));
+        _mysql_prepared_query(array(
+            "query" => "DELETE FROM topic WHERE forum_id=:forum_id",
+            "params" => array(
+                ":forum_id" => $forum_id
+            )
+        ));
+        _mysql_prepared_query(array(
+            "query" => "DELETE FROM post WHERE forum_id=:forum_id",
+            "params" => array(
+                ":forum_id" => $forum_id
+            )
+        ));
+        _mysql_prepared_query(array(
+            "query" => "DELETE FROM forum WHERE forum_id=:forum_id",
+            "params" => array(
+                ":forum_id" => $forum_id
+            )
+        ));
         if ($forum_id != "" && $forum_id != "0") {
-            _mysql_query("DELETE FROM group_permissions WHERE forum_id='" . $forum_id . "'");
+            _mysql_prepared_query(array(
+                "query" => "DELETE FROM group_permissions WHERE forum_id=:forum_id",
+                "params" => array(
+                    ":forum_id" => $forum_id
+                )
+            ));
         }
-        _mysql_query("UPDATE users 
-INNER JOIN (SELECT user_id, COUNT(user_id) AS c FROM post WHERE id IN  (" . $comments . ") GROUP BY user_id) AS B
-  ON B.user_id = users.user_id
-SET users.user_post_count = users.user_post_count  -  B.c");
-        _mysql_query("DELETE FROM post WHERE id IN (" . $comments . ")");
+        $sql = "UPDATE users"
+            . " INNER JOIN (SELECT user_id, COUNT(user_id) AS c FROM post WHERE id IN  (:comments) GROUP BY user_id) AS B"
+            . " ON B.user_id = users.user_id"
+            . " SET users.user_post_count = users.user_post_count - B.c";
+        _mysql_prepared_query(array(
+            "query" => $sql,
+            "params" => array()
+        ));
+        _mysql_prepared_query(array(
+            "query" => "DELETE FROM post WHERE id IN (:comments)",
+            "params" => array(
+                ":comments" => $comments
+            )
+        ));
 
         forum_delete_attachments($forum_id);
         $child_forums = forum_get_child_list($forum_id);
