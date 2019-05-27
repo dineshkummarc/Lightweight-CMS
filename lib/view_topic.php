@@ -11,16 +11,21 @@
  */
 function topic_inc_views($tid)
 {
-    _mysql_query("UPDATE topic SET Views=Views+1 WHERE topic_id='" . $tid . "'");
+    _mysql_prepared_query(array(
+        "query" => "UPDATE topic SET Views=Views+1 WHERE topic_id=:tid",
+        "params" => array(
+            ":tid" => $tid
+        )
+    ));
 }
 
 
 /**
- * Increases hastag view count boy one
+ * Increases hashtag view count boy one
  * @param string $tags tags for which to increase view count
  * @param integer $forum forum id
  */
-function hastag_inc_hit_count($tags, $forum)
+function hashtag_inc_hit_count($tags, $forum)
 {
     $tags_list = explode(" ", $tags);
     $tags = "";
@@ -28,7 +33,13 @@ function hastag_inc_hit_count($tags, $forum)
         $tags .= "'" . $tags_list[$i] . "',";
     }
     $tags = StringTrimRight($tags, 1);
-    _mysql_query("UPDATE hashtags SET hit_count=hit_count+1 WHERE tag IN (" . $tags . ") AND forum_id='" . $forum . "'");
+    _mysql_prepared_query(array(
+        "query" => "UPDATE hashtags SET hit_count=hit_count+1 WHERE tag IN (:tags) AND forum_id=:fid",
+        "params" => array(
+            ":tags" => $tags,
+            ":fid" => $forum
+        )
+    ));
 }
 
 
@@ -231,7 +242,13 @@ function topic_get_attachments($id)
  */
 function post_set_order($pid, $order)
 {
-    _mysql_query("UPDATE post SET display_order='" . $order . "' WHERE id='" . $pid . "'");
+    _mysql_prepared_query(array(
+        "query" => "UPDATE post SET display_order=:display_order WHERE id=:pid",
+        "params" => array(
+            ":display_order" => $order,
+            ":pid" => $pid
+        )
+    ));
 }
 
 /**
@@ -247,9 +264,20 @@ function post_approve($id, $state = 1)
     $post_info = post_get_info($id);
     $topic_info = topic_get_info($post_info[0]['topic_id']);
     if ($topic_info[0]['first_post_id'] == $id) {
-        _mysql_query("UPDATE topic SET is_approved=1 WHERE topic_id=" . $topic_info[0]['topic_id']);
+        _mysql_prepared_query(array(
+            "query" => "UPDATE topic SET is_approved=1 WHERE topic_id=:tid",
+            "params" => array(
+                ":tid" => $topic_info[0]['topic_id']
+            )
+        ));
     }
-    return _mysql_query("UPDATE post SET is_approved='" . $state . "' WHERE id='" . $id . "'");
+    return _mysql_prepared_query(array(
+        "query" => "UPDATE post SET is_approved=:state WHERE id=:pid",
+        "params" => array(
+            ":pid" => $id,
+            ":state" => $state
+        )
+    ));
 }
 
 
@@ -263,15 +291,15 @@ function topic_update_first_post($tid)
     $posts = topic_get_data_ex($tid);
     _mysql_prepared_query(
         array(
-            'query' => 'UPDATE topic SET time=:time, first_post_id=:first_post_id, title=:title, Poster=:Poster, poster_name=:poster_name, poster_color=:poster_color  WHERE topic_id=:topic_id',
-            'params' => array(
-                ':time' => $posts[0]['time_timestamp'],
-                ':first_post_id' => $posts[0]['id'],
-                ':title' => $posts[0]['post_title'],
-                ':Poster' => $posts[0]['user_id'],
-                ':poster_name' => $posts[0]['username'],
-                ':poster_color' => $posts[0]['user_color'],
-                ':topic_id' => $tid
+            "query" => "UPDATE topic SET time=:time, first_post_id=:first_post_id, title=:title, Poster=:Poster, poster_name=:poster_name, poster_color=:poster_color  WHERE topic_id=:topic_id",
+            "params" => array(
+                ":time" => $posts[0]['time_timestamp'],
+                ":first_post_id" => $posts[0]['id'],
+                ":title" => $posts[0]['post_title'],
+                ":Poster" => $posts[0]['user_id'],
+                ":poster_name" => $posts[0]['username'],
+                ":poster_color" => $posts[0]['user_color'],
+                ":topic_id" => $tid
             )
         )
     );
@@ -287,8 +315,18 @@ function topic_update_last_post($tid)
 {
     $posts = topic_get_data_ex($tid);
     $len = count($posts) - 1;
-    $sql = "UPDATE topic SET last_post_time='" . $posts[$len]['time_timestamp'] . "', last_post_id='" . $posts[$len]['id'] . "', last_poster='" . $posts[$len]['user_id'] . "', last_poster_name='" . $posts[$len]['username'] . "', last_poster_color='" . $posts[$len]['user_color'] . "'  WHERE topic_id='" . $tid . "'";
-    _mysql_query($sql);
+    $sql = "UPDATE topic SET last_post_time=:last_post_time, last_post_id=:last_post_id, last_poster=:last_poster, last_poster_name=:last_poster_name, last_poster_color=:last_poster_color WHERE topic_id=:tid";
+    _mysql_prepared_query(array(
+        "query" => $sql,
+        "params" => array(
+            ":last_post_time" => $posts[$len]['time_timestamp'],
+            ":last_post_id" => $posts[$len]['id'],
+            ":last_poster" => $posts[$len]['user_id'],
+            ":last_poster_name" => $posts[$len]['username'],
+            ":last_poster_color" => $posts[$len]['user_color'],
+            ":tid" => $tid
+        )
+    ));
 }
 
 
@@ -303,7 +341,14 @@ function post_set_owner($post, $owner)
     user_dec_post_count($post_info[0]['user_id']);
     user_inc_post_count($owner['user_id']);
     $topic_info = topic_get_info($post_info[0]['topic_id']);
-    _mysql_query("UPDATE post SET user_id=" . $owner['user_id'] . ", username = '" . $owner['username'] . "' WHERE id=" . $post);
+    _mysql_prepared_query(array(
+        "query" => "UPDATE post SET user_id=:user_id, username=:username WHERE id=:pid",
+        "params" => array(
+            ":user_id" => $owner['user_id'],
+            ":username" => $owner['username'],
+            ":pid" => $post
+        )
+    ));
     if ($topic_info[0]['first_post_id'] == $post) {
         topic_update_first_post($topic_info[0]['topic_id']);
     }
@@ -334,7 +379,13 @@ function topic_get_owner($id)
  */
 function topic_lock($id, $lock)
 {
-    _mysql_query("UPDATE topic SET locked=" . $lock . " WHERE topic_id=" . $id);
+    _mysql_prepared_query(array(
+        "query" => "UPDATE topic SET locked=:locked WHERE topic_id=:tid",
+        "params" => array(
+            ":locked" => $lock,
+            ":tid" => $id
+        )
+    ));
 }
 
 
@@ -347,7 +398,13 @@ function topic_lock($id, $lock)
  */
 function topic_hide($id, $hide)
 {
-    _mysql_query("UPDATE topic SET hidden=" . $hide . " WHERE topic_id=" . $id);
+    _mysql_prepared_query(array(
+        "query" => "UPDATE topic SET hidden=:hidden WHERE topic_id=:tid",
+        "params" => array(
+            ":tid" => $id,
+            ":hidden" => $hide
+        )
+    ));
 }
 
 
@@ -361,7 +418,13 @@ function topic_hide($id, $hide)
  */
 function topic_set_type($id, $type)
 {
-    _mysql_query("UPDATE topic SET type=" . $type . " WHERE topic_id=" . $id);
+    _mysql_prepared_query(array(
+        "query" => "UPDATE topic SET type=:type WHERE topic_id=:tid",
+        "params" => array(
+            ":tid" => $id,
+            ":type" => $type
+        )
+    ));
 }
 
 
@@ -372,7 +435,13 @@ function topic_set_type($id, $type)
  */
 function topic_set_order($id, $order)
 {
-    _mysql_query("UPDATE topic SET display_order=" . $order . " WHERE topic_id=" . $id);
+    _mysql_prepared_query(array(
+        "query" => "UPDATE topic SET display_order=:display_order WHERE topic_id=:tid",
+        "params" => array(
+            ":tid" => $id,
+            ":display_order" => $order
+        )
+    ));
 }
 
 
@@ -383,8 +452,19 @@ function topic_set_order($id, $order)
 function topic_set_forum($id, $fid)
 {
     $current_forum = topic_get_forum($id);
-    _mysql_query("UPDATE topic SET forum_id=" . $fid . " WHERE topic_id=" . $id);
-    _mysql_query("UPDATE post SET forum_id=" . $fid . " WHERE topic_id=" . $id);
+    _mysql_prepared_query(array(
+        "query" => "UPDATE topic SET forum_id=:fid WHERE topic_id=:tid",
+        "params" => array(
+            ":tid" => $id,
+            ":fid" => $fid
+        )
+    ));
+    _mysql_prepared_query(array(
+        "query" => "UPDATE post SET forum_id=:fid WHERE topic_id=:tid",
+        "params" => array(
+            ":tid" => $id,
+            ":fid" => $fid)
+    ));
     $hashtags = topic_get_hashtags($id);
     hastag_update_use_count_topic($hashtags, $current_forum, $fid);
 }
@@ -404,7 +484,13 @@ function topic_get_forum($id)
 
 function topic_get_post_count($tid)
 {
-    $res = _mysql_query("SELECT COUNT(id) FROM post WHERE topic_id='" . $tid . "'");
+
+    $res = _mysql_prepared_query(array(
+        "query" => "SELECT COUNT(id) FROM post WHERE topic_id=:tid",
+        "params" => array(
+            ":tid" => $tid
+        )
+    ));
     return _mysql_result($res, 0);
 }
 
@@ -415,17 +501,27 @@ function topic_delete_comments($id)
         array('time')
     );
     $ids = array_copy_dimension($data, 'id');
-    $del = "DELETE FROM post WHERE id IN (" . implode_string(', ', $ids) . ");";
-    _mysql_query($del);
+    _mysql_prepared_query(array(
+        "query" => "DELETE FROM post WHERE id IN (:id_list)",
+        "params" => array(
+            ":id_list" => implode_string(', ', $ids)
+        )
+    ));
 }
 
 function topic_delete($id)
 {
     //Update users post count
-    _mysql_query("UPDATE users
-INNER JOIN (SELECT user_id, COUNT(user_id) AS c FROM post WHERE topic_id =  '" . $id . "' GROUP BY user_id) AS B
-  ON B.user_id = users.user_id
-SET users.user_post_count = users.user_post_count  -  B.c");
+    $sql = "UPDATE users"
+        . " INNER JOIN (SELECT user_id, COUNT(user_id) AS c FROM post WHERE topic_id = :tid GROUP BY user_id) AS B"
+        . "   ON B.user_id = users.user_id"
+        . " SET users.user_post_count = users.user_post_count - B.c";
+    _mysql_prepared_query(array(
+        "query" => $sql,
+        "params" => array(
+            ":tid" => $id
+        )
+    ));
 
     topic_delete_attachments($id);
     topic_delete_comments($id);
@@ -433,15 +529,30 @@ SET users.user_post_count = users.user_post_count  -  B.c");
     $posts = topic_get_post_count($id);
     $hashtags = topic_get_hashtags($id);
     hastag_update_use_count_topic($hashtags, $fid);
-    _mysql_query("DELETE FROM post WHERE topic_id=" . $id);
-    _mysql_query("DELETE FROM topic WHERE topic_id = " . $id);
+    _mysql_prepared_query(array(
+        "query" => "DELETE FROM post WHERE topic_id=:tid",
+        "params" => array(
+            ":tid" => $id
+        )
+    ));
+    _mysql_prepared_query(array(
+        "query" => "DELETE FROM topic WHERE topic_id = :tid",
+        "params" => array(
+            ":tid" => $id
+        )
+    ));
 
     forum_update_statistics_relative($fid, -1, $posts * -1);
 }
 
 function forum_update_statistics_relative($fid, $topics, $posts)
 {
-    $result = _mysql_query("SELECT post.*, user_color FROM post LEFT JOIN users ON users.user_id = post.user_id  WHERE forum_id='" . $fid . "' AND is_approved=1 ORDER BY time DESC LIMIT 1");
+    $result = _mysql_prepared_query(array(
+        "query" => "SELECT post.*, user_color FROM post LEFT JOIN users ON users.user_id = post.user_id  WHERE forum_id=:fid AND is_approved=1 ORDER BY time DESC LIMIT 1",
+        "params" => array(
+            ":fid" => $fid
+        )
+    ));
     $arr = _mysql_fetch_assoc($result);
 
     if (!is_array($arr)) {
@@ -454,12 +565,29 @@ function forum_update_statistics_relative($fid, $topics, $posts)
             'user_color' => ''
         );
     }
-    _mysql_query("UPDATE forum SET posts=posts+" . $posts . ", topics=topics+" . $topics . ", last_post_id='" . $arr['id'] . "', last_post_time='" . $arr['time'] . "', last_post_title='" . $arr['post_title'] . "', last_post_poster_id='" . $arr['user_id'] . "', last_post_poster_name='" . $arr['username'] . "', last_post_poster_color='" . $arr['user_color'] . "' WHERE forum_id='" . $fid . "'");
+    _mysql_prepared_query(array(
+        "query" => "UPDATE forum SET posts=posts+:posts, topics=topics+:topics, last_post_id=:last_post_id, last_post_time=:last_post_time, last_post_title=:last_post_title, last_post_poster_id=:last_post_poster_id, last_post_poster_name=:last_post_poster_name, last_post_poster_color=:last_post_poster_color WHERE forum_id=:fid",
+        "params" => array(
+            ":posts" => $posts,
+            ":topics" => $topics,
+            ":last_post_id" => $arr['id'],
+            ":last_post_time" => $arr['time'],
+            ":last_post_title" => $arr['post_title'],
+            ":last_post_poster_id" => $arr['user_id'],
+            ":last_post_poster_name" => $arr['username'],
+            ":last_post_poster_color" => $arr['user_color']
+        )
+    ));
 }
 
 function forum_update_statistics_absolute($fid)
 {
-    $result = _mysql_query("SELECT post.*, user_color FROM post LEFT JOIN users ON users.user_id = post.user_id  WHERE forum_id='" . $fid . "' AND is_approved=1 ORDER BY time DESC LIMIT 1");
+    $result = _mysql_prepared_query(array(
+        "query" => "SELECT post.*, user_color FROM post LEFT JOIN users ON users.user_id = post.user_id  WHERE forum_id=:fid AND is_approved=1 ORDER BY time DESC LIMIT 1",
+        "params" => array(
+            ":fid" => $fid
+        )
+    ));
     $arr = _mysql_fetch_assoc($result);
 
     if (!is_array($arr)) {
@@ -472,7 +600,20 @@ function forum_update_statistics_absolute($fid)
             'user_color' => ''
         );
     }
-    _mysql_query("UPDATE forum SET posts=" . forum_get_post_count($fid) . ", topics=" . forum_get_topic_count($fid) . ", last_post_id='" . $arr['id'] . "', last_post_time='" . $arr['time'] . "', last_post_title='" . $arr['post_title'] . "', last_post_poster_id='" . $arr['user_id'] . "', last_post_poster_name='" . $arr['username'] . "', last_post_poster_color='" . $arr['user_color'] . "' WHERE forum_id='" . $fid . "'");
+    _mysql_prepared_query(array(
+        "query" => "UPDATE forum SET posts=:posts, topics=:topics, last_post_id=:last_post_id, last_post_time=:last_post_time, last_post_title=:last_post_title, last_post_poster_id=:last_post_poster_id, last_post_poster_name=:last_post_poster_name, last_post_poster_color=:last_post_poster_color WHERE forum_id=:fid",
+        "params" => array(
+            ":posts" => forum_get_post_count($fid),
+            ":topics" => forum_get_topic_count($fid),
+            ":last_post_id" => $arr['id'],
+            ":last_post_time" => $arr['time'],
+            ":last_post_title" => $arr['post_title'],
+            ":last_post_poster_id" => $arr['user_id'],
+            ":last_post_poster_name" => $arr['username'],
+            ":last_post_poster_color" => $arr['user_color'],
+            ":fid" => $fid
+        )
+    ));
 }
 
 function post_get_topic($id)
@@ -517,7 +658,13 @@ function post_get_topic_id($id)
 
 function topic_exists($tid)
 {
-    return _mysql_num_rows(_mysql_query("SELECT topic_id FROM topic WHERE topic_id=" . $tid)) > 0;
+    $res = _mysql_prepared_query(array(
+        "query" => "SELECT topic_id FROM topic WHERE topic_id=:tid",
+        "params" => array(
+            ":tid" => $tid
+        )
+    ));
+    return _mysql_num_rows($res) > 0;
 }
 
 function post_action($title, $text, $topic_id, $poster, $poster_name, $forum_id = 0, $post_id = 0, $hash_tags = "", $solved = '0', $check_form = true, $check_approved = true, $check_permissions = true, $check_bbcode = true, $not_locked = false, $not_edit_locked = false, $check_title_length = true, $check_content_length = true, $lock = null)
@@ -533,41 +680,70 @@ function post_action($title, $text, $topic_id, $poster, $poster_name, $forum_id 
 
 function topic_is_locked($id)
 {
-    $is_locked = "SELECT locked FROM topic WHERE topic_id = '" . $id . "'";
-    $is_locked = _mysql_query($is_locked);
+    $is_locked = _mysql_prepared_query(array(
+        "query" => "SELECT locked FROM topic WHERE topic_id = :tid",
+        "params" => array(
+            ":tid" => $id
+        )
+    ));
+
     return _mysql_result($is_locked, 0);
 }
 
 function topic_is_hidden($id)
 {
-    $is_hidden = "SELECT hidden FROM topic WHERE topic_id = '" . $id . "'";
-    $is_hidden = _mysql_query($is_hidden);
+    $is_hidden = _mysql_prepared_query(array(
+        "query" => "SELECT hidden FROM topic WHERE topic_id = :tid",
+        "params" => array(
+            ":tid" => $id
+        )
+    ));
+
     return _mysql_result($is_hidden, 0);
 }
 
 function topic_is_solved($id)
 {
-    $is_solved = "SELECT COUNT(*) FROM post WHERE topic_id = '" . $id . "' AND solved='1'";
-    $is_solved = _mysql_query($is_solved);
+    $is_solved = _mysql_prepared_query(array(
+        "query" => "SELECT COUNT(*) FROM post WHERE topic_id = :tid AND solved='1'",
+        "params" => array(
+            ":tid" => $id
+        )
+    ));
+
     return _mysql_result($is_solved, 0);
 }
 
 function post_set_solved($id, $solved)
 {
-    $sql = "UPDATE post SET solved='" . $solved . "' WHERE id='" . $id . "'";
-    _mysql_query($sql);
+    _mysql_prepared_query(array(
+        "query" => "UPDATE post SET solved=:solved WHERE id=:pid",
+        "params" => array(
+            ":solved" => $solved,
+            ":pid" => $id
+        )
+    ));
+
     $tid = post_get_topic($id);
-    $sql = "UPDATE topic SET solved='0' WHERE topic_id='" . $tid . "'";
-    if (topic_is_solved($tid) > 0) {
-        $sql = "UPDATE topic SET solved='1' WHERE topic_id='" . $tid . "'";
-    }
-    _mysql_query($sql);
+    _mysql_prepared_query(array(
+        "query" => "UPDATE topic SET solved=:solved WHERE topic_id=:tid",
+        "params" => array(
+            ":tid" => $tid,
+            ":solved" => topic_is_solved($tid) > 0 ? 1 : 0
+        )
+    ));
+
 }
 
 function post_is_locked($id)
 {
-    $is_locked = "SELECT edit_locked FROM post WHERE id = '" . $id . "'";
-    $is_locked = _mysql_query($is_locked);
+    $is_locked = _mysql_prepared_query(array(
+        "query" => "SELECT edit_locked FROM post WHERE id = :pid",
+        "params" => array(
+            ":pid" => $id
+        )
+    ));
+
     return _mysql_result($is_locked, 0);
 }
 
@@ -713,11 +889,29 @@ function post_edit_reply($title, $text, $topic_id, $poster, $poster_name, $forum
 
     hastag_update_use_count($hash_tags, "", $forum_id);
 
-    $sql = "INSERT INTO post VALUES (NULL, '" . $topic_id . "', '" . $forum_id . "', '" . $_SERVER['SERVER_ADDR'] . "', '" . time()
-        . "', '0', '" . $validation_result['allowbb'] . "', '" . $poster_name . "', '" . $poster . "', '-1', '-1', '', '0', '"
-        . $lock_post . "', '" . $text . "', '" . $title . "'," . $validation_result['approved'] . ", '" . $hash_tags . "', '" . $solved . "', '0');";
+    $sql = "INSERT INTO post VALUES ("
+        . "NULL, :tid, :fid, :ip, :time, '0', :allow_bbcode, :author_name, :author_id,"
+        . " '-1', '-1', '', '0', :locked, :content, :title, :approved, :hash_tags, :solved, '0')";
 
-    _mysql_query($sql);
+    _mysql_prepared_query(array(
+        "query" => $sql,
+        "params" => array(
+            ":tid" => $topic_id,
+            ":fid" => $forum_id,
+            ":ip" => $_SERVER['SERVER_ADDR'],
+            ":time" => time(),
+            ":allow_bbcode" => $validation_result['allowbb'],
+            ":author_name" => $poster_name,
+            ":author_id" => $poster,
+            ":locked" => $lock_post,
+            ":content" => $text,
+            ":title" => $title,
+            ":approved" => $validation_result['approved'],
+            ":hash_tags" => $hash_tags,
+            ":solved" => $solved
+        )
+    ));
+
     $insert = _mysql_insert_id();
     forum_update_statistics_relative($forum_id, 0, 1);
     if ($insert == 0) {
@@ -727,7 +921,13 @@ function post_edit_reply($title, $text, $topic_id, $poster, $poster_name, $forum
     if ($post_edited) {
         topic_update_first_post($topic_id);
     } else {
-        _mysql_query("UPDATE topic SET Replies=Replies+1 WHERE topic_id='" . $topic_id . "'");
+        _mysql_prepared_query(array(
+            "query" => "UPDATE topic SET Replies=Replies+1 WHERE topic_id=:tid",
+            "params" => array(
+                ":tid" => $topic_id
+            )
+        ));
+
     }
     topic_update_last_post($topic_id);
     user_inc_post_count($poster);
@@ -743,10 +943,18 @@ function post_edit($post_id, $title, $content, $forum_id, $user_id, $hash_tags =
 
     global $current_user, $notification, $site_settings, $forum_info;
     $topic_id = post_get_topic($post_id);
-    $sql = "SELECT first_post_id, last_post_id FROM topic WHERE topic_id='" . $topic_id . "'";
-    $result = _mysql_query($sql);
+    $result = _mysql_prepared_query(array(
+        "query" => "SELECT first_post_id, last_post_id FROM topic WHERE topic_id=:tid",
+        "params" => array(
+            ":tid" => $topic_id
+        )
+    ));
+
     $first_last_post = _mysql_fetch_assoc($result);
-    $validation_result = validate_post($title, $content, $hash_tags, $forum_id, $check_form, $check_approved, $check_permissions, $check_bbcode, $not_locked, $not_edit_locked, $check_title_length, $check_content_length, $post_id);
+    $validation_result = validate_post($title, $content, $hash_tags, $forum_id, $check_form, $check_approved,
+        $check_permissions, $check_bbcode, $not_locked, $not_edit_locked, $check_title_length,
+        $check_content_length, $post_id);
+
     if ($validation_result === 0) {
         return 0;
     }
@@ -783,7 +991,21 @@ function post_edit($post_id, $title, $content, $forum_id, $user_id, $hash_tags =
     $original = post_get_info($post_id);
     hastag_update_use_count($hash_tags, $original[0]["hashtags"], $forum_id);
 
-    _mysql_query("UPDATE post SET post_title='" . $title . "', data='" . $content . "', edit_count=edit_count+1, edit_user_id=" . $user_id . ", edit_time=" . time() . ", hashtags='" . $hash_tags . "', bbcode='" . $allow_bbcode . "'" . $lock_post . "  WHERE id=" . $post_id);
+    _mysql_prepared_query(array(
+        "query" => "UPDATE post SET post_title=:title, data=:content, edit_count=edit_count+1, edit_user_id=:user_id, edit_time=:time,"
+            . " hashtags=:hash_tags, bbcode=:allow_bbcode, edit_locked=:edit_locked WHERE id=:pid",
+        "params" => array(
+            ":title" => $title,
+            ":content" => $content,
+            ":user_id" => $user_id,
+            ":time" => time(),
+            ":hash_tags" => $hash_tags,
+            ":allow_bbcode" => $allow_bbcode,
+            ":edit_locked" => $lock_post,
+            ":pid" => $post_id
+        )
+    ));
+
     if ($forum_info[0]['last_post_id'] == $post_id && $topic_id > 0) {
         forum_update_statistics_relative($forum_id, 0, 0);
     }
@@ -796,9 +1018,22 @@ function post_edit($post_id, $title, $content, $forum_id, $user_id, $hash_tags =
 function topic_add($forum_id, $Poster, $title, $approved, $solved = '0')
 {
     $user = user_get_info_by_id($Poster);
-    $sql = "INSERT INTO topic VALUES (NULL, '" . $forum_id . "', '" . time() . "', '" . $user[0]['user_id'] . "', 0, 0, 0, '" . $title . "', '" . time() . "',0,0," . $approved . ",0,'" . $solved . "',0,0,'" . $user[0]['username'] . "', '" . $user[0]['user_color'] . "', '" . $user[0]['user_id'] . "', '" . $user[0]['username'] . "', '" . $user[0]['user_color'] . "')";
     forum_update_statistics_relative($forum_id, 1, 0);
-    _mysql_query($sql);
+    _mysql_prepared_query(array(
+        "query" => "INSERT INTO topic VALUES (NULL, :fid, :time, :user_id, 0, 0, 0, :title, :time, 0, 0, :approved, 0, :solved ,0, 0, :user_name, :user_color, :user_id, :user_name, :user_color)",
+        "params" => array(
+            ":fid" => $forum_id,
+            ":time" => time(),
+            ":user_id" => $user[0]['user_id'],
+            ":title" => $title,
+            ":approved" => $approved,
+            ":solved" => $solved,
+            ":user_name" => $user[0]['username'],
+            ":user_color" => $user[0]['user_color']
+
+        )
+    ));
+
     return _mysql_insert_id();
 }
 
@@ -816,8 +1051,13 @@ function post_delete_attachments($id)
             unlink($root_dir . '/images/small/' . $attachments[$i]['actual_name']);
         }
     }
-    $sql = "DELETE FROM attachments WHERE post_id='" . $id . "'";
-    _mysql_query($sql);
+    _mysql_prepared_query(array(
+        "query" => "DELETE FROM attachments WHERE post_id=:pid",
+        "params" => array(
+            ":pid" => $id
+        )
+    ));
+
 }
 
 
@@ -835,24 +1075,48 @@ function topic_delete_attachments($id)
             unlink($root_dir . '/images/small/' . $attachments[$i]['actual_name']);
         }
     }
-    $sql = "DELETE FROM attachments WHERE topic_id='" . $id . "'";
-    _mysql_query($sql);
+    _mysql_prepared_query(array(
+        "query" => $sql = "DELETE FROM attachments WHERE topic_id=:tid",
+        "params" => array(
+            ":tid" => $id
+        )
+    ));
+
 }
 
 function topic_move_attachments($id, $target_forum)
 {
-    _mysql_query("UPDATE attachments SET forum_id='" . $target_forum . "' WHERE topic_id='" . $id . "'");
+    _mysql_prepared_query(array(
+        "query" => "UPDATE attachments SET forum_id=:target_forum WHERE topic_id=:tid",
+        "params" => array(
+            ":target_forum" => $target_forum,
+            ":tid" => $id
+        )
+    ));
+
 }
 
 function post_delete($id)
 {
-    global $forum_info;
-    $sql = "SELECT topic.topic_id,last_post_id,first_post_id, user_id, hashtags FROM post, topic WHERE post.topic_id = topic.topic_id AND post.id=" . $id;
-    $row = _mysql_fetch_assoc(_mysql_query($sql));
+    $result = _mysql_prepared_query(array(
+        "query" => "SELECT topic.topic_id,last_post_id,first_post_id, user_id, hashtags FROM post, topic WHERE post.topic_id = topic.topic_id AND post.id=:pid",
+        "params" => array(
+            ":pid" => $id
+        )
+    ));
+
+    $row = _mysql_fetch_assoc($result);
+
     $fid = post_get_forum($id);
     hastag_update_use_count("", $row["hashtags"], $fid);
     user_dec_post_count($row['user_id']);
-    _mysql_query("DELETE FROM post WHERE id=" . $id);
+    _mysql_prepared_query(array(
+        "query" => "DELETE FROM post WHERE id=:pid",
+        "params" => array(
+            ":pid" => $id
+        )
+    ));
+
     forum_update_statistics_relative($fid, 0, -1);
     if ($row['last_post_id'] == $id && $row['first_post_id'] == $id) {
         topic_delete($row['topic_id']);
@@ -862,7 +1126,13 @@ function post_delete($id)
     } elseif ($row['last_post_id'] == $id) {
         topic_update_last_post($row['topic_id']);
     }
-    _mysql_query("UPDATE topic SET Replies=Replies-1 WHERE topic_id='" . $row['topic_id'] . "'");
+    _mysql_prepared_query(array(
+        "query" => "UPDATE topic SET Replies=Replies-1 WHERE topic_id=:tid",
+        "params" => array(
+            ":tid" => $row['topic_id']
+        )
+    ));
+
     post_delete_attachments($id);
 
     return 0;
@@ -872,23 +1142,59 @@ function post_delete($id)
 function post_open_report($id, $msg)
 {
     global $current_user;
-    $a = _mysql_query("UPDATE post SET reported=1 WHERE id=" . $id);
-    $b = _mysql_query("INSERT INTO report VALUES (NULL," . $id . ", " . time() . ", " . $current_user['uid'] . ", '','', '" . $msg . "')");
+    $a = _mysql_prepared_query(array(
+        "query" => "UPDATE post SET reported=1 WHERE id=:pid",
+        "params" => array(
+            ":pid" => $id
+        )
+    ));
+
+
+    $b = _mysql_prepared_query(array(
+        "query" => "INSERT INTO report VALUES (NULL, :pid, :time, :user_id, '','', :msg)",
+        "params" => array(
+            ":pid" => $id,
+            ":time" => time(),
+            ":user_id" => $current_user['uid'],
+            ":msg" => $msg
+        )
+    ));
+
     return $a && $b;
 }
 
 function post_report_close($id)
 {
     global $current_user;
-    $a = _mysql_query("UPDATE post SET reported=0 WHERE id=" . $id);
-    $b = _mysql_query("UPDATE report SET closer='" . $current_user['uid'] . "', close_time='" . time() . "' WHERE post_id=" . $id . " AND close_time=0");
+    $a = _mysql_prepared_query(array(
+        "query" => "UPDATE post SET reported=0 WHERE id=:pid",
+        "params" => array(
+            ":pid" => $id
+        )
+    ));
+
+    $b = _mysql_prepared_query(array(
+        "query" => "UPDATE report SET closer=:user_id, close_time=:time WHERE post_id=:pid AND close_time=0",
+        "params" => array(
+            ":pid" => $id,
+            ":time" => time(),
+            ":user_id" => $current_user['uid'],
+        )
+    ));
+
     return $a && $b;
 }
 
 function post_view_report($id)
 {
     global $site_settings;
-    $res = _mysql_query("SELECT * FROM report WHERE post_id=" . $id);
+    $res = _mysql_prepared_query(array(
+        "query" => "SELECT * FROM report WHERE post_id=:pid",
+        "params" => array(
+            ":pid" => $id,
+        )
+    ));
+
     $ret = _mysql_fetch_assoc($res);
     $ret['time'] = date($site_settings['time_format'], $ret['time']);
     return $ret;
