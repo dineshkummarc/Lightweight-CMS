@@ -142,7 +142,7 @@ function display_topic($posts,$tags,$topic,$no_permissions = false){
                 }
             }
             if($i == 0){
-                hastag_inc_hit_count($posts[$i]['hashtags'],$posts[$i]['forum_id']);
+                hashtag_inc_hit_count($posts[$i]['hashtags'],$posts[$i]['forum_id']);
             }
             
             $posts[$i]['data'] = decode_input($posts[$i]['data'] );
