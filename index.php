@@ -92,11 +92,21 @@ function do_action()
             if ($forum_info[0]['forum_password'] == $_POST['password']) {
                 $_SERVER['REQUEST_URI'] = str_replace('&a=login', '', $_SERVER['REQUEST_URI']);
                 $sid = secure_input($_COOKIE['Session']);
-                $query = "SELECT session_id FROM sessions WHERE session_id = '" . $sid . "'";
-                $result = @_mysql_query($query);
+                $result = @_mysql_prepared_query(array(
+                    "query" => "SELECT session_id FROM sessions WHERE session_id = :sid",
+                    "params" => array(
+                        ":sid" => $sid
+                    )
+                ));
                 $session_id = _mysql_result($result, 0);
-                $query = "INSERT INTO forum_session VALUES ('" . $forum_id_const . "', '" . $current_user['uid'] . "', '" . $session_id . "');";
-                _mysql_query($query);
+                _mysql_prepared_query(array(
+                    "query" => "INSERT INTO forum_session VALUES (:fid, :uid, :sid);",
+                    "params" => array(
+                        ":fid" => $forum_id_const,
+                        ":uid" => $current_user['uid'],
+                        ":sid" => $session_id
+                    )
+                ));
                 die('Access granted<br>Click link belelow to continue: <a href=".' . $_SERVER['REQUEST_URI'] . '">.' . $_SERVER['REQUEST_URI'] . '</a>');
             } else {
                 die('Access denied: wrong password.');
@@ -110,16 +120,29 @@ function do_action()
             $affected = post_action($_POST['title'], $_POST['Editor'], $_GET['id'], $current_user['uid'], $current_user['name'], $forum_id_const, $_GET['p'], $_POST['hashtags'], '0', true, true, true, true, $not_locked, $not_edit_locked, true, true, $_POST['lock']);
             if ($affected > 0) {
                 $post_forum = post_get_forum($affected);
-                _mysql_query('UPDATE attachments SET form=0, post_id=' . $affected . ", topic_id='" . post_get_topic($affected) . "', forum_id='" . $post_forum . "' WHERE form=" . $_GET['form']);
+                _mysql_prepared_query(array(
+                    "query" => "UPDATE attachments SET form=0, post_id=:pid, topic_id=:tid, forum_id=:fid WHERE form=:form_id",
+                    "params" => array(
+                        ":pid" => $affected,
+                        ":tid" => post_get_topic($affected),
+                        ":fid" => $post_forum,
+                        ":form_id" => $_GET['form']
+                    )
+                ));
                 $tags_list = explode(' ', $_POST['hashtags']);
                 for ($i = 0; $i < count($tags_list); $i++) {
                     if ($tags_list[$i] != '') {
-                        $sql = "INSERT INTO hashtags
-SELECT * FROM (SELECT DISTINCT '" . $tags_list[$i] . "', '" . $post_forum . "', '1') AS tmp
-WHERE NOT EXISTS (
-SELECT * FROM hashtags  WHERE  tag='" . $tags_list[$i] . "' AND forum_id = '" . $post_forum . "'
-) LIMIT 1;";
-                        _mysql_query($sql);
+                        _mysql_prepared_query(array(
+                            "query" => "INSERT INTO hashtags"
+                                . " SELECT * FROM (SELECT DISTINCT :tag as tag, :fid as forum_id, '1' as hit_count, '1' as use_count) AS tmp"
+                                . " WHERE NOT EXISTS ("
+                                . " SELECT * FROM hashtags  WHERE  tag=:tag AND forum_id = :fid"
+                                . ") LIMIT 1",
+                            "params" => array(
+                                ":tag" => $tags_list[$i],
+                                ":fid" => $post_forum
+                            )
+                        ));
                     }
                 }
                 $acp_action = './theme/' . $site_settings['template'] . '/ucp/success_module.html';
@@ -485,8 +508,13 @@ if ($forum_info[0]['forum_password'] == '') {
         )
     ) {
         $sid = secure_input($_COOKIE['Session']);
-        $query = "SELECT session_id FROM forum_session WHERE session_id = '" . $sid . "' AND forum_id='" . $forum_id_const . "'";
-        $result = @_mysql_query($query);
+        $result = @_mysql_prepared_query(array(
+            "query" => "SELECT session_id FROM forum_session WHERE session_id = :sid AND forum_id=:fid",
+            "params" => array(
+                ":sid" => $sid,
+                ":fid" => $forum_id_const
+            )
+        ));
         $session_id = _mysql_result($result, 0);
         if ($session_id == $sid) {
             $include = true;
