@@ -5,13 +5,11 @@ if(!isset($_GET['f'])){
     $forum_id = "0";
 }
 
-$sql = "SELECT SUM(posts) AS post_count, SUM(topics) AS topic_count FROM forum";
-$result = _mysql_query($sql);
+$result = _mysql_query("SELECT SUM(posts) AS post_count, SUM(topics) AS topic_count FROM forum");
 $arr1 = _mysql_fetch_assoc($result);
 
 
-$sql = "SELECT count(user_id) AS user_count FROM users WHERE user_password != ''";
-$result = _mysql_query($sql);
+$result = _mysql_query("SELECT count(user_id) AS user_count FROM users WHERE user_password != ''");
 $arr2 = _mysql_fetch_assoc($result);
 
 $statistics = array_merge($arr1, $arr2);
