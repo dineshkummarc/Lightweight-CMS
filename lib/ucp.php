@@ -52,7 +52,14 @@ function proccess_registration(){
     if($_POST['website']!=""){
         $FILE_PATH[$CURRENT_MODULE] = '../theme/'.$site_settings['template'].'/ucp/failure_module.html';
         $notification = $language['notifications']['not_human']."<br> <a href=\"#\" onclick=\"history.go(-1)\">Retry</a> or <a href=\"../\">Go to board index</a>";
-        _mysql_query("INSERT INTO bans VALUES(NULL, 0, '".$_SERVER['REMOTE_ADDR']."', '', ".time().", '".(time()+$site_settings['robot_ban_length'])."', 'Website filled for registration','Unhandled exception at 0xC0000005', 0)");
+        _mysql_prepared_query(array(
+            "query" => "INSERT INTO bans VALUES(NULL, 0, :ip, '', :start_time, :end_time, 'Website filled for registration','Your IP has been banned.', 0)",
+            "params" => array(
+                ":ip" => $_SERVER['REMOTE_ADDR'],
+                ":start_time" => time(),
+                ":end_time" => time()+$site_settings['robot_ban_length']
+            )
+        ));
         log_event("USER", "system", $_SERVER['REMOTE_ADDR'], "register", "ip banned for filling filling in website.");
         return false;
     }
@@ -61,14 +68,15 @@ function proccess_registration(){
         $notification = $language['notifications']['registration_failed']." <br> <a href=\"#\" onclick=\"history.go(-1)\">Retry</a> or <a href=\"../\">Go to board index</a>";
         return false;
     }else{
-        //dbg("1");
         if ($site_settings['require_email_validation']) {
-            //dbg("2");
-            $result = _mysql_query("SELECT * FROM activation WHERE user_id='".  user_get_id_by_name($_POST['username'] )."'");
+            $result = _mysql_prepared_query(array(
+                "query" => "SELECT * FROM activation WHERE user_id=:uid",
+                "params" => array(
+                    ":uid" => user_get_id_by_name($_POST['username'] )
+                )
+            ));
             $arr = _mysql_fetch_assoc($result);
-            //dbg("3");
             send_activation_mail($_POST['username'], $_POST['user_email'], $arr['user_id'], $arr['activation_key']);
-            //dbg("2");
         }
         $FILE_PATH[$CURRENT_MODULE] = '../theme/'.$site_settings['template'].'/ucp/success_module.html';
         $reg_success = $language['notifications']['registration_success'];
@@ -166,13 +174,29 @@ if($IS_BANNED){
     if($_GET['a'] == 'activate'){
         $MODULE_TITLE = 'Activate';
         if(user_get_name_by_id($_GET['uid'])){
-            $result = _mysql_query("SELECT * FROM activation WHERE user_id='".$_GET['uid']."' AND activation_key='".$_GET['key']."'");
+            $result = _mysql_prepared_query(array(
+                "query" => "SELECT * FROM activation WHERE user_id=:uid AND activation_key=:key",
+                "params" => array(
+                    ":uid" => $_GET['uid'],
+                    ":key" => $_GET['key']
+                )
+            ));
             $arr = _mysql_fetch_assoc($result);
             if(is_array($arr)){
                 $FILE_PATH[$CURRENT_MODULE] = '../theme/'.$site_settings['template'].'/ucp/success_module.html';
                 $notification = $language['notifications']['activation_success']."<br> <a href=\"../\">Go to board index</a>";
-                _mysql_query("UPDATE users SET active=1 WHERE user_id='".$arr['user_id']."'");
-                _mysql_query("DELETE FROM activation WHERE activation_key='".$arr['activation_key']."'");
+                _mysql_prepared_query(array(
+                    "query" => "UPDATE users SET active=1 WHERE user_id=:uid",
+                    "params" => array(
+                        ":uid" => $arr['user_id']
+                    )
+                ));
+                _mysql_prepared_query(array(
+                    "query" => "DELETE FROM activation WHERE activation_key=:key",
+                    "params" => array(
+                        ":key" => $arr['activation_key']
+                    )
+                ));
             }else{
                 $FILE_PATH[$CURRENT_MODULE] = '../theme/'.$site_settings['template'].'/ucp/failure_module.html';
                 $notification = $language['notifications']['activation_fail']."<br> <a href=\"../\">Go to board index</a>";
@@ -190,7 +214,12 @@ if($IS_BANNED){
 
     if($_GET['a'] == 'resend'){
         $MODULE_TITLE = "Resend Email";
-        $result = _mysql_query("SELECT activation_key FROM activation WHERE user_id = '".$_GET['uid']."'");
+        $result = _mysql_prepared_query(array(
+            "query" => "SELECT activation_key FROM activation WHERE user_id = :uid",
+            "params" => array(
+                ":uid" => $_GET['uid']
+            )
+        ));
         $key = _mysql_result($result, 0);
         if(!$key){
             $FILE_PATH[$CURRENT_MODULE] = '../theme/'.$site_settings['template'].'/ucp/success_module.html';
@@ -219,17 +248,37 @@ if($IS_BANNED){
     if($_GET['a'] == 'registerconfirm'){
         $MODULE_TITLE = 'Confirm Registration';
         if($site_settings['allow_registraton'] == '1'){
-            $fail_count = _mysql_query("SELECT COUNT(*) FROM login_attempts WHERE ip='".$_SERVER['REMOTE_ADDR']."' AND (".time()." - time) < 600");
+            $fail_count = _mysql_prepared_query(array(
+                "query" => "SELECT COUNT(*) FROM login_attempts WHERE ip=:ip AND (:time - time) < 600",
+                "params" => array(
+                    ":ip" => $_SERVER['REMOTE_ADDR'],
+                    ":time" => time()
+                )
+            ));
             $attempts = 0;
             if($fail_count){
                 $attempts = _mysql_result($fail_count,0);
             }
             if($attempts > $site_settings['max_registration_attempts']){
-                _mysql_query("INSERT INTO bans VALUES(NULL, 0, '".$_SERVER['REMOTE_ADDR']."', '', ".time().", '".(time()+$site_settings['registration_ban_length'])."', 'Too many failed registration attempts','Too many failed registration attempts', 0)");
+                _mysql_prepared_query(array(
+                    "query" => "INSERT INTO bans VALUES(NULL, 0, :ip, '', :start_time, :end_time, 'Too many failed registration attempts','Too many failed registration attempts', 0)",
+                    "params" => array(
+                        ":ip" => $_SERVER['REMOTE_ADDR'],
+                        ":start_time" => time(),
+                        ":end_time" => time()+$site_settings['registration_ban_length']
+                    )
+                ));
                 log_event("USER", $name, $_SERVER['REMOTE_ADDR'], "login", "ip banned for failed attempts.");
             }else{
                 if(!proccess_registration()){
-                    _mysql_query("INSERT INTO login_attempts VALUES ('frm_registration', '".time()."', '".$_SERVER['REMOTE_ADDR']."', '".$_SERVER['HTTP_USER_AGENT']."');");
+                    _mysql_prepared_query(array(
+                        "query" => "INSERT INTO login_attempts VALUES ('frm_registration', :time, :ip, :ua);",
+                        "params" => array(
+                            ":time" => time(),
+                            ":ip" => $_SERVER['REMOTE_ADDR'],
+                            ":ua" => $_SERVER['HTTP_USER_AGENT']
+                        )
+                    ));
                 }
             }
         }else{

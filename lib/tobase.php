@@ -259,8 +259,6 @@ function decode_input($str){
 
 function mkuser()
 {
-    $_POST['username'] = secure_input($_POST['username']);
-    $_POST['user_email'] = secure_input($_POST['user_email']);
     return user_add($_POST['username'],$_POST['user_password'],$_POST['user_email'],'','',time());
 }
 
