@@ -20,14 +20,22 @@ function user_validate_email($mail)
 
 function user_dec_post_count($uid)
 {
-    $dec_posts = "UPDATE users SET user_post_count = user_post_count - 1 WHERE user_id='" . $uid . "'";
-    _mysql_query($dec_posts);
+    _mysql_prepared_query(array(
+        "query" => "UPDATE users SET user_post_count = user_post_count - 1 WHERE user_id=:uid",
+        "params" => array(
+            ":uid" => $uid
+        )
+    ));
 }
 
 function user_inc_post_count($uid)
 {
-    $inc_posts = "UPDATE users SET user_post_count = user_post_count + 1 WHERE user_id='" . $uid . "'";
-    _mysql_query($inc_posts);
+    _mysql_prepared_query(array(
+        "query" => "UPDATE users SET user_post_count = user_post_count + 1 WHERE user_id=:uid",
+        "params" => array(
+            ":uid" => $uid
+        )
+    ));
 }
 
 
@@ -71,11 +79,7 @@ function user_get_permissions($uid, $forum_id = 0)
     if ($groups == array()) {
         return array();
     }
-    $permission = array();
-    /*for ($i = 0; $i < count($groups);$i++)
-    {
-        $permission = array_merge(group_list_permissions($groups[$i],$forum_id),$permission);
-    }*/
+
     $permission = group_list_permissions($groups, $forum_id);
     if ($current_user['is_founder'] == "1" && $forum_id == 0) {
         $result = _mysql_query("SELECT permission_id FROM permissions WHERE permission_class = 'administrator'");
@@ -85,26 +89,6 @@ function user_get_permissions($uid, $forum_id = 0)
     }
     return $permission;
 }
-
-/*
-function Userhas_permission($permission,$forum_id  = 'global')
-{
-    global $current_user;
-    if($current_user['permissions'][$forum_id] == NULL){return false;}
-    if(strstr($permission,'|')){
-        $permission = explode('|',$permission);
-    }elseif (!is_array($permission)) {
-        $permission = array($permission);
-    }
-    for($i =0;$i < count($permission);$i++){
-        if(!array_search($permission[$i],$current_user['permissions'][$forum_id]) && $current_user['permissions'][$forum_id][0]!=$permission[$i]){//crappy fix
-            return false;
-        }
-    }
-    return true;
-
-}
- */
 
 function user_get_default_group($uid)
 {
@@ -122,9 +106,27 @@ function user_set_default_group($member, $gid)
 {
     $group_info = group_get_info_by_id($gid);
     $color = $group_info[0]['color'];
-    _mysql_query("UPDATE forum SET last_post_poster_color='" . $color . "' WHERE last_post_poster_id='" . $member . "'");
-    _mysql_query("UPDATE topic SET poster_color='" . $color . "' WHERE Poster='" . $member . "'");
-    _mysql_query("UPDATE topic SET last_poster_color='" . $color . "' WHERE last_poster='" . $member . "'");
+    _mysql_prepared_query(array(
+        "query" => "UPDATE forum SET last_post_poster_color=:color WHERE last_post_poster_id=:uid",
+        "params" => array(
+            ":color" => $color,
+            ":uid" => $member
+        )
+    ));
+    _mysql_prepared_query(array(
+        "query" => "UPDATE topic SET poster_color=:color WHERE Poster=:uid",
+        "params" => array(
+            ":color" => $color,
+            ":uid" => $member
+        )
+    ));
+    _mysql_prepared_query(array(
+        "query" => "UPDATE topic SET last_poster_color=:color WHERE last_poster=:uid",
+        "params" => array(
+            ":color" => $color,
+            ":uid" => $member
+        )
+    ));
     return group_set_default($member, $gid);
 
 }
@@ -162,7 +164,12 @@ function user_get_id_by_name($uid)
 
 function user_get_last_group($uid)
 {
-    $result = _mysql_query('SELECT user_group_id FROM user_groups WHERE user_id IN (' . $uid . ') ORDER BY user_group_id DESC');
+    $result = _mysql_prepared_query(array(
+        "query" => "SELECT user_group_id FROM user_groups WHERE user_id IN (:uid_list) ORDER BY user_group_id DESC",
+        "params" => array(
+            ":uid_list" => $uid,
+        )
+    ));
     $group = @_mysql_result($result, 0);
     if (!$group) {
         throw new Exception('Failed to get user last group user_get_last_group(' . $uid . ')');
