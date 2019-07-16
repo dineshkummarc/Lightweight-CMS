@@ -57,7 +57,13 @@ if(!has_permission($current_user['permissions'][$forum_id_const],"f_read_forum")
  */
 
 function Like_post($post,$user, $like){
-    $result = _mysql_query("SELECT COUNT(*) AS c FROM likes WHERE post_id='".$post."' AND user_id='".$user."'");
+    $result = _mysql_prepared_query(array(
+        "query" => "SELECT COUNT(*) AS c FROM likes WHERE post_id=:pid AND user_id=:uid",
+        "params" => array(
+            ":pid" => $post,
+            ":uid" => $user,
+        )
+    ));
     $has_liked = _mysql_result($result, 0);
     if($has_liked == "0"){
         if($like=='unlike'){
