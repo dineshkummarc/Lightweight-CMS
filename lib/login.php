@@ -299,8 +299,6 @@ function session_new($uid, $remember, $hide)
     $start = time();
     $end = time() + 3600 * 24 * 360 * 5; //5 years
 
-    //$query = 'DELETE FROM sessions WHERE user_id = '.$uid; //allow only single login
-    //@_mysql_query($query);
     $hideDbVal = '0';
     if ($hide) {
         $hideDbVal = '1';

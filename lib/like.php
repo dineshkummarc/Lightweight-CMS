@@ -1,4 +1,6 @@
 <?php
+error_reporting(E_COMPILE_ERROR | E_RECOVERABLE_ERROR | E_ERROR | E_CORE_ERROR | E_WARNING | E_PARSE | E_USER_WARNING | E_USER_ERROR);
+
 if (!function_exists("ConnectdataBase")){
 include_once("../settings.php");
 include_once("./funcs.php");
@@ -38,21 +40,6 @@ if(!has_permission($current_user['permissions'][$forum_id_const],"f_read_forum")
 }
 
 
-
-/*
- * *************
- */
-
-/*if(isset($_POST['Editor'])){
-    if(!has_permission($current_user['permissions'][$comments],"f_can_reply")){
-        die("You do not have permission post comments");
-    }else{
-        $sql = "INSERT INTO post VALUES (NULL,0,$comments,'".$_SERVER['REMOTE_ADDR']."', '".time()."',0,0,'','".$current_user['uid']."',0,0,'',0,0, '".$_POST['Editor']."', '".$_GET['id']."', 1)";
-        _mysql_query($sql);
-        die("New comment has been posted");
-    }
-}*/
-
 /*
  * POST
  * a - action
@@ -76,12 +63,25 @@ function Like_post($post,$user, $like){
         if($like=='unlike'){
             die("unlike_denied");
         }else{
-            _mysql_query("INSERT INTO likes VALUES ('".$post."','".$user."','".time()."')");
+            _mysql_prepared_query(array(
+                "query" => "INSERT INTO likes VALUES (:pid, :uid, :time)",
+                "params" => array(
+                    ":pid" => $post,
+                    ":uid" => $user,
+                    ":time" => time()
+                )
+            ));
             die("like_success");
         }
     }else{
         if($like=='unlike'){
-            _mysql_query("DELETE FROM likes WHERE post_id='".$post."' AND user_id='".$user."'");
+            _mysql_prepared_query(array(
+                "query" => "DELETE FROM likes WHERE post_id=:pid AND user_id=:uid",
+                "params" => array(
+                    ":pid" => $post,
+                    ":uid" => $user,
+                )
+            ));
             die("unlike_success");
         }else{
             die("like_denied");
