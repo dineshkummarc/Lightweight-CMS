@@ -856,7 +856,7 @@ function get_table_contents($sTable,$aColumns = 'ALL', $sExtraSQL = '', $debug =
                 if($aReturn[$i][$timecols[$j]] == "0"){
                     $aReturn[$i][$timecols[$j]] = "Never";
                 }else{
-                    $aReturn[$i][$timecols[$j]] = date($site_settings['time_format'],$aReturn[$i][$timecols[$j]]);
+                    $aReturn[$i][$timecols[$j]] = date($site_settings['time_format'],(int)$aReturn[$i][$timecols[$j]]);
                 }
             }
         }

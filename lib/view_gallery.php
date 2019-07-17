@@ -181,30 +181,19 @@ function display_topic($posts,$tags,$topic,$no_permissions = false){
 
 
 function preview($a = ""){
-    global $editor,$action,$language,$current_user,$post_title,$topic_data,$attachment_list,$acp_action,$allow_attachment,$notification,$tags,$site_settings, $notification_back_link;
+    global $editor,$action,$language,$topic_data,$attachment_list,$acp_action,$notification,$tags,$site_settings, $notification_back_link;
     if($a != ""){
         $action = $a;
     }
     $editor = post_get_info($_GET['p']);
     if(form_is_valid($_GET['form'],$action)){
-        $res = _mysql_query("INSERT INTO drafts VALUES (NULL, ".$current_user['uid'].", '".$_POST['Editor']."', ".$_GET['p'].", '".$_POST['title']."', 0)");
-        $id = _mysql_insert_id ();
-        $result = _mysql_query("SELECT data, title FROM drafts WHERE id=".$id);
-        _mysql_query("DELETE FROM drafts WHERE id=".$id." AND ByUser=0");
-        //~ $_POST['Editor'] = decode_input(_mysql_result($result,0));
-        $_POST['Editor'] = _mysql_result($result,0);
-        $post_title = _mysql_result($result,0,1);
-        //file_put_contents("char.txt",$_POST['Editor']);
-        //die('<h2 style="margin: 0px 0px 1em 0px; padding: 0px;">'.$post_title.'</h2>'.parse_bbcode($_POST['Editor'],bbcode_to_regex($tags,'bbcode','bbcode_html'),array(),true,true));
-        //~ die('<h2 style="margin: 0px 0px 1em 0px; padding: 0px;">'.$post_title.'</h2>'.parse_bbcode($_POST['Editor'],bbcode_to_regex($tags,'bbcode','bbcode_html')));
-        $editor[0]['data'] = $_POST['Editor'];
+        $editor[0]['data'] = decode_input($_POST['Editor']);
         $editor[0]['post_title'] = decode_input($_POST['title']);
         $title_warning = "";
         if(strlen($editor[0]['post_title']) < 3){
-            $title_warning = "<b style=\"color: #ff0000\">ERROR: title too short</b>";
+            $title_warning = '<b style="color: #ff0000">ERROR: title too short</b>';
         }
-        $topic_data = $title_warning.'<h2 style="margin: 0px 0px 1em 0px; padding: 0px;">'.$post_title.'</h2>'. parse_bbcode($_POST['Editor'],bbcode_to_regex($tags,'bbcode','bbcode_html'),array(),true,true);
-        //~ $acp_action = "./theme/".$site_settings['template']."/view_gallery.html";
+        $topic_data = $title_warning.'<div><h2 style="margin: 0px 0px 1em 0px; padding: 0px;">'.$editor[0]['post_title'].'</h2></div>'. parse_bbcode($editor[0]['data'],bbcode_to_regex($tags,'bbcode','bbcode_html'),array(),true,true);
         $acp_action = "./theme/".$site_settings['template']."/ajaxpost.html";
         $post_where = "";
         if($_GET['p'] > 0 ){
