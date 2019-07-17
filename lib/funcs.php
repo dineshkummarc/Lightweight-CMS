@@ -481,7 +481,18 @@ function log_event($type,$user, $ip, $action, $message) {
     if($uid == null){
         $uid = -1;
     }
-    _mysql_query("INSERT INTO log VALUES (NULL,'".$type."','".$user."','".$uid."','".$ip."','".$action."','".$message."', '".time()."')");
+    _mysql_prepared_query(array(
+        "query" => "INSERT INTO log VALUES (NULL, :type, :username, :uid, :ip, :action, :message, :time)",
+        "params" => array(
+            ":type" => $type,
+            ":username" => $user,
+            ":uid" => $uid,
+            ":ip" => $ip,
+            ":action" => $action,
+            ":message" => $message,
+            ":time" => time()
+        )
+    ));
 }
 
 
@@ -986,7 +997,7 @@ function define_globals(){
 	global $SITE_GLOBALS,$general;
 	if (!$SITE_GLOBALS){
 		$keys = array_keys($general);
-		$result = _mysql_query('SELECT * FROM '.general);
+		$result = _mysql_query('SELECT * FROM general');
 		for($i = 1;$i < count($keys);$i++) {//0th is this
 			$SITE_GLOBALS[$general[$keys[$i]]["name"]] = _mysql_result($result, 0 , $general[$keys[$i]]["name"]);
 		}
