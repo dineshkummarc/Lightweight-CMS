@@ -265,6 +265,8 @@ function _mysql_real_escape_string($str){
 function replaceValues($value){
     if(is_string($value)){
         return "'" . _mysql_real_escape_string($value) . "'";
+    } elseif (is_null($value)){
+        return  "NULL";
     }
     return $value;
 }
@@ -287,7 +289,7 @@ function _mysql_prepared_query($query, $debug = false){
         $paramsCopy = array_map("replaceValues", $query["params"]);
         $queryString = strtr($query["query"], $paramsCopy);
         if($debug){
-            dbg($query,$queryString);
+            dbg($query, $paramsCopy, $queryString);
         }
         return _mysql_query($queryString);
     }
