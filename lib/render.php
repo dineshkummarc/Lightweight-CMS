@@ -540,3 +540,30 @@ function render_user_link($user)
     }
     return '<a style="color:' . $color . ' ;" href="./profile.php?u=' . $user['user_id'] . '">' . $user['username'] . '</a>';
 }
+
+function render_preview($a = ""){
+    global $editor,$action,$language,$topic_data,$attachment_list,$acp_action,$notification,$tags,$site_settings, $notification_back_link;
+    if($a != ""){
+        $action = $a;
+    }
+    $editor = post_get_info($_GET['p']);
+    if(form_is_valid($_GET['form'],$action)){
+        $editor[0]['data'] = decode_input($_POST['Editor']);
+        $editor[0]['post_title'] = decode_input($_POST['title']);
+        $title_warning = "";
+        if(strlen($editor[0]['post_title']) < 3){
+            $title_warning = '<b style="color: #ff0000">ERROR: title too short</b>';
+        }
+        $topic_data = $title_warning.'<div><h2 style="margin: 0px 0px 1em 0px; padding: 0px;">'.$editor[0]['post_title'].'</h2></div>'. parse_bbcode($editor[0]['data'],bbcode_to_regex($tags,'bbcode','bbcode_html'),array(),true,true);
+        $acp_action = "./theme/".$site_settings['template']."/ajaxpost.html";
+        $post_where = "";
+        if($_GET['p'] > 0 ){
+            $post_where = "post_id=".$_GET['p']." OR";
+        }
+        $attachment_list = array_copy_dimension(get_table_contents(attachments,"id", " WHERE ".$post_where ." form=".$_GET['form'] ),'id');
+        $attachment_list = array_to_js($attachment_list,"AttachmentList");
+    }else{
+        $acp_action = "./theme/".$site_settings['template']."/ucp/failure_module.html";
+        $notification = $language['notifications']['form'].$notification_back_link;
+    }
+}

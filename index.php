@@ -114,7 +114,7 @@ function do_action()
             break;
         case 'preview':
             $action = 'postmessage';
-            preview($action);
+            render_preview($action);
             break;
         case 'postmessage':
             $affected = post_action($_POST['title'], $_POST['Editor'], $_GET['id'], $current_user['uid'], $current_user['name'], $forum_id_const, $_GET['p'], $_POST['hashtags'], '0', true, true, true, true, $not_locked, $not_edit_locked, true, true, $_POST['lock']);
