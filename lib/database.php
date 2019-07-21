@@ -250,6 +250,9 @@ function _mysql_fetch_field($result) {
 }
 
 function _mysql_real_escape_string($str){
+    if($str == null || $str == ""){
+        return $str;
+    }
     global $MODE,$DB;
     if($MODE=='mysql'){
         $res = mysql_real_escape_string($str,$DB);
@@ -267,6 +270,8 @@ function replaceValues($value){
         return "'" . _mysql_real_escape_string($value) . "'";
     } elseif (is_null($value)){
         return  "NULL";
+    } elseif (is_bool($value)){
+        return  $value ? "1" : "0";
     }
     return $value;
 }
