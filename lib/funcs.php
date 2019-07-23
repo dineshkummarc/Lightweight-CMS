@@ -833,7 +833,7 @@ function get_table_contents($sTable,$aColumns = 'ALL', $sExtraSQL = '', $debug =
             }
             //if ($debug){dbg("res: ".$result);}
 
-            if($data !== false) {
+            if($data !== null) {
                     $aReturn[$iCount][$aColumns[0]] = $data;
                     for($i = 1; $i < count($aColumns); $i++) {
                             $aReturn[$iCount][$aColumns[$i]] = strval(@_mysql_result($result, $iCount , $aColumns[$i]));

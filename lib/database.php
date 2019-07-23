@@ -137,24 +137,17 @@ function _mysql_multi_query($query) {
 function _mysql_result($result,$row,$field= 0) {
     global $MODE,$DB;
     if($MODE=='mysql'){
-        $res = mysql_result($result,$row,$field);
+        return mysql_result($result,$row,$field);
     }elseif($MODE=='mysqli'){
         if(gettype($field) == "integer" ){
             $row = mysqli_fetch_array($result, MYSQLI_NUM);
-            $res = $row[$field];
-            if($res == NULL){
-                return false;
-            }
+            return $row[$field];
         }else{
             mysqli_data_seek($result,$row);
             $row = mysqli_fetch_assoc($result);
-            $res = $row[$field];
-            if($res == NULL){
-                return false;
-            }
+            return $row[$field];
         }
     }
-    return $res;
 }
 
 function _mysql_insert_id($link_identifier = NULL) {
@@ -265,13 +258,21 @@ function _mysql_real_escape_string($str){
     return $res;
 }
 
-function replaceValues($value){
+function replaceValues($value, $level = 0){
     if(is_string($value)){
         return "'" . _mysql_real_escape_string($value) . "'";
     } elseif (is_null($value)){
         return  "NULL";
     } elseif (is_bool($value)){
         return  $value ? "1" : "0";
+    } elseif (is_array($value)){
+        $ret = $level == 0 ? "" : "(";
+        for($i = 0; $i < sizeof($value); $i++){
+            $listEnd = sizeof($value) == $i+1 ? "" : ", ";
+            $ret .= replaceValues($value[$i], $level+1) . $listEnd;
+        }
+        $ret .= $level == 0 ? "" : ")";
+        return $ret;
     }
     return $value;
 }
