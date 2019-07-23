@@ -46,20 +46,48 @@ function update_current_user(){
     $cover = secure_url($_POST['cover']);
     $this->addMissingParams();
     if($password_mismatch){$error = "Password mismatch";}
-    _mysql_query("UPDATE post SET username='".$_POST['username']."' WHERE user_id='".$_POST['uid']."'"); // update cache
-    $cmd = 'UPDATE users ';
-    $update = "SET user_avatar='".$_POST['avatar']."', user_show_facebook='".$_POST['show_facebook']."', user_show_mail='".$_POST['show_email']."', user_signature='".$_POST['signature']."', username='".$_POST['username']."', user_default_group='".$_POST['group']."', user_warn='".$_POST['warn']."', user_rank='".$_POST['rank']."', user_founder='".$_POST['founder']."', cover='".$cover."', about='".$_POST['about']."', cover_h_offset='".$_POST['cover_h_offset']."', active='".$_POST['active']."', ";
-    $cmd_end = 'WHERE user_id='.$_POST['uid'];
+    _mysql_prepared_query(array(
+        "query" => "UPDATE post SET username=:username WHERE user_id=:uid", // update cache
+        "params" => array(
+            ":username" => $_POST['username'],
+            ":uid" =>  $_GET['uid']
+        )
+    ));
+    $cmd = "UPDATE users ";
+    $update = "SET user_avatar=:avatar, user_show_facebook=:show_fb, user_show_mail=:show_mail, user_signature=:signature, username=:username, user_default_group=:group, user_warn=:warn, user_rank=:rank, user_founder=:is_founder, cover=:cover, about=:about, cover_h_offset=:cover_h_offset, active=:active, ";
+    $cmd_end = "WHERE user_id=:uid";
+    $salt = random_string(10);
     if($change_pass){
-        $salt = random_string(10);
-        $update .= 'user_password=\''.  encrypt($_POST['password'].$salt).'\', ';
-        $update .= 'salt=\''.$salt.'\', ';   
+        $update .= "user_password=:password, ";
+        $update .= "salt=:salt, ";
     }
-    if($change_mail){$update .= 'user_email=\''.$_POST['email'].'\', ';}
-    if($change_facebook){$update .= 'user_facebook=\''.$_POST['facebook'].'\', ';}
+    if($change_mail){$update .= "user_email=:email, ";}
+    if($change_facebook){$update .= "user_facebook=:facebook, ";}
     $update = StringTrimRight($update,2);
     $sql=$cmd."\n".$update."\n".$cmd_end;
-    $result = _mysql_query($sql);
+    $result = _mysql_prepared_query(array(
+        "query" => $sql,
+        "params" => array(
+            ":username" => $_POST['username'],
+            ":avatar" => $_POST['avatar'],
+            ":show_fb" => $_POST['show_facebook'],
+            ":show_mail" => $_POST['show_email'],
+            ":warn" => $_POST['warn'],
+            ":is_founder" => $_POST['founder'],
+            ":signature" => $_POST['signature'],
+            ":uid" => $_POST['uid'],
+            ":password" => encrypt($_POST['password'].$salt),
+            ":salt" => $salt,
+            ":rank" => $_POST['rank'],
+            ":email" => $_POST['email'],
+            ":facebook" => $_POST['facebook'],
+            ":group" => $_POST['group'],
+            ":cover" => $cover,
+            ":about" => $_POST['about'],
+            ":cover_h_offset" => $_POST['cover_h_offset'],
+            ":active" => $_POST['active']
+            )
+        ));
     
     if($_POST['group'] > 0){
         user_set_default_group($_POST['uid'], $_POST['group']);
@@ -74,18 +102,27 @@ function update_user_groups(){
     $groups = StringTrimRight($_POST['groups'], 1);
     $parts = explode(":", $groups);
     $parts[1] = explode("|", $parts[1]);
-    $values = "";
+    $values = [];
     $parts[0] = intval($parts[0]);
     for ($i = 0; $i < count($parts[1]); $i++) {
-        $values .= "('".$parts[0]."','".intval($parts[1][$i])."',1),";
+        $values[] = array($parts[0], intval($parts[1][$i]), "1");
     }
-    if(strlen($values) == 0){
+    if(sizeof($values) == 0){
         return 0;
-    }else{
-        $values = StringTrimRight($values, 1);
     }
-    _mysql_query("DELETE FROM user_groups WHERE user_id='".$parts[0]."'");
-    _mysql_query("INSERT INTO user_groups VALUES ".$values);
+
+    _mysql_prepared_query(array(
+        "query" => "DELETE FROM user_groups WHERE user_id=:uid",
+        "params" => array(
+            ":uid" => $parts[0]
+        )
+    ), true);
+    _mysql_prepared_query(array(
+        "query" => "INSERT INTO user_groups VALUES :values",
+        "params" => array(
+            ":values" => $values
+        )
+    ), true);
     $group = user_get_last_group($parts[0]);
     user_set_default_group($parts[0], $group);
 }
