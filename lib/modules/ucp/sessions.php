@@ -30,17 +30,26 @@ class sessions{
             case 'sessions':
                 if($_GET['mode']=='update'){
                     $sql = "";
-                    $list = "";
+                    $list = [];
                     for ($i = 0; $i < count($_POST['sid']); $i++) {
                         if ($_POST['sid'][$i] != 'all') {
-                            $list .= "'".$_POST['sid'][$i]."',";
+                            $list[] = $_POST['sid'][$i];
                         }
                     }
-                    $list = StringTrimRight($list, 1);
-                    $sql = "DELETE FROM sessions WHERE user_id = '".$current_user['uid']."' AND session_id IN(". $list  .")";                   
-                    _mysql_query($sql);
-                    $sql = "DELETE FROM forum_session WHERE user_id = '".$current_user['uid']."' AND session_id IN(". $list  .")";                   
-                    _mysql_query($sql);
+                    _mysql_prepared_query(array(
+                        "query" => "DELETE FROM sessions WHERE user_id = :uid AND session_id IN(:list)",
+                        "params" => array(
+                            ":uid" => $current_user['uid'],
+                            ":list" => $list
+                        )
+                    ));
+                    _mysql_prepared_query(array(
+                        "query" => "DELETE FROM forum_session WHERE user_id = :uid AND session_id IN(:list)",
+                        "params" => array(
+                            ":uid" => $current_user['uid'],
+                            ":list" => $list
+                        )
+                    ));
                     $this->template = "success_module";
                     $this->vars=array(
                         'SUCCESSMSG' => $language['notifications']['session_remove'].'<br><a href="./ucp.php?id='.$_GET['id'].'&a=sessions">Go back</a>'
@@ -49,10 +58,20 @@ class sessions{
                 }else if($_GET['mode']=="notthis"){
                     $array = explode("\n",$_COOKIE['Session']);
                     $_sid = secure_input($array[0]);
-                    $sql = "DELETE FROM sessions WHERE user_id = '".$current_user['uid']."' AND session_id != '".$_sid."'";
-                    _mysql_query($sql);
-                    $sql = "DELETE FROM  forum_session WHERE user_id = '".$current_user['uid']."' AND session_id != '".$_sid."'";
-                    _mysql_query($sql);
+                    _mysql_prepared_query(array(
+                        "query" => "DELETE FROM sessions WHERE user_id = :uid AND session_id != :sid",
+                        "params" => array(
+                            ":uid" => $current_user['uid'],
+                            ":sid" => $_sid
+                        )
+                    ));
+                    _mysql_prepared_query(array(
+                        "query" => "DELETE FROM  forum_session WHERE user_id = :uid AND session_id != :sid",
+                        "params" => array(
+                            ":uid" => $current_user['uid'],
+                            ":sid" => $_sid
+                        )
+                    ));
                     $this->template = "success_module";
                     $this->vars=array(
                         'SUCCESSMSG' => $language['notifications']['session_remove_success'].'<br><a href="./ucp.php?id='.$_GET['id'].'&a=sessions">Go bavk</a>'
