@@ -677,8 +677,8 @@ textarea:focus, input:focus {
     top: 20%;
     left: 25%;
     width: 50%;
-    background: rgba(204, 204, 204, 0.7);
-    border: 1px solid #FFF;
+    background: rgba(0, 110, 255, 0.07);
+    border: 1px solid #0095FF;
     box-shadow: 0px 0px 5px rgba(1, 1, 1, 0.7);
     text-shadow: 0px 0px 1px #FFF;
 }

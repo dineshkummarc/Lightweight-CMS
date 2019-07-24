@@ -18,7 +18,7 @@ include_once "./bbcode.php";
 }
 if (!$GLOBALS_DEFINED == true){include_once("../globals.php");}
 if (!function_exists("CreateUser")){include_once("./login.php");}
-sanitarize_input();
+sanitarize_input(true, false);
 
 
 define_user();
@@ -74,20 +74,6 @@ if(!has_permission($current_user['permissions'][$comments],"f_read_forum")){
 
 
 /*
- * *************
- */
-
-/*if(isset($_POST['Editor'])){
-    if(!has_permission($current_user['permissions'][$comments],"f_can_reply")){
-        die("You do not have permission post comments");
-    }else{
-        $sql = "INSERT INTO post VALUES (NULL,0,$comments,'".$_SERVER['REMOTE_ADDR']."', '".time()."',0,0,'','".$current_user['uid']."',0,0,'',0,0, '".$_POST['Editor']."', '".$_GET['id']."', 1)";
-        _mysql_query($sql);
-        die("New comment has been posted");
-    }
-}*/
-
-/*
  * POST
  * a - action
  * p - post
@@ -106,7 +92,14 @@ if(isset($_GET['a'])){
     if($_POST['website']!=""){
         $FILE_PATH[$CURRENT_MODULE] = '../theme/'.$site_settings['template'].'/ucp/failure_module.html';
         $notification = "You ar not a human <br> <a href=\"#\" onclick=\"history.go(-1)\">Retry</a> or <a href=\"../\">Go to board index</a>";
-        _mysql_query("INSERT INTO bans VALUES(NULL, 0, '".$_SERVER['REMOTE_ADDR']."', '', ".time().", '".(time()+$site_settings['robot_ban_length'])."', 'Website filled for comment','Segmentation fault', 0)");
+        _mysql_prepared_query(array(
+            "query" => "INSERT INTO bans VALUES(NULL, 0, :ip, '', :start_time, :end_time, 'Website filled for comment','Segmentation fault', 0)",
+            "params" => array(
+                ":ip" => $_SERVER['REMOTE_ADDR'],
+                ":start_time" => time(),
+                ":end_time" => time()+$site_settings['robot_ban_length']
+            )
+        ));
         log_event("USER", "system", $_SERVER['REMOTE_ADDR'], "comment", "ip banned for filling in website.");
         die("comment_failed");
     }
@@ -119,8 +112,13 @@ if(isset($_GET['a'])){
             && post_get_owner($_GET['p']) == $current_user['uid']
             || has_permission($current_user['permissions']['global'],'m_edit_posts')
             || has_permission($current_user['permissions'][$comments],'m_edit_posts')){
-                $sql = "UPDATE post SET data='".$_POST['Editor']."' WHERE id='".$_GET['p']."'";
-                _mysql_query($sql);
+                _mysql_prepared_query(array(
+                    "query" => "UPDATE post SET data=:comment WHERE id=:pid",
+                    "params" => array(
+                        ":comment" => $_POST['Editor'],
+                        ":pid" => $_GET['p']
+                    )
+                ));
                 die("edit_success");
             }else{
                 die("edit_failed");
@@ -134,12 +132,27 @@ if(isset($_GET['a'])){
                 if(has_permission(array_merge($current_user['permissions']['global'],$current_user['permissions'][$forum_id_const]) ,"m_approve_posts||f_no_approval")){
                     $apporoved =  '1';
                 }
-                $sql = "INSERT INTO post VALUES (NULL,0,$comments,'".$_SERVER['REMOTE_ADDR']."', '".time()."',0,0,'".$current_user['user']['username']."','".$current_user['uid']."',0,0,'',0,0, '".$_POST['Editor']."', '".$_GET['id']."', ".$apporoved.",'',0,0)";
-                _mysql_query($sql);
+                _mysql_prepared_query(array(
+                    "query" => "INSERT INTO post VALUES (NULL, 0, :fid, :ip, :time, 0, 0, :username, :uid, 0, 0, '', 0, 0, :comment, :tid, :approved, '', 0, 0)",
+                    "params" => array(
+                        ":fid" => $comments,
+                        ":ip" => $_SERVER['REMOTE_ADDR'],
+                        ":time" => time(),
+                        ":username" => $current_user['user']['username'],
+                        ":uid" => $current_user['uid'],
+                        ":comment" => $_POST['Editor'],
+                        ":tid" => $_GET['id'],
+                        ":approved" => $apporoved
+                    )
+                ));
                 $insert_id = _mysql_insert_id();
                 forum_update_statistics_relative($comments, 0, 1);
-                _mysql_query("UPDATE users SET user_post_count=user_post_count+1 WHERE user_id='".$current_user['uid']."'");
-                
+                _mysql_prepared_query(array(
+                    "query" => "UPDATE users SET user_post_count=user_post_count+1 WHERE user_id=:uid",
+                    "params" => array(
+                        ":uid" => $current_user['uid']
+                    )
+                ));
                 $sql = "SELECT id, time, post.user_id, data, users.username, edit_locked, forum_id,is_approved,reported, post.solved FROM post, users WHERE post.user_id=users.user_id AND post_title=".$_GET['id']." AND id='". $insert_id ."' ORDER BY time DESC";
                 //die($sql);
                 $posts = get_table_contents("","","",false,$sql);
@@ -148,7 +161,9 @@ if(isset($_GET['a'])){
                 }else{
                     $ret = "";
                     for ($i = 0; $i < count($posts); $i++) {
-                        $ret .= '<div class="content" id="content'.$posts[$i]['id'].'"><span class="post_time">By '.$posts[$i]['username']." on ".date($site_settings['time_format'],$posts[$i]['time'])." ".topic_get_post_actions($posts[$i],false,true).'</span><div id="p'.$posts[$i]['id'].'">'.htmlspecialchars($posts[$i]['data']).'</div></div>';
+                        $content = htmlspecialchars($posts[$i]['data']);
+                        $content =  str_replace("\n", "<br>", $content);
+                        $ret .= '<div class="content" id="content'.$posts[$i]['id'].'"><span class="post_time">By '.$posts[$i]['username']." on ".date($site_settings['time_format'],$posts[$i]['time'])."</span> ".topic_get_post_actions($posts[$i],false,true).'<div id="p'.$posts[$i]['id'].'">'.$content.'</div></div>';
                     }
                     die($ret);
                 }
@@ -229,7 +244,12 @@ if(isset($_GET['a'])){
                 || has_permission($current_user['permissions'][$comments],'m_delete_posts')){
                     if(isset($_GET['confirm']) && $_GET['confirm'] == 'yes'){
                         $ret = post_delete($_GET['p']);
-                        _mysql_query("UPDATE users SET user_post_count=user_post_count-1 WHERE user_id='".$post_owner."'");
+                        _mysql_prepared_query(array(
+                            "query" => "UPDATE users SET user_post_count=user_post_count-1 WHERE user_id=:uid",
+                            "params" => array(
+                                ":uid" => $post_owner
+                            )
+                        ));
                         die("delete_success");
                     }
             }else{
@@ -254,7 +274,9 @@ if($posts == null){
 }else{
     $ret = "";
     for ($i = 0; $i < count($posts); $i++) {
-        $ret .= '<div class="content comment" id="content'.$posts[$i]['id'].'"><span class="post_time">By <a href="./profile.php?uid='.$posts[$i]['user_id'].'">'.$posts[$i]['username']."</a> on ".date($site_settings['time_format'],$posts[$i]['time'])."</span> ".topic_get_post_actions($posts[$i],false,true).'<div id="p'.$posts[$i]['id'].'">'.htmlspecialchars($posts[$i]['data']).'</div></div>';
+        $content = htmlspecialchars($posts[$i]['data']);
+        $content =  str_replace("\n", "<br>", $content);
+        $ret .= '<div class="content comment" id="content'.$posts[$i]['id'].'"><span class="post_time">By <a href="./profile.php?uid='.$posts[$i]['user_id'].'">'.$posts[$i]['username']."</a> on ".date($site_settings['time_format'],$posts[$i]['time'])."</span> ".topic_get_post_actions($posts[$i],false,true).'<div id="p'.$posts[$i]['id'].'">'.$content.'</div></div>';
     }
     die($ret);
 }

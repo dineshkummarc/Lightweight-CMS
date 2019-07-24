@@ -2,9 +2,9 @@
 //This file takes care of writing changes to data base.
 
 
-function sanitarize_input()
+function sanitarize_input($escape_html = true, $escape_sql = true)
 {
-    $_SERVER['HTTP_USER_AGENT'] = secure_input($_SERVER['HTTP_USER_AGENT']);
+    $_SERVER['HTTP_USER_AGENT'] = secure_input($_SERVER['HTTP_USER_AGENT'], $escape_html, $escape_sql);
     foreach (array('POST', 'GET') as $value) {
         $method_type = $value;
         if ($method_type == 'POST') {
@@ -29,17 +29,17 @@ function sanitarize_input()
                 if ($value == 'all' && $_GET['a'] != 'sessions') {
                     $method_data['sid'][0] = 'all';
                 }
-                $method_data['sid'][] = secure_input($value);
+                $method_data['sid'][] = secure_input($value, $escape_html, $escape_sql);
             } else {
                 switch ($type_def[strtolower($name)]) {
                     case "string":
-                        $method_data[$name] = secure_input($value);
+                        $method_data[$name] = secure_input($value, $escape_html, $escape_sql);
                         break;
                     case "email":
-                        $method_data[$name] = secure_input($value);
+                        $method_data[$name] = secure_input($value, $escape_html, $escape_sql);
                         break;
                     case "image":
-                        $method_data[$name] = secure_input($value);
+                        $method_data[$name] = secure_input($value, $escape_html, $escape_sql);
                         break;
                     case "check":
                         $method_data[$name] = checkbox_to_int($value);
@@ -48,7 +48,7 @@ function sanitarize_input()
                         $method_data[$name] = intval($value);
                         break;
                     case "html":
-                        $method_data[$name] = secure_input($value, false);
+                        $method_data[$name] = secure_input($value, false, $escape_sql);
                         break;
                     default:
                         error_push_title("sanitarize_input error");
