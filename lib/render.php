@@ -244,12 +244,23 @@ function render_hashtags($str)
 function render_likes($pid)
 {
     global $current_user;
-    $result = _mysql_query("SELECT COUNT(*) AS c FROM likes WHERE post_id='" . $pid . "'");
+    $result =_mysql_prepared_query(array(
+        "query" => "SELECT COUNT(*) AS c FROM likes WHERE post_id=:pid",
+        "params" => array(
+            ":pid" => $pid
+        )
+    ));
     $likes = _mysql_result($result, 0);
     if ($likes == "0") {
         return '<a class="lpadding" href="#" onclick="Like(this, ' . $likes . ', ' . $pid . ');return false;">Like</a>';
     } else {
-        $result = _mysql_query("SELECT COUNT(*) AS c FROM likes WHERE post_id='" . $pid . "' AND user_id='" . $current_user['uid'] . "'");
+        $result = _mysql_prepared_query(array(
+            "query" => "SELECT COUNT(*) AS c FROM likes WHERE post_id=:pid AND user_id=:uid",
+            "params" => array(
+                ":pid" => $pid,
+                ":uid" => $current_user['uid']
+            )
+        ));
         $has_liked = _mysql_result($result, 0);
         if ($has_liked == "0") {
             return $likes . ' people like this <a href="#" onclick="Like(this,' . $likes . ', ' . $pid . ');return false;">Like</a>';
@@ -320,8 +331,13 @@ function render_forum_path()
 function render_last_update()
 {
     global $last_update, $site_settings;
-    $allowed_forums_list = @implode(array_copy_dimension(get_allowed_forums("-1", false, "ALL"), "forum_id"), ", ");
-    $result = _mysql_query("SELECT GREATEST(time, edit_time) AS latest FROM post WHERE forum_id IN (" . $allowed_forums_list . ") ORDER BY latest DESC LIMIT 0,1");
+    $allowed_forums_list = array_copy_dimension(get_allowed_forums("-1", false, "ALL"), "forum_id");
+    $result =_mysql_prepared_query(array(
+        "query" => "SELECT GREATEST(time, edit_time) AS latest FROM post WHERE forum_id IN (:forum_list) ORDER BY latest DESC LIMIT 0,1",
+        "params" => array(
+            ":forum_list" => $allowed_forums_list
+        )
+    ));
 
     $last_update = @_mysql_result($result, 0);
     if (!$last_update) {
