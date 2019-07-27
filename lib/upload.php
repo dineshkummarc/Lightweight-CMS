@@ -49,7 +49,12 @@ $forum_links = get_allowed_forums();
 
 $forum_id_const = $forum_links[0]['forum_id'];
 if (isset($_GET['file']) && !isset($_GET['form'])) {
-    $result = _mysql_query("SELECT post_id FROM attachments WHERE id = " . $_GET['file']);
+    $result = _mysql_prepared_query(array(
+        "query" => "SELECT post_id FROM attachments WHERE id = :file",
+        "params" => array(
+            ":file" => $_GET['file']
+        )
+    ));
     $pid = _mysql_result($result, 0);
     $forum_id_const = post_get_forum($pid);
 }
@@ -299,8 +304,25 @@ switch ($_GET['a']) {
                 );
                 $exif = json_encode($new);
             }
-            $sql = "INSERT INTO attachments VALUES (NULL,'" . basename($_FILES['uploaded']['name']) . "', '" . $random_name . "', '" . end($parts) . "','' , '" . $current_user['uid'] . "', " . time() . ", '" . $_GET['p'] . "', " . $_FILES['uploaded']['size'] . ", 0, " . $is_image . ", " . $_GET['form'] . ",'0' ,'" . $post_info[0]['forum_id'] . "', '" . $post_info[0]['topic_id'] . "','" . $exif . "','" . $width . "', '" . $height . "')";
-            _mysql_query($sql);
+            _mysql_prepared_query(array(
+                "query" => "INSERT INTO attachments VALUES (NULL, :file_name, :actual_name, :extension, '' , :uid, :time, :pid, :size, 0, :is_image, :form, '0', :fid, :tid, :exif, :width, :height)",
+                "params" => array(
+                    ":file_name" => basename($_FILES['uploaded']['name']),
+                    ":actual_name" => $random_name,
+                    ":extension" => strtolower(end($parts)),
+                    ":uid" => $current_user['uid'],
+                    ":time" => time(),
+                    ":pid" => $_GET['p'],
+                    ":size" => $_FILES['uploaded']['size'],
+                    ":is_image" => $is_image,
+                    ":form" => $_GET['form'],
+                    ":fid" => '',
+                    ":tid" => '',
+                    ":exif" => $exif,
+                    ":width" => $width,
+                    ":height" => $height
+                )
+            ));
             $id = _mysql_insert_id();
             if ($is_image == 1) {
                 $replacements = array(
@@ -332,7 +354,12 @@ switch ($_GET['a']) {
                 && post_get_owner($_GET['p']) == $current_user['uid']
                 || has_permission($current_user['permissions']['global'], 'm_edit_posts')
                 || has_permission($current_user['permissions'][$forum_id_const], 'm_edit_posts')) {
-                $result = _mysql_query("SELECT * FROM attachments WHERE id = " . $_GET['file']);
+                $result = _mysql_prepared_query(array(
+                    "query" => "SELECT * FROM attachments WHERE id = :file",
+                    "params" => array(
+                        ":file" => $_GET['file']
+                    )
+                ));
 
                 $replacements = array(
                     '{file_name}' => _mysql_result($result, 0, 'file_name'),
@@ -351,16 +378,31 @@ switch ($_GET['a']) {
         if (!has_permission($current_user['permissions'][$forum_id_const], 'f_can_attach')) {
             die("You do not have permission to attach files.");
         }
-        $result = _mysql_query("SELECT * FROM attachments WHERE id = " . $_GET['file']);
+        $result = _mysql_prepared_query(array(
+            "query" => "SELECT * FROM attachments WHERE id = :file",
+            "params" => array(
+                ":file" => $_GET['file']
+            )
+        ));
         if (@unlink($target . _mysql_result($result, 0, 'actual_name'))) {
-            _mysql_query("DELETE FROM attachments WHERE id = " . $_GET['file']);
+            _mysql_prepared_query(array(
+                "query" => "DELETE FROM attachments WHERE id = :file",
+                "params" => array(
+                    ":file" => $_GET['file']
+                )
+            ));
             if (_mysql_result($result, 0, 'is_image') == "1") {
                 @unlink($target . "../images/small/" . _mysql_result($result, 0, 'actual_name'));
                 @unlink($target . "../images/large/" . _mysql_result($result, 0, 'actual_name'));
             }
             die("File have been successfully deleted.");
         } else {
-            _mysql_query("DELETE FROM attachments WHERE id = " . $_GET['file']);
+            _mysql_prepared_query(array(
+                "query" => "DELETE FROM attachments WHERE id = :file",
+                "params" => array(
+                    ":file" => $_GET['file']
+                )
+            ));
             die("Failed to delete file. Please contact the board administrator.");
         }
 
@@ -369,7 +411,12 @@ switch ($_GET['a']) {
         if ($site_settings['allow_download'] == "0") {
             die("ERROR: this board does not allow downloading attachments.");
         }
-        $result = _mysql_query("SELECT * FROM attachments WHERE id = " . $_GET['file']);
+        $result = _mysql_prepared_query(array(
+            "query" => "SELECT * FROM attachments WHERE id = :file",
+            "params" => array(
+                ":file" => $_GET['file']
+            )
+        ));
         if ($_GET['form'] == _mysql_result($result, 0, 'form') || has_permission($current_user['permissions'][post_get_forum(_mysql_result($result, 0, 'post_id'))], 'f_can_download') && has_permission($current_user['permissions']['global'], 'u_download_files') || has_permission($current_user['permissions']['global'], 'a_manage_attachments')) {
             header("Pragma: public");
             header("Expires: 0");
@@ -381,7 +428,12 @@ switch ($_GET['a']) {
             header("Content-Transfer-Encoding: binary");
             header("Content-Length: " . _mysql_result($result, 0, 'size'));
             if ($count) {
-                _mysql_query("UPDATE attachments SET downloads=downloads+1 WHERE id = " . $_GET['file']);
+                _mysql_prepared_query(array(
+                    "query" => "UPDATE attachments SET downloads=downloads+1 WHERE id = :file",
+                    "params" => array(
+                        ":file" => $_GET['file']
+                    )
+                ));
             }
             file_read_chunked($target . _mysql_result($result, 0, 'actual_name'));
             exit;
@@ -391,7 +443,8 @@ switch ($_GET['a']) {
         break;
 }
 
-function renderResponse($template_name, $replacements){
+function renderResponse($template_name, $replacements)
+{
     global $template_directory;
     $content = file_get_contents($template_directory . '/' . $template_name);
     $content = strtr($content, $replacements);
