@@ -227,7 +227,12 @@ function user_get_info_by_name($name)
 
 function user_exists($uid)
 {
-    $result = _mysql_query('SELECT user_id FROM users WHERE user_id = ' . $uid);
+    $result = _mysql_prepared_query(array(
+        "query" => "SELECT user_id FROM users WHERE user_id = :uid",
+        "params" => array(
+            ":uid" => $uid
+        )
+    ));
     return _mysql_num_rows($result);
 }
 
