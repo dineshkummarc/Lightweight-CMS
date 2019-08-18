@@ -184,7 +184,13 @@ function get_attachment_by_id($attach_id){
         return $attachments_cache[$attach_id];
     }
     
-    $result = _mysql_query("SELECT * FROM attachments WHERE id = ".$attach_id);
+    $result = _mysql_prepared_query(array(
+        "query" => "SELECT * FROM attachments WHERE id = :id",
+        "params" => array(
+            ":id" => $attach_id
+        )
+    ));
+    
     $attachment = array(
         'post_id' => '',
         'file_name' => '',
