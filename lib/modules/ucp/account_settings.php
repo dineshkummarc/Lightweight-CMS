@@ -37,19 +37,34 @@ function update_current_user(){
 
     $this->addMissingParams();
     
-    $cmd = 'UPDATE users';
-    $update = 'SET user_avatar=\''.$_POST['avatar'].'\', user_show_facebook=\''.$_POST['show_facebook'].'\', user_show_mail=\''.$_POST['show_email'].'\', user_signature=\''.$_POST['signature'].'\', '." cover='".$cover."', about='".$_POST['about']."', cover_h_offset='".$_POST['cover_h_offset']."', ";
-    $cmd_end = 'WHERE user_id='.$current_user['uid']; 
+    $cmd = "UPDATE users";
+    $update = "SET user_avatar=:avatar, user_show_facebook=:show_facebook, user_show_mail=:show_email, user_signature=:signature, cover=:cover, about=:about, cover_h_offset=:offset, ";
+    $cmd_end = "WHERE user_id=:uid"; 
     if($change_pass){
         $salt = random_string(10);
-        $update .= 'user_password=\''.md5($_POST['password'].$salt).'\', ';
-        $update .= 'salt=\''.$salt.'\', ';   
+        $update .= "user_password=:password, ";
+        $update .= "salt=:salt, ";   
     }
-    if($change_mail){$update .= 'user_email=\''.$_POST['email'].'\', ';}else{$error +=16;}
-    if($change_msn){$update .= 'user_facebook=\''.$_POST['facebook'].'\', ';}
+    if($change_mail){$update .= "user_email=:email, ";}else{$error +=16;}
+    if($change_msn){$update .= "user_facebook=:facebook, ";}
     $update = StringTrimRight($update,2);
-    $sql=$cmd."\n".$update."\n".$cmd_end;
-    $result = _mysql_query($sql);
+    $result = _mysql_prepared_query(array(
+        "query" => $cmd."\n".$update."\n".$cmd_end,
+        "params" => array(
+            ":avatar" => $_POST['avatar'],
+            ":show_facebook" => $_POST['show_facebook'],
+            ":show_email" => $_POST['show_email'],
+            ":signature" => decode_input($_POST['signature']),
+            ":cover" => $cover,
+            ":about" => decode_input($_POST['about']),
+            ":offset" => $_POST['cover_h_offset'],
+            ":uid" => $current_user['uid'],
+            ":password" => encrypt($_POST['password'].$salt),
+            ":salt" => $salt,
+            ":email" => $_POST['email'],
+            ":facebook" => $_POST['facebook']
+        )
+    ),true);
     if(!$result){$error += 2;}
 
     return $error;
