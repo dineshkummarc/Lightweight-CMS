@@ -74,7 +74,7 @@ function update_current_user(){
             ":show_mail" => $_POST['show_email'],
             ":warn" => $_POST['warn'],
             ":is_founder" => $_POST['founder'],
-            ":signature" => $_POST['signature'],
+            ":signature" => decode_input($_POST['signature']),
             ":uid" => $_POST['uid'],
             ":password" => encrypt($_POST['password'].$salt),
             ":salt" => $salt,
@@ -83,7 +83,7 @@ function update_current_user(){
             ":facebook" => $_POST['facebook'],
             ":group" => $_POST['group'],
             ":cover" => $cover,
-            ":about" => $_POST['about'],
+            ":about" => decode_input($_POST['about']),
             ":cover_h_offset" => $_POST['cover_h_offset'],
             ":active" => $_POST['active']
             )
