@@ -24,13 +24,43 @@ class manage_bans{
     function add_ban() {
         global $current_user;
         if(isset($_POST['ip_address'])){
-            _mysql_query("INSERT INTO bans VALUES(NULL,'','".$_POST['ip_address']."', '', '".time()."', '".$this->parse_end($_POST['end'])."', '".$_POST['reason']."', '".$_POST['reason_to_banned']."', '".$current_user['uid']."')");
+            _mysql_prepared_query(array(
+                "query" => "INSERT INTO bans VALUES(NULL,'',:ip_to_ban, '', :time', :end, :reason, :reason_to_banned, :uid)",
+                "params" => array(
+                    ":ip_to_ban" => $_POST['ip_address'],
+                    ":time" => time(),
+                    ":end" => $this->parse_end($_POST['end']),
+                    ":reason" => $_POST['reason'],
+                    ":reason_to_banned" => $_POST['reason_to_banned'],
+                    ":uid" => $current_user['uid']
+                )
+            ));
             log_event('MODERATOR', $current_user['name'], $_SERVER['REMOTE_ADDR'], "BAN ip", 'Banned ip '.$_POST['ip_address']);
         }else if(isset($_POST['username'])){
-            _mysql_query("INSERT INTO bans VALUES(NULL,'".  user_get_id_by_name($_POST['username'])."','', '', '".time()."', '".$this->parse_end($_POST['end'])."', '".$_POST['reason']."', '".$_POST['reason_to_banned']."', '".$current_user['uid']."')");
+            _mysql_prepared_query(array(
+                "query" => "INSERT INTO bans VALUES(NULL,:user_to_ban,'', '', :time, :end, :reason, :reason_to_banned, :uid)",
+                "params" => array(
+                    ":user_to_ban" => user_get_id_by_name($_POST['username']),
+                    ":time" => time(),
+                    ":end" => $this->parse_end($_POST['end']),
+                    ":reason" => $_POST['reason'],
+                    ":reason_to_banned" => $_POST['reason_to_banned'],
+                    ":uid" => $current_user['uid']
+                )
+            ));
             log_event('MODERATOR', $current_user['name'], $_SERVER['REMOTE_ADDR'], "BAN USER", 'Banned user '.$_POST['username']);
         }else{
-            _mysql_query("INSERT INTO bans VALUES(NULL,'','', '".$_POST['email']."', '".time()."', '".$this->parse_end($_POST['end'])."', '".$_POST['reason']."', '".$_POST['reason_to_banned']."', '".$current_user['uid']."')");
+            _mysql_prepared_query(array(
+                "query" => "INSERT INTO bans VALUES(NULL,'','', :email_to_ban, :time, :end, :reason, :reason_to_banned, :uid)",
+                "params" => array(
+                    ":email_to_ban" => $_POST['email'],
+                    ":time" => time(),
+                    ":end" => $this->parse_end($_POST['end']),
+                    ":reason" => $_POST['reason'],
+                    ":reason_to_banned" => $_POST['reason_to_banned'],
+                    ":uid" => $current_user['uid']
+                )
+            ));
             log_event('MODERATOR', $current_user['name'], $_SERVER['REMOTE_ADDR'], "BAN email", 'Banned email '.$_POST['email']);
         }      
     }
@@ -70,9 +100,7 @@ class manage_bans{
                        'SUCCESSMSG' => $language['notifications']['ban_ip'].'<br><a href="?a='.$_GET['a'].'">Go back</a>'
                    );
                 }else if($_GET['mode'] == "delete"){
-                    _mysql_query("DELETE FROM bans WHERE ban_id = '".$_POST['ban_id']."'");
-                    log_event('MODERATOR', $current_user['name'], $_SERVER['REMOTE_ADDR'], "UNBAN ip", 'Unbanned ip');
-                    die("ok");
+                    unban($_POST['ban_id'], 'ip');
                 }else{
                     $this->get_bans("ip");
                     $this->page_title = $language['module_titles']['manage_ip_bans'];
@@ -100,9 +128,7 @@ class manage_bans{
                         );
                     }
                 }else if($_GET['mode'] == "delete"){
-                    _mysql_query("DELETE FROM bans WHERE ban_id = '".$_POST['ban_id']."'");
-                    log_event('MODERATOR', $current_user['name'], $_SERVER['REMOTE_ADDR'], "UNBAN ip", 'Unbanned user');
-                    die("ok");
+                    unban($_POST['ban_id'], 'user');
                 }else{
                     $this->page_title = $language['module_titles']['manage_user_bans'];
                     $this->template = "manage_bans";
@@ -121,9 +147,7 @@ class manage_bans{
                        'SUCCESSMSG' => $language['notifications']['ban_email'].'<br><a href="?a='.$_GET['a'].'">Go back</a>'
                    );
                 }else if($_GET['mode'] == "delete"){
-                    _mysql_query("DELETE FROM bans WHERE ban_id = '".$_POST['ban_id']."'");
-                    log_event('MODERATOR', $current_user['name'], $_SERVER['REMOTE_ADDR'], "UNBAN email", 'Unbanned email');
-                    die("ok");
+                    unban($_POST['ban_id'], 'email');
                 }else{
                     $this->page_title = $language['module_titles']['manage_email_bans'];
                     $this->template = "manage_bans";
@@ -135,5 +159,17 @@ class manage_bans{
                 }
             break;
         }
+    }
+    
+    function unban($ban_id, $ban_type) {
+        global $current_user;
+        _mysql_prepared_query(array(
+            "query" => "DELETE FROM bans WHERE ban_id = :ban_id",
+            "params" => array(
+                ":ban_id" => $ban_id
+            )
+        ));
+        log_event('MODERATOR', $current_user['name'], $_SERVER['REMOTE_ADDR'], "UNBAN ".$ban_type, 'Unbanned '.$ban_type);
+        die("ok");
     }
 }
