@@ -1,39 +1,8 @@
 <?php
 
-#  <option value="1">one</option>
-/*  #FUNCTION# ;===============================================================================
-
-  name...........: groups_list
-  description ...:
-  Syntax.........: groups_list([$fields = 'ALL'])
-  Parameters ....: $fields - [Optional]
-  Author ........:
-  Modified.......:
-  Remarks .......:
-  Related .......:
-  Parameters ....:
-  Link ..........:
-  Example .......:
-  ;========================================================================================== */
-
 function groups_list($fields = 'ALL') {
     return get_table_contents("groups", $fields);
 }
-
-/*  #FUNCTION# ;===============================================================================
-
-  name...........: group_add
-  description ...:
-  Syntax.........: group_add($group_name)
-  Parameters ....: $group_name -
-  Author ........:
-  Modified.......:
-  Remarks .......:
-  Related .......:
-  Parameters ....:
-  Link ..........:
-  Example .......:
-  ;========================================================================================== */
 
 function group_add($group_name) {
     global $current_user;
@@ -50,59 +19,17 @@ function group_add($group_name) {
     return $gid;
 }
 
-/*  #FUNCTION# ;===============================================================================
-
-  name...........: group_get_name_by_id
-  description ...:
-  Syntax.........: group_get_name_by_id($group_id)
-  Parameters ....:$group_id -
-  Author ........:
-  Modified.......:
-  Remarks .......:
-  Related .......:
-  Parameters ....:
-  Link ..........:
-  Example .......:
-  ;========================================================================================== */
 
 function group_get_name_by_id($group_id) {
     $group_info = group_get_info_by_id($group_id);
     return $group_info[0]['name'];
 }
 
-/*  #FUNCTION# ;===============================================================================
-
-  name...........: group_get_info_by_id
-  description ...:
-  Syntax.........: group_get_info_by_id($group_id)
-  Parameters ....:$group_id -
-  Author ........:
-  Modified.......:
-  Remarks .......:
-  Related .......:
-  Parameters ....:
-  Link ..........:
-  Example .......:
-  ;========================================================================================== */
 
 function group_get_info_by_id($group_id) {
     return get_table_contents("groups", 'ALL', " where id = " .$group_id);
 }
 
-/*  #FUNCTION# ;===============================================================================
-
-  name...........: group_list_to_combo
-  description ...:
-  Syntax.........: group_list_to_combo([$group_list = 0])
-  Parameters ....: $group_list - [Optional]
-  Author ........:
-  Modified.......:
-  Remarks .......:
-  Related .......:
-  Parameters ....:
-  Link ..........:
-  Example .......:
-  ;========================================================================================== */
 
 function group_list_to_combo($group_list = 0) {
     if ($group_list == 0) {
@@ -119,40 +46,9 @@ function ranks_get_by_id($rid)
     return $ret;
 }
 
-
-/*  #FUNCTION# ;===============================================================================
-
-  name...........: ranks_list
-  description ...:
-  Syntax.........: ranks_list([$fields = 'ALL'])
-  Parameters ....: $fields - [Optional]
-  Author ........:
-  Modified.......:
-  Remarks .......:
-  Related .......:
-  Parameters ....:
-  Link ..........:
-  Example .......:
-  ;========================================================================================== */
-
 function ranks_list($fields = 'ALL') {
     return get_table_contents(ranks, $fields);
 }
-
-/*  #FUNCTION# ;===============================================================================
-
-  name...........: rank_list_to_combo
-  description ...:
-  Syntax.........: rank_list_to_combo([$rank_list = 0])
-  Parameters ....: $rank_list - [Optional]
-  Author ........:
-  Modified.......:
-  Remarks .......:
-  Related .......:
-  Parameters ....:
-  Link ..........:
-  Example .......:
-  ;========================================================================================== */
 
 function rank_list_to_combo($rank_list = 0) {
     if ($rank_list == 0) {
@@ -160,22 +56,6 @@ function rank_list_to_combo($rank_list = 0) {
     }
     return array_to_combo($rank_list, 'name', 'id');
 }
-
-/*  #FUNCTION# ;===============================================================================
-
-  name...........: group_list_permissions
-  description ...:
-  Syntax.........: group_list_permissions($group_id[, $extended = false])
-  Parameters ....: $group_id  -
-  $extended - [Optional]
-  Author ........:
-  Modified.......:
-  Remarks .......:
-  Related .......:
-  Parameters ....:
-  Link ..........:
-  Example .......:
-  ;========================================================================================== */
 
 function group_list_permissions($group_id, $forum_id = 0, $extended = false) {
     $cond = 'group_id = ' . $group_id;
@@ -193,21 +73,6 @@ function group_list_permissions($group_id, $forum_id = 0, $extended = false) {
     }
 }
 
-/*  #FUNCTION# ;===============================================================================
-
-  name...........: groups_get_table
-  description ...:
-  Syntax.........: groups_get_table()
-  Parameters ....:
-  Author ........:
-  Modified.......:
-  Remarks .......:
-  Related .......:
-  Parameters ....:
-  Link ..........:
-  Example .......:
-  ;========================================================================================== */
-
 function groups_get_table() {
     $groups = groups_list();
     for ($i = 0; $i < count($groups); $i++) {
@@ -215,21 +80,6 @@ function groups_get_table() {
     }
     return $groups;
 }
-
-/*  #FUNCTION# ;===============================================================================
-
-  name...........: groups_get_table_html
-  description ...:
-  Syntax.........: groups_get_table_html()
-  Parameters ....:
-  Author ........:
-  Modified.......:
-  Remarks .......:
-  Related .......:
-  Parameters ....:
-  Link ..........:
-  Example .......:
-  ;========================================================================================== */
 
 function groups_get_table_html() {
     $groups = groups_get_table();
@@ -248,62 +98,15 @@ function groups_get_table_html() {
     return $str;
 }
 
-/*  #FUNCTION# ;===============================================================================
-
-  name...........: group_get_member_count
-  description ...:
-  Syntax.........: group_get_member_count($group_id)
-  Parameters ....:$group_id -
-  Author ........:
-  Modified.......:
-  Remarks .......:
-  Related .......:
-  Parameters ....:
-  Link ..........:
-  Example .......:
-  ;========================================================================================== */
-
 function group_get_member_count($group_id) {
     $query = 'SELECT COUNT(*) FROM user_groups WHERE user_group_id=\'' .$group_id . '\';';
     $result = _mysql_query($query);
     return _mysql_result($result, 0);
 }
 
-/*  #FUNCTION# ;===============================================================================
-
-  name...........: group_get_member_list_by_id
-  description ...:
-  Syntax.........: group_get_member_list_by_id($gid[, $fields = 'ALL'])
-  Parameters ....: $gid     -
-  $fields - [Optional]
-  Author ........:
-  Modified.......:
-  Remarks .......:
-  Related .......:
-  Parameters ....:
-  Link ..........:
-  Example .......:
-  ;========================================================================================== */
-
 function group_get_member_list_by_id($gid, $fields = 'ALL') {
     return get_table_contents("user_groups", $fields, ' WHERE user_group_id = ' . $gid);
 }
-
-/*  #FUNCTION# ;===============================================================================
-
-  name...........: get_member_list
-  description ...:
-  Syntax.........: get_member_list($gid[, $user_fields = 'ALL'])
-  Parameters ....: $gid        -
-  $user_fields - [Optional]
-  Author ........:
-  Modified.......:
-  Remarks .......:
-  Related .......:
-  Parameters ....:
-  Link ..........:
-  Example .......:
-  ;========================================================================================== */
 
 function get_member_list($gid) {
     $group_members = get_table_contents("", "", "", false, "SELECT users.user_id, username, user_join_date, user_post_count, user_default_group, user_status  FROM user_groups
@@ -316,22 +119,6 @@ WHERE user_group_id = '".$gid."' AND users.user_id IS NOT NULL",array("user_join
 //0 - Dis_approved
 //1 - Approved (default)
 //2 - leader
-/*  #FUNCTION# ;===============================================================================
-
-  name...........: group_set_member_status
-  description ...:
-  Syntax.........: group_set_member_status($member, $gid[, $status = 1])
-  Parameters ....: $member -
-  $gid    -
-  $status - [Optional]
-  Author ........:
-  Modified.......:
-  Remarks .......:
-  Related .......:
-  Parameters ....:
-  Link ..........:
-  Example .......:
-  ;========================================================================================== */
 function group_set_member_status($member, $gid, $status = 1) {
     if (!is_array($member)) {
         $member = array($member);
@@ -352,22 +139,6 @@ function group_get_member_status($member, $gid) {
     $status = get_table_contents("user_groups", array('user_id', 'user_status'), ' WHERE user_id IN (' . $member . ') AND user_group_id = ' . $gid);
     return $status;
 }
-
-/*  #FUNCTION# ;===============================================================================
-
-  name...........: group_remove_member
-  description ...:
-  Syntax.........: group_remove_member($member, $gid)
-  Parameters ....: $member -
-  $gid    -
-  Author ........:
-  Modified.......:
-  Remarks .......:
-  Related .......:
-  Parameters ....:
-  Link ..........:
-  Example .......:
-  ;========================================================================================== */
 
 function group_remove_member($member, $gid) {
     if (!is_array($member)) {
@@ -392,22 +163,6 @@ function group_remove_member($member, $gid) {
     return true;
 }
 
-/*  #FUNCTION# ;===============================================================================
-
-  name...........: group_set_default
-  description ...:
-  Syntax.........: group_set_default($member, $gid)
-  Parameters ....: $member -
-  $gid    -
-  Author ........:
-  Modified.......:
-  Remarks .......:
-  Related .......:
-  Parameters ....:
-  Link ..........:
-  Example .......:
-  ;========================================================================================== */
-
 function group_set_default($member, $gid) {
     if (is_array($member)) {
         $member = implode(',', $member);
@@ -424,23 +179,6 @@ function group_set_default($member, $gid) {
     return $result;
 }
 
-/*  #FUNCTION# ;===============================================================================
-
-  name...........: group_add_member
-  description ...:
-  Syntax.........: group_add_member($group_id, $members, $Status[, $make_default = false])
-  Parameters ....:$group_id     -
-  $members     -
-  $Status      -
-  $make_default - [Optional]
-  Author ........:
-  Modified.......:
-  Remarks .......:
-  Related .......:
-  Parameters ....:
-  Link ..........:
-  Example .......:
-  ;========================================================================================== */
 
 function group_add_member($group_id, $members, $Status, $make_default = false) {
     if (!is_array($members)) {
@@ -499,20 +237,6 @@ function array_remove_value($array, $value) {
     return $new_arr;
 }
 
-/*  #FUNCTION# ;===============================================================================
-
-name...........: group_set_info_by_id
-description ...:
-Syntax.........: group_set_info_by_id($gid)
-Parameters ....: $gid -
-Author ........:
-Modified.......:
-Remarks .......:
-Related .......:
-Parameters ....:
-Link ..........:
-Example .......:
-;==========================================================================================*/
 function group_set_info_by_id($gid)
 {
     global $current_user;
