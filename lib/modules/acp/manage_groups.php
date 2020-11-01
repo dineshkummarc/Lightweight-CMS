@@ -128,7 +128,7 @@ class manage_groups{
                                     if($action_success){
                                         $this->template = "success_module";
                                         $this->vars=array(
-                                            'SUCCESSMSG' => $action_success.' of '. count($users_list). $language['notifications']['group_approve'].' <br><br><a href="./acp.php?id='.$_GET['id'].'&a='.$_GET['a'].'">Go back</a><br><br><a href="./acp.php?id='.$_GET['id'].'&a='.$_GET['a'].'&mode=groupmembers&gid='.$_GET['gid'].'>Manage other members of this group</a>'
+                                            'SUCCESSMSG' => $action_success.' of '. count($users_list). $language['notifications']['group_approve'].' <br><br><a href="./acp.php?id='.$_GET['id'].'&a='.$_GET['a'].'">Go back</a><br><br><a href="./acp.php?id='.$_GET['id'].'&a='.$_GET['a'].'&mode=groupmembers&gid='.$_GET['gid'].'">Manage other members of this group</a>'
                                         );
                                     }else{
                                         $this->template = "failure_module";
@@ -142,7 +142,7 @@ class manage_groups{
                                     if($action_success){
                                         $this->template = "success_module";
                                         $this->vars=array(
-                                            'SUCCESSMSG' => $action_success.' of '. count($users_list). $language['notifications']['group_disapprove'].' <br><br><a href="./acp.php?id='.$_GET['id'].'&a='.$_GET['a'].'">Go back</a><br><br><a href="./acp.php?id='.$_GET['id'].'&a='.$_GET['a'].'&mode=groupmembers&gid='.$_GET['gid'].'>Manage other members of this group</a>'
+                                            'SUCCESSMSG' => $action_success.' of '. count($users_list). $language['notifications']['group_disapprove'].' <br><br><a href="./acp.php?id='.$_GET['id'].'&a='.$_GET['a'].'">Go back</a><br><br><a href="./acp.php?id='.$_GET['id'].'&a='.$_GET['a'].'&mode=groupmembers&gid='.$_GET['gid'].'">Manage other members of this group</a>'
                                         );
                                     }else{
                                         $this->template = "failure_module";
@@ -182,7 +182,7 @@ class manage_groups{
                                     if($action_success){
                                         $this->template = "success_module";
                                         $this->vars=array(
-                                            'SUCCESSMSG' => sprintf($language['notifications']['group_remove'], count($users_list)).' <br><br><a href="./acp.php?id='.$_GET['id'].'&a='.$_GET['a'].'">Go back</a><br><br><a href="./acp.php?id='.$_GET['id'].'&a='.$_GET['a'].'&mode=groupmembers&gid='.$_GET['gid'].'>Manage other members of this group</a>'
+                                            'SUCCESSMSG' => sprintf($language['notifications']['group_remove'], count($users_list)).' <br><br><a href="./acp.php?id='.$_GET['id'].'&a='.$_GET['a'].'">Go back</a><br><br><a href="./acp.php?id='.$_GET['id'].'&a='.$_GET['a'].'&mode=groupmembers&gid='.$_GET['gid'].'">Manage other members of this group</a>'
                                         );
                                     }else{
                                         $this->template = "failure_module";
@@ -196,7 +196,7 @@ class manage_groups{
                                     if($action_success){
                                         $this->template = "success_module";
                                         $this->vars=array(
-                                            'SUCCESSMSG' => sprintf($language['notifications']['group_set_status'], $action_success,count($users_list)).' <br><br><a href="./acp.php?id='.$_GET['id'].'&a='.$_GET['a'].'">Go back</a><br><br><a href="./acp.php?id='.$_GET['id'].'&a='.$_GET['a'].'&mode=groupmembers&gid='.$_GET['gid'].'>Manage other members of this group</a>'
+                                            'SUCCESSMSG' => sprintf($language['notifications']['group_set_status'], $action_success,count($users_list)).' <br><br><a href="./acp.php?id='.$_GET['id'].'&a='.$_GET['a'].'">Go back</a><br><br><a href="./acp.php?id='.$_GET['id'].'&a='.$_GET['a'].'&mode=groupmembers&gid='.$_GET['gid'].'">Manage other members of this group</a>'
                                         );
                                     }else{
                                         $this->template = "failure_module";
@@ -210,7 +210,7 @@ class manage_groups{
                                     if($action_success){
                                         $this->template = "success_module";
                                         $this->vars=array(
-                                            'SUCCESSMSG' => sprintf($language['notifications']['group_demote'], $action_success,count($users_list)).' <br><br><a href="./acp.php?id='.$_GET['id'].'&a='.$_GET['a'].'">Go back</a><br><br><a href="./acp.php?id='.$_GET['id'].'&a='.$_GET['a'].'&mode=groupmembers&gid='.$_GET['gid'].'>Manage other members of this group</a>'
+                                            'SUCCESSMSG' => sprintf($language['notifications']['group_demote'], $action_success,count($users_list)).' <br><br><a href="./acp.php?id='.$_GET['id'].'&a='.$_GET['a'].'">Go back</a><br><br><a href="./acp.php?id='.$_GET['id'].'&a='.$_GET['a'].'&mode=groupmembers&gid='.$_GET['gid'].'">Manage other members of this group</a>'
                                         );
                                     }else{
                                         $this->template = "failure_module";
