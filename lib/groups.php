@@ -7,11 +7,14 @@ function groups_list($fields = 'ALL') {
 function group_add($group_name) {
     global $current_user;
     log_event('ADMINISTRATOR', $current_user['name'], $_SERVER['REMOTE_ADDR'], "MANAGE groups", 'Created group named '. $group_name);
-    $query = "INSERT INTO groups VALUES (NULL, '0', '0', '0', '0', '', '', '" . $group_name . "');";
-    $result = _mysql_query($query);
+    $result = _mysql_prepared_query(array(
+        "query" => "INSERT INTO groups VALUES (NULL, '0', '0', '0', '0', '', '', :name);",
+        "params" => array(
+            ":name" => $group_name
+        )
+    ));
     $gid = 0;
-    $query = "SELECT MAX(id) FROM groups";
-    $result = _mysql_query($query);
+    $result = _mysql_query("SELECT MAX(id) FROM groups");
     $new_group_id = _mysql_result($result, 0);
     if ($result) {
         $gid = $new_group_id;
@@ -99,8 +102,12 @@ function groups_get_table_html() {
 }
 
 function group_get_member_count($group_id) {
-    $query = 'SELECT COUNT(*) FROM user_groups WHERE user_group_id=\'' .$group_id . '\';';
-    $result = _mysql_query($query);
+    $result = _mysql_prepared_query(array(
+        "query" => "SELECT COUNT(*) FROM user_groups WHERE user_group_id=:gid;",
+        "params" => array(
+            ":gid" => $group_id
+        )
+    ));
     return _mysql_result($result, 0);
 }
 
@@ -124,8 +131,14 @@ function group_set_member_status($member, $gid, $status = 1) {
         $member = array($member);
     }
     
-    $sql = 'UPDATE user_groups SET user_status=' . $status . ' WHERE user_id IN (' . implode(',', $member) . ') AND user_group_id = ' . $gid;
-    $result = _mysql_query($sql);
+    $result = _mysql_prepared_query(array(
+        "query" => 'UPDATE user_groups SET user_status=:status WHERE user_id IN (:members) AND user_group_id = :gid',
+        "params" => array(
+            ":status" => $status,
+            ":gid" => $gid,
+            ":members" => $member
+        )
+    ));
     if ($result) {
         return count($member);
     }
@@ -144,9 +157,14 @@ function group_remove_member($member, $gid) {
     if (!is_array($member)) {
         $member = array($member);
     }
-    $member_s = implode(',', $member);
-    $sql = 'DELETE FROM user_groups WHERE user_id IN (' . $member_s . ') AND user_group_id=' . $gid;
-    $result = _mysql_query($sql);
+    $result = _mysql_prepared_query(array(
+        "query" => 'DELETE FROM user_groups WHERE user_id IN (:members) AND user_group_id=:gid',
+        "params" => array(
+            ":gid" => $gid,
+            ":members" => $member
+        )
+    ));
+    
     if (!$result) {
         return false;
     }
@@ -164,18 +182,29 @@ function group_remove_member($member, $gid) {
 }
 
 function group_set_default($member, $gid) {
-    if (is_array($member)) {
-        $member = implode(',', $member);
+    if (!is_array($member)) {
+        $member = array($member);
     }
-    $sql = "UPDATE users SET user_default_group='" . $gid . "' WHERE user_id IN (" . $member . ")";
-    $result = _mysql_query($sql);
+    $result = _mysql_prepared_query(array(
+        "query" => "UPDATE users SET user_default_group=:gid WHERE user_id IN (:members)",
+        "params" => array(
+            ":gid" => $gid,
+            ":members" => $member
+            
+        )
+    ));
     if (!$result) {
         throw new Exception('Failed to set default group');
     }
     $group_info = group_get_info_by_id($gid);
     //Success? Update colors as well
-    $sql = "UPDATE users SET user_color ='" . $group_info[0]['color'] . "' WHERE user_id IN (" . $member . ")";
-    _mysql_query($sql);
+    _mysql_prepared_query(array(
+        "query" => "UPDATE users SET user_color = :color WHERE user_id IN (:members)",
+        "params" => array(
+            ":color" => $group_info[0]['color'],
+            ":members" => $member
+        )
+    ));
     return $result;
 }
 
@@ -186,8 +215,14 @@ function group_add_member($group_id, $members, $Status, $make_default = false) {
     }
     $members_ids = user_get_id_by_name($members);
     $members_ids_one_dimensional = array_copy_dimension($members_ids, 'user_id');
-    $query = 'SELECT user_id FROM user_groups WHERE user_id IN (' . implode(',', $members_ids_one_dimensional) . ') AND user_group_id = ' .$group_id;
-    $result = _mysql_query($query);
+    $query = "SELECT user_id FROM user_groups WHERE user_id IN (:uids) AND user_group_id = :gid";
+    $result = _mysql_prepared_query(array(
+        "query" => $query,
+        "params" => array(
+            ":uids" => $members_ids_one_dimensional,
+            ":gid" => $group_id
+        )
+    ));
     if ($result) {
         $rows = _mysql_num_rows($result);
         for ($i = 0; $i < $rows; $i++) {
@@ -198,21 +233,35 @@ function group_add_member($group_id, $members, $Status, $make_default = false) {
     if (!$members_ids_one_dimensional) {
         throw new Exception('User is already in that group.');
     }
-    $insert_str = 'INSERT INTO user_groups VALUES ';
+    $insert_str = "INSERT INTO user_groups VALUES ";
+    $params = array();
     for ($i = 0; $i < count($members_ids_one_dimensional); $i++) {
-        $insert_str .='(' . $members_ids_one_dimensional[$i] . ',' .$group_id . ',' . $Status . '),';
+        $insert_str .="( :mid_$i, :gid, :status),";
+        $params[":mid_$i"] = $members_ids_one_dimensional[$i];
     }
+    $params[":gid"] = $group_id;
+    $params[":status"] = $Status;
     $insert_str = StringTrimRight($insert_str, 1);
 
     if ($make_default) {
         group_set_default($members_ids_one_dimensional,$group_id);
     }
 
-    return _mysql_query($insert_str);
+    return _mysql_prepared_query(array(
+        "query" => $insert_str,
+        "params" => $params
+    ));
 }
 
 function group_add_memberById($group, $member, $status) {
-    _mysql_query("INSERT INTO user_groups VALUES ('".$member."','".$group."','".$status."')");
+    _mysql_prepared_query(array(
+        "query" => "INSERT INTO user_groups VALUES (':member',':group',':status')",
+        "params" => array(
+            ":member" => $member,
+            ":group" => $group,
+            ":status" => $status
+        )
+    ));
 }
 
 function array_remove_value($array, $value) {
@@ -244,17 +293,23 @@ function group_set_info_by_id($gid)
     if ($gid==0 || $gid == ""){return false;}
     $table_columns = DBGetColumnsList("groups");
     $tobase = 'UPDATE groups SET ';
+    $params = array();
     for($i = 1;$i < count($table_columns);$i++) 
     {
             $data = $_POST[$table_columns[$i]];
             if(isset($data)){
-                $tobase .= $table_columns[$i]." = '".$data."',";
+                $tobase .= $table_columns[$i]." = :".$i.",";
+                $params[":".$i] = $data;
             }
 
     }
     $tobase = StringTrimRight($tobase,1);
-    $tobase .= ' WHERE id='.$gid;
-    return _mysql_query($tobase);
+    $tobase .= ' WHERE id=:id';
+    $params[':id'] =  $gid;
+    return _mysql_prepared_query(array(
+        "query" => $tobase,
+        "params" => $params
+    ));
 }
 
 function group_remove_hidden_selective($groups){
