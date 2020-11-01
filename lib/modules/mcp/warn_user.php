@@ -49,7 +49,6 @@ class warn_user{
                         }
                     }
                 }
-                dbg("test", $_POST['verbal'], checkbox_to_int($_POST['verbal']));
                 if(isset($_GET['uid'])){
                     $uinfo = user_get_info_by_id($_GET['uid']);
                     if($uinfo){
