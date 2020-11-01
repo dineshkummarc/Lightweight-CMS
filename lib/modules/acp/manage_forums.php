@@ -89,7 +89,13 @@ class manage_forums{
                 if(!isset($_GET['mode'])){$_GET['mode']= 'view';}
                 switch($_GET['mode']){
                     case 'setorder':
-                        _mysql_query("UPDATE forum SET display_order='".$_POST['order']."' WHERE forum_id='".$_POST['fid']."' ");
+                        _mysql_prepared_query(array(
+                        "query" => "UPDATE forum SET display_order=:order WHERE forum_id=:fid",
+                            "params" => array(
+                                ":order" => $_POST['order'],
+                                ":fid" => $_POST['fid']
+                            )
+                        ));
                         die();
                         break;
                     case 'view':
