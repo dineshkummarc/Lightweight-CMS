@@ -15,16 +15,32 @@ class warn_user{
             case 'warn_user':
                 if($_GET['mode'] == "delete"){
                     if(isset($_POST['warn'])){
-                        $result = _mysql_query("SELECT warn.id, users.username,  users.user_id, points FROM warn
-LEFT JOIN users
-ON warn.user_id = users.user_id
-WHERE  warn.id =  '".$_POST['warn']."'
-");
+                        $query = "SELECT warn.id, users.username,  users.user_id, points FROM warn
+                                    LEFT JOIN users
+                                    ON warn.user_id = users.user_id
+                                    WHERE  warn.id = :warn_id";
+                        $result = _mysql_prepared_query(array(
+                            "query" => $query,
+                            "params" => array(
+                                ":warn_id" => $_POST['warn']
+                            )
+                        ));
                         $arr = _mysql_fetch_assoc($result);
                         if(is_array($arr)){
                             log_event('MODERATOR', $current_user['name'], $_SERVER['REMOTE_ADDR'], "UNWARN USER", 'Removed '.$arr['points'].' warn from user <a href="../profile.php?uid='.$arr['user_id'].'">'.$arr['username'].'</a>');
-                            _mysql_query("DELETE FROM warn WHERE id = '".$_POST['warn']."'");
-                            _mysql_query("UPDATE users SET user_warn=user_warn-".$arr['points']." WHERE user_id='".$arr['user_id']."'");
+                            _mysql_prepared_query(array(
+                                "query" => "DELETE FROM warn WHERE id = :warn_id",
+                                "params" => array(
+                                    ":warn_id" => $_POST['warn']
+                                )
+                            ));
+                            _mysql_prepared_query(array(
+                                "query" => "UPDATE users SET user_warn=user_warn - :points WHERE user_id=:uid",
+                                "params" => array(
+                                    ":points" => $arr['points'],
+                                    ":uid" => $arr['user_id']
+                                )
+                            ));
                             $this->template = "success_module";
                             $this->vars=array(
                                 'SUCCESSMSG' => $language['notifications']['warn_remove'].$notification_back_link
@@ -33,19 +49,28 @@ WHERE  warn.id =  '".$_POST['warn']."'
                         }
                     }
                 }
+                dbg("test", $_POST['verbal'], checkbox_to_int($_POST['verbal']));
                 if(isset($_GET['uid'])){
                     $uinfo = user_get_info_by_id($_GET['uid']);
                     if($uinfo){
                         if(isset($_POST['points'])){
-                            $isVerbal = "0";
-                            if(isset($_POST['verbal'])){
-                                $isVerbal = $_POST['verbal'];
-                            }
-                            $query = "INSERT INTO ".warn." VALUES (NULL, ".$_GET['uid'].", 0, ".time().", '".$_POST['reason']."', ".$_POST['points']." ,".$isVerbal.")";
-                            //SELECT post_id, 'time', message, points, type,  post_title  FROM warn, post WHERE $post_info[0]['user_id'] AND post.user_id = warn.user_id
-                            $update = "UPDATE ".users." SET user_warn=user_warn+".$_POST['points']." WHERE user_id=".$_GET['uid'];
-                            _mysql_query($query);
-                            _mysql_query($update);
+                            _mysql_prepared_query(array(
+                                "query" => "INSERT INTO warn VALUES (NULL, :uid, 0, :time, :reason, :points, :verbal)",
+                                "params" => array(
+                                    ":uid" => $_GET['uid'],
+                                    ":time" => time(),
+                                    ":reason" => $_POST['reason'],
+                                    ":points" => $_POST['points'],
+                                    ":verbal" => checkbox_to_int($_POST['verbal'])
+                                )
+                            ));
+                            _mysql_prepared_query(array(
+                                "query" => "UPDATE users SET user_warn=user_warn + :points WHERE user_id=:uid",
+                                "params" => array(
+                                    ":points" => $_POST['points'],
+                                    ":uid" => $_GET['uid'],
+                                )
+                            ));
                             log_event('MODERATOR', $current_user['name'], $_SERVER['REMOTE_ADDR'], "WARN USER", 'Warned user <a href="../profile.php?uid='.$_GET['uid'].'">'.$uinfo[0]['username'].'</a>');
                             $this->template = "success_module";
                             $this->vars=array(
@@ -65,11 +90,25 @@ WHERE  warn.id =  '".$_POST['warn']."'
                     $post_info = post_get_info($_GET['p']);
                     if($post_info){
                         if(isset($_POST['points'])){
-                            $query = "INSERT INTO warn VALUES (NULL, ".$post_info[0]['user_id'].", ".$post_info[0]['id'].", ".time().", '".$_POST['reason']."', ".$_POST['points']." ,".checkbox_to_int($_POST['verbal']).")";
-                            $update = "UPDATE ".users." SET user_warn=user_warn+".$_POST['points']." WHERE user_id=".$post_info[0]['user_id'];
                             log_event('MODERATOR', $current_user['name'], $_SERVER['REMOTE_ADDR'], "WARN USER", 'Warned user <a href="../profile.php?uid='.$post_info[0]['user_id'].'">'.$post_info[0]['username'].'</a> for post <a href="'.$post_info[0]['id'].'">'.$post_info[0]['post_title'].'</a>');
-                            _mysql_query($query);
-                            _mysql_query($update);
+                            _mysql_prepared_query(array(
+                                "query" => "INSERT INTO warn VALUES (NULL, :uid, :pid, :time, :reason, :points, :verbal)",
+                                "params" => array(
+                                    ":uid" => $post_info[0]['user_id'],
+                                    ":pid" => $post_info[0]['id'],
+                                    ":time" => time(),
+                                    ":reason" => $_POST['reason'],
+                                    ":points" => $_POST['points'],
+                                    ":verbal" => checkbox_to_int($_POST['verbal'])
+                                )
+                            ));
+                            _mysql_prepared_query(array(
+                                "query" => "UPDATE users SET user_warn=user_warn+:points WHERE user_id=:uid",
+                                "params" => array(
+                                    ":points" => $_POST['points'],
+                                    ":uid" => $post_info[0]['user_id']
+                                )
+                            ));
                             $this->template = "success_module";
                             $this->vars=array(
                                 'SUCCESSMSG' => $language['notifications']['warn_success']."<br> <a href=\"".$_SERVER['REQUEST_URI']."\">back</a> "

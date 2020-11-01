@@ -42,8 +42,8 @@
 
     var tableData = {%$TEMPLATE_VARS['WARN']%}
 
-    function deleteWarn() {
-        postdata('./mcp.php?id={%$_GET["id"]%}&a={%$_GET["a"]%}&mode=delete', 'post', {'warn': id});
+    function deleteWarn(id) {
+        postdata('./mcp.php?id={%$_GET["id"]%}&a=warn_user&mode=delete', 'post', {'warn': id});
     }
     hWnd = document.getElementById('warnlist');
     hWnd.innerHTML = buildTable(tableConfig, tableData, valueMap);

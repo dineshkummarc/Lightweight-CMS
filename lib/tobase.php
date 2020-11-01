@@ -68,7 +68,7 @@ function sanitarize_input($escape_html = true, $escape_sql = true)
 
 function checkbox_to_int($str)
 {
-    if ($str == "on" || $str == "true") {
+    if ($str == "on" || $str == "true" || $str == "1") {
         return 1;
     }
     return 0;
